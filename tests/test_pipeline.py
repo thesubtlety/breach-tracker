@@ -219,3 +219,33 @@ def test_vcdb_actor_vector_and_data_mapping():
     assert out["actor"]["variety"] == "organized_crime" and out["actor"]["name"] == "LockBit" and out["actor"]["country"] == "RU"
     assert out["entry_asset"] == "vpn_or_edge_device" and out["cve"] == ["CVE-2023-4966"] and out["ransomware"] is True
     assert out["data_types"] == ["medical", "personal"] and out["initial_access"] == "exploit_public_facing_app"
+
+
+# --- Maine notice parsing (pages fetched from a US address) ----------------------------
+MAINE_HTML = """<html><body><h1>Data Breach Notices</h1><h2>Entity Information</h2>
+<p>Type of Organization:</p><p>Healthcare</p><p>Entity Name:</p><p>Acme Medical Group, P.C.</p>
+<p>State, or Country if outside the US:</p><p>United States</p>
+<h2>Breach Information</h2>
+<p>Total number of persons affected (including residents):</p><p>105387</p>
+<p>Total number of Maine residents affected:</p><p>370</p>
+<p>Date(s) Breach Occured:</p><p>05/28/2026</p><p>Date Breach Discovered:</p><p>06/01/2026</p>
+<p>Description of the Breach:</p><p>External system breach (hacking)</p>
+<p>Information Acquired -  Name or other personal identifier in combination with:</p>
+<p>Social Security Number; Medical information</p>
+<p>Type of Notification:</p><p>Written</p><p>Date(s) of consumer notification:</p><p>09/04/2026</p>
+</body></html>"""
+
+
+def test_maine_notice_parses_fields_and_builds_a_regulator_record():
+    from sources import parse_maine_notice
+    c = parse_maine_notice(MAINE_HTML, "https://www.maine.gov/agviewer/content/ag/x/abc.shtml")
+    assert c["org_name"] == "Acme Medical Group, P.C." and c["disclosed_date"] == "2026-09-04"
+    h = c["structured_hint"]
+    assert h["breach_description"] == "External system breach (hacking)" and h["persons_affected"] == "105387"
+    assert h["information_acquired"].startswith("Social Security")
+    c["all_sources"] = [{"url": c["source_url"], "type": "state_ag", "title": None}]
+    r = deterministic_record(c, "2026-10-09")
+    assert r and not validate(r)
+    assert (r["org_type"], r["veris_action"], r["records_affected"], r["discovered_date"]) == ("healthcare", "hacking", 105387, "2026-06-01")
+    assert r["data_types"] == ["medical", "personal"]
+    assert parse_maine_notice("<html><body>nothing here</body></html>", "u") is None
