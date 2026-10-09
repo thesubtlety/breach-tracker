@@ -167,8 +167,8 @@ def incident_date(rec: dict) -> str | None:
 
 def map_record(rec: dict, run_date: str) -> dict | None:
     name = (rec.get("victim", {}).get("victim_id") or "").strip()
-    if not name or name.lower() == "unknown":
-        return None
+    if not name or name.lower().startswith(("unknown", "unnamed")):
+        return None  # a record with no organization can never be matched or corrected
     date = incident_date(rec)
     if not date:
         return None
