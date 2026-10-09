@@ -9,12 +9,13 @@ import argparse
 import logging
 import re
 import sys
+from datetime import date, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from common import (CANDIDATES_PATH, INCIDENTS_PATH, PROMPT_VERSION, make_id,  # noqa: E402
-                    normalize_org, read_jsonl, today, validate, write_jsonl)
+from common import (CANDIDATES_PATH, INCIDENTS_PATH, PROCESSED_PATH, PROMPT_VERSION,  # noqa: E402
+                    make_id, normalize_org, read_jsonl, today, validate, write_jsonl)
 from dedupe import dedupe  # noqa: E402
 from fetch_text import fetch_text  # noqa: E402
 from sources import collect  # noqa: E402
@@ -176,13 +177,22 @@ def main() -> int:
 
     # The queue: data/candidates.jsonl holds raw, unprocessed candidates keyed by URL.
     # Daily collects append; the weekly run drains. This is how we beat shallow RSS feeds.
+    # data/processed.jsonl remembers every URL a run has handled (stored, skipped, no
+    # text...) so a feed that still lists last week's article doesn't re-queue it.
     queue = read_jsonl(CANDIDATES_PATH)
     queued_urls = {c["source_url"] for c in queue}
+    processed = read_jsonl(PROCESSED_PATH)
+    processed_urls = {p["url"] for p in processed}
     if not args.no_collect:
         fresh = collect(args.since_days, args.only.split(",") if args.only else None)
-        added = [c for c in fresh if c["source_url"] not in queued_urls]
+        added = []
+        for c in fresh:  # one feed can list a URL twice, and Mastodon posts link the same article
+            if c["source_url"] not in queued_urls and c["source_url"] not in processed_urls:
+                added.append(c)
+                queued_urls.add(c["source_url"])
         queue.extend(added)
-        log.info("queue: %d existing + %d new = %d", len(queued_urls), len(added), len(queue))
+        log.info("queue: %d existing + %d new (%d already processed) = %d",
+                 len(queued_urls), len(added), len(fresh) - len(added), len(queue))
     if args.collect_only:
         write_jsonl(CANDIDATES_PATH, queue)
         return 0
@@ -200,15 +210,16 @@ def main() -> int:
     known_urls = {s["url"] for r in store for s in r["sources"]}
     known_ids = {r["id"] for r in store}
     llm_calls = 0
-    processed_urls: set[str] = set()
+    handled: set[str] = set()
 
-    def done(c: dict) -> None:
+    def done(c: dict, outcome: str) -> None:
         for s in c.get("all_sources", [{"url": c["source_url"]}]):
-            processed_urls.add(s["url"])
+            handled.add(s["url"])
+            processed.append({"url": s["url"], "outcome": outcome, "date": run_date})
 
     for c in cands:
         if c["source_url"] in known_urls:
-            done(c)
+            done(c, "already_stored")
             continue
         if c.get("org_name") and make_id(c["org_name"], c["disclosed_date"]) in known_ids \
                 and c["source_type"] in ("hhs_portal", "state_ag", "ransomware_leak_site"):
@@ -216,7 +227,7 @@ def main() -> int:
             rec = next(r for r in store if r["id"] == make_id(c["org_name"], c["disclosed_date"]))
             rec["sources"].append({"url": c["source_url"], "type": c["source_type"],
                                    "title": c.get("title"), "fetched_at": None})
-            done(c)
+            done(c, "attached")
             continue
 
         # Regulator rows and leak-site claims carry no narrative worth an LLM call;
@@ -225,7 +236,7 @@ def main() -> int:
             rec = deterministic_record(c, run_date)
             if rec:
                 merge_into_store(store, rec)
-            done(c)
+            done(c, "stored" if rec else "invalid")
             continue
 
         if args.limit and llm_calls >= args.limit:
@@ -233,17 +244,22 @@ def main() -> int:
             break
 
         text = c.get("text") or fetch_text(c["source_url"])
+        if (not text or len(text) < 200) and len((c.get("structured_hint") or {}).get("summary") or "") >= 300:
+            # Page blocked (databreaches.net sits behind a bot challenge); the feed
+            # summary is the first paragraph and usually names the victim.
+            text = c["structured_hint"]["summary"]
+            c["structured_hint"]["note"] = "article page unfetchable; extracted from the feed summary only"
         if not text or len(text) < 200:
             log.info("no usable text for %s; dropped", c["source_url"])
-            done(c)  # don't retry forever; verify_sources tracks fetch failure rate
+            done(c, "no_text")  # don't retry forever; verify_sources tracks fetch failure rate
             continue
         if not mostly_english(text):
             log.info("non-English text; dropped without LLM: %s", c["source_url"])
-            done(c)
+            done(c, "non_english")
             continue
         if c["source_type"] == "sec_8k" and not looks_like_incident_8k(text):
             log.info("8-K without an incident item; dropped without LLM: %s", c["source_url"])
-            done(c)
+            done(c, "not_incident_8k")
             continue
 
         llm_calls += 1
@@ -254,12 +270,14 @@ def main() -> int:
             continue
         if rec:
             merge_into_store(store, rec)
-        done(c)
+        done(c, "stored" if rec else "skipped")
 
     store.sort(key=lambda r: (r["disclosed_date"], normalize_org(r["org_name"])), reverse=True)
     write_jsonl(INCIDENTS_PATH, store)
-    remaining = [c for c in queue if c["source_url"] not in processed_urls]
+    remaining = [c for c in queue if c["source_url"] not in handled]
     write_jsonl(CANDIDATES_PATH, remaining)
+    cutoff = (date.today() - timedelta(days=120)).isoformat()  # feeds never look back that far
+    write_jsonl(PROCESSED_PATH, [p for p in processed if p["date"] >= cutoff])
     log.info("store: %d incidents; queue: %d left. LLM calls=%d input_tokens=%d output_tokens=%d",
              len(store), len(remaining), usage_totals["calls"], usage_totals["input"], usage_totals["output"])
     return 0

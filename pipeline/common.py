@@ -14,7 +14,8 @@ SITE_DIR = ROOT / "site"
 SCHEMA_PATH = ROOT / "schema" / "incident.schema.json"
 PROMPT_PATH = ROOT / "prompts" / "extract.md"
 INCIDENTS_PATH = DATA_DIR / "incidents.jsonl"
-CANDIDATES_PATH = DATA_DIR / "candidates.jsonl"   # raw, pre-LLM, for debugging
+CANDIDATES_PATH = DATA_DIR / "candidates.jsonl"   # the queue: collected, not yet processed
+PROCESSED_PATH = DATA_DIR / "processed.jsonl"     # every URL the run has handled, with its outcome
 PROMPT_VERSION = "v1"
 
 # SEC and most public sites want a descriptive User-Agent with a contact.

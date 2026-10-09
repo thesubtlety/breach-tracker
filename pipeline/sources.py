@@ -381,7 +381,8 @@ def rss(since: date) -> list[dict]:
                 "source_url": e.get("link"),
                 "title": title,
                 "text": None,
-                "structured_hint": {"feed": feed},
+                "structured_hint": {"feed": feed,
+                                    "summary": BeautifulSoup(e.get("summary", ""), "lxml").get_text(" ", strip=True)[:1500] or None},
                 "evidence_level_hint": "press_report",
                 "org_country": "unknown",
             })
