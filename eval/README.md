@@ -55,3 +55,18 @@ dollars each; candidates are cents. Re-running after a prompt change is the same
   overflowed). `verify_sources.py` tracks that side.
 - Drift over time. Keep 20 of these docs as a fixed regression set and re-run the
   production model on them weekly (RISKS.md S2).
+
+## First run (2026-10-09)
+
+20 docs (10 8-Ks, 8 articles, 2 Mastodon posts), one reference (gpt-6-astra; no second
+family key was available) and hand labels on every doc by the reviewer, so the scores
+in `results.md` are against human gold, not silver. Findings:
+
+- All four models agreed with the human on the real incidents (Astrana social
+  engineering, Conduent unknown, FBI exploit) and skipped every merger exhibit.
+- gpt-5.4-nano extracted "Qilin ransomware group" and "South American retailer" as
+  victims from non-incident articles; `prec_known` 0.4. Not usable.
+- gpt-5.4-mini extracted Asahi from an arrest story (one confident miss out of 18).
+- Every model extracted two Arabic retrospective posts as current incidents. Fixed in
+  the pipeline (`run.mostly_english` guard, prompt rule on retrospectives), not by
+  model choice.

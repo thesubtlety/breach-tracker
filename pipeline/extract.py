@@ -143,13 +143,14 @@ def _call_openai_compat(system: str, user: str, schema: dict, provider: str, mod
     base = os.environ.get("LLM_BASE_URL", BASE_URLS[provider])
     payload = {
         "model": model,
-        "temperature": 0,
         "messages": [
             {"role": "system", "content": system + "\n\nReturn a JSON object with keys skip, reason, incident "
                                                    "matching this JSON Schema:\n" + json.dumps(schema)},
             {"role": "user", "content": user},
         ],
     }
+    if os.environ.get("LLM_TEMPERATURE"):  # newer OpenAI models reject anything but the default
+        payload["temperature"] = float(os.environ["LLM_TEMPERATURE"])
     if os.environ.get("LLM_JSON_SCHEMA_MODE") == "1":
         payload["response_format"] = {"type": "json_schema",
                                       "json_schema": {"name": "incident_wrapper", "schema": schema}}
@@ -181,6 +182,10 @@ def call_llm(system: str, user: str, schema: dict, provider: str | None = None,
                 return _call_anthropic(system, user, schema, model)
             return _call_openai_compat(system, user, schema, provider, model)
         except (requests.HTTPError, requests.ConnectionError, json.JSONDecodeError, ValueError) as e:
+            resp = getattr(e, "response", None)
+            if resp is not None and 400 <= resp.status_code < 500 and resp.status_code != 429:
+                log.error("llm call rejected: %s %s", e, resp.text[:300])
+                raise  # a bad request won't fix itself; don't burn 35s on retries
             wait = 2 ** attempt * 5
             log.warning("llm call failed (%s); retry in %ss", e, wait)
             time.sleep(wait)
@@ -236,6 +241,9 @@ def extract_one(c: dict, text: str, run_date: str, provider: str | None = None,
     inc = out.get("incident") or {}
     inc = post_check(inc, text)
     inc.setdefault("org_name", c.get("org_name") or "")
+    # "Federal Bureau of Investigation (FBI)" and "Federal Bureau of Investigation" must
+    # collapse to one id; the prompt asks for no parentheticals but models add them anyway.
+    inc["org_name"] = re.sub(r"\s*\([^)]*\)\s*$", "", inc["org_name"]).strip() or inc["org_name"]
     inc["disclosed_date"] = c["disclosed_date"]
     # Evidence can only be as strong as the source we actually read.
     if c.get("evidence_level_hint") == "actor_claimed":

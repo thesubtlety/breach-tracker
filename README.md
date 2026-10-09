@@ -10,8 +10,9 @@ about what it doesn't know, and cheap enough to keep running" is.
 Status: fetchers verified against the live sites (October 2026): SEC EDGAR, HHS (via
 the portal's CSV export), RSS and Mastodon return candidates; ransomware.live needs a
 free PRO key; Maine AG serves its notice list only to US addresses, so it works from
-GitHub's runners but not from every laptop. The LLM extraction path has not yet been
-run end to end (no provider key configured). See "First run".
+GitHub's runners but not from every laptop. First model run and a 20-document eval done 2026-10-09 with the OpenAI key:
+see `eval/results.md`. gpt-6-luna is the configured extractor; gpt-5.4-mini is the
+fallback if cost matters; gpt-5.4-nano guesses too often. See "First run".
 
 Three phases, in order:
 

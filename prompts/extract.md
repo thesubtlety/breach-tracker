@@ -50,9 +50,13 @@ Rules:
    discovered, if stated. disclosed_date is given to you; echo it.
 10. summary: one neutral sentence. No adjectives like "massive" or "sophisticated".
 11. If "Target organization" is not known, identify the single organization whose
-    incident the text is about. If the text is not about a specific organization's
+    incident the text is about. org_name is the organization's common name with no
+    abbreviation or parenthetical appended ("Federal Bureau of Investigation", not
+    "Federal Bureau of Investigation (FBI)"). If the text is not about a specific organization's
     incident (a trend piece, a vulnerability advisory, a product announcement, a roundup
     of many unrelated incidents), return {"skip": true, "reason": "<short reason>"}.
+    Also skip retrospectives: a write-up of an incident from an earlier year that is
+    not reporting anything new, and any text not written in English.
 12. Output only a JSON object of the form
     {"skip": false, "reason": null, "incident": { ...fields... }}
     or {"skip": true, "reason": "..."}. The incident object must validate against the

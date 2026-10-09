@@ -7,7 +7,7 @@ import re
 
 from bs4 import BeautifulSoup
 
-from sources import _get
+from sources import BROWSER_UA, _get
 
 log = logging.getLogger("fetch_text")
 logging.getLogger("trafilatura").setLevel(logging.CRITICAL)  # it shouts at every 8-K
@@ -16,6 +16,8 @@ MAX_CHARS = 12_000
 
 def fetch_text(url: str) -> str | None:
     r = _get(url)
+    if not r and "sec.gov" not in url:  # some news sites 403 non-browser agents
+        r = _get(url, headers={"User-Agent": BROWSER_UA})
     if not r:
         return None
     html = r.text

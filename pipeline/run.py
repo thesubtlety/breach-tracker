@@ -64,6 +64,13 @@ def looks_like_incident_8k(text: str) -> bool:
     return False
 
 
+def mostly_english(text: str) -> bool:
+    """Non-English sources are out of scope (README); every model we tried extracts
+    them anyway, so refuse before paying for the call."""
+    letters = [ch for ch in text if ch.isalpha()]
+    return not letters or sum(ch.isascii() for ch in letters) / len(letters) >= 0.8
+
+
 def _int(s) -> int | None:
     try:
         return int(str(s).replace(",", "").strip())
@@ -230,6 +237,10 @@ def main() -> int:
             log.info("no usable text for %s; dropped", c["source_url"])
             done(c)  # don't retry forever; verify_sources tracks fetch failure rate
             continue
+        if not mostly_english(text):
+            log.info("non-English text; dropped without LLM: %s", c["source_url"])
+            done(c)
+            continue
         if c["source_type"] == "sec_8k" and not looks_like_incident_8k(text):
             log.info("8-K without an incident item; dropped without LLM: %s", c["source_url"])
             done(c)
@@ -239,7 +250,7 @@ def main() -> int:
         try:
             rec = extract_one(c, text, run_date)
         except Exception as e:  # noqa: BLE001
-            log.exception("extract failed for %s; kept in queue", c["source_url"], e)
+            log.exception("extract failed for %s; kept in queue", c["source_url"])
             continue
         if rec:
             merge_into_store(store, rec)
