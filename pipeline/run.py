@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from common import (CANDIDATES_PATH, CLAIMS_PATH, INCIDENTS_PATH, MERGE_WINDOW_DAYS,  # noqa: E402
                     PROCESSED_PATH, PROMPT_VERSION, make_id, normalize_org, read_jsonl, today,
-                    validate, write_jsonl)
+                    url_key, validate, write_jsonl)
 from actors import default_actor, default_third_party, enrich_actor  # noqa: E402
 from dedupe import dedupe  # noqa: E402
 from fetch_text import fetch_text  # noqa: E402
@@ -271,12 +271,12 @@ def main() -> int:
     queue = read_jsonl(CANDIDATES_PATH)
     queued_urls = {c["source_url"] for c in queue}
     processed = read_jsonl(PROCESSED_PATH)
-    processed_urls = {p["url"] for p in processed}
+    processed_keys = {p["key"] for p in processed}
     if not args.no_collect:
         fresh = collect(args.since_days, args.only.split(",") if args.only else None)
         added = []
         for c in fresh:  # one feed can list a URL twice, and Mastodon posts link the same article
-            if c["source_url"] not in queued_urls and c["source_url"] not in processed_urls:
+            if c["source_url"] not in queued_urls and url_key(c["source_url"]) not in processed_keys:
                 added.append(c)
                 queued_urls.add(c["source_url"])
         queue.extend(added)
@@ -308,7 +308,7 @@ def main() -> int:
     def done(c: dict, outcome: str) -> None:
         for s in c.get("all_sources", [{"url": c["source_url"]}]):
             handled.add(s["url"])
-            processed.append({"url": s["url"], "outcome": outcome, "date": run_date})
+            processed.append({"key": url_key(s["url"]), "outcome": outcome, "date": run_date})
 
     for c in cands:
         if c["source_url"] in known_urls:

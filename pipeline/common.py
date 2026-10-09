@@ -51,6 +51,12 @@ def make_id(org_name: str, disclosed_date: str) -> str:
     return hashlib.sha1(key.encode()).hexdigest()
 
 
+def url_key(url: str) -> str:
+    """Processed-log key. A hash, not the URL: the log is committed, and leak-site
+    permalinks encode the victim name."""
+    return hashlib.sha1(url.encode()).hexdigest()[:20]
+
+
 def today() -> str:
     return date.today().isoformat()
 
