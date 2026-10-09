@@ -218,3 +218,16 @@ Commercial-use license: $500–1,500/year, paid by invoice. This is the one that
 Mechanics: Stripe Payment Links plus Stripe Invoicing is the lowest-friction path if you’re US-based and fine handling tax yourself (standard card fees, no monthly cost). If you want a merchant of record that handles international tax and can gate a GitHub repo or issue license keys, Polar’s Starter plan is free monthly at 5% + 50¢ per transaction, with cheaper rates on paid plans; Lemon Squeezy and Paddle are the same 5% + 50¢ shape.
 
 Two constraints before taking any money: the paid product has to exclude ransomware.live-derived fields unless they approve commercial use, and EuRepoC can’t be in it at all (NC). VCDB’s share-alike is fine for charging but the derivative stays CC BY-SA. And put “best effort, no uptime or accuracy guarantee” in the terms; once money changes hands, people expect both.
+
+Ransomware.live's API policy, which applies now and not just to a paid tier:
+
+- Query fairly. Their data is cached for 30 minutes; polling more often returns nothing
+  fresher and counts as abuse. The daily collect makes one request per run.
+- Do not relay other people's queries to them. Users of anything built on this data query
+  this system, never Ransomware.live directly.
+- No redistribution as an API or feed, and no publishing of their raw data in any form
+  (API, file, or otherwise). This pipeline stores only the claim tag, group name, date,
+  sector, and a permalink; `site/incidents.json` and `incidents.csv` therefore carry
+  those fields and nothing else from them.
+- No quota circumvention: one account, one key.
+- No website or dashboard that mimics their look, layout, or branding.
