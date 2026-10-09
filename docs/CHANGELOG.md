@@ -33,8 +33,9 @@ Additive. Existing records migrated with `pipeline/migrate.py` (new fields unkno
   join a record within a 45-day window or on a matching incident_date (was: same
   calendar month, which split a late-September breach from its October coverage).
   Existing ids are unchanged.
-- Publication rule: records whose only source is a ransomware leak-site post are
-  kept in the store but withheld from the site, JSON and CSV (Ransomware.live terms).
+- Publication rule: a ransomware leak-site claim with no confirming source never
+  enters the committed store; it waits in a private `data/claims.jsonl` and attaches
+  to the record once a filing or article confirms the incident (Ransomware.live terms).
 - Pipeline memory: `data/processed.jsonl` records every handled URL and outcome so
   skipped or unfetchable articles are not re-sent to the model.
 - Language guard: non-English text is dropped before the model call.

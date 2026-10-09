@@ -35,8 +35,36 @@ def to_1_1(r: dict) -> dict:
     return r
 
 
+def claim_only(r: dict) -> bool:
+    return all(s["type"] == "ransomware_leak_site" for s in r.get("sources", []))
+
+
+def move_claims_out(rows: list[dict]) -> list[dict]:
+    """Claim-only records leave the public store for the private claims file, as the
+    candidates they were built from."""
+    from common import CLAIMS_PATH
+    claims = read_jsonl(CLAIMS_PATH)
+    urls = {c["source_url"] for c in claims}
+    keep = []
+    for r in rows:
+        if not claim_only(r):
+            keep.append(r)
+            continue
+        s = r["sources"][0]
+        if s["url"] not in urls:
+            claims.append({"org_name": r["org_name"], "disclosed_date": r["disclosed_date"],
+                           "source_type": "ransomware_leak_site", "source_url": s["url"], "title": s.get("title"),
+                           "text": None, "structured_hint": {"group": (r.get("actor") or {}).get("name"),
+                                                             "attribution": "Source: Ransomware.live"},
+                           "evidence_level_hint": "actor_claimed", "org_country": r.get("org_country", "unknown")})
+            urls.add(s["url"])
+    write_jsonl(CLAIMS_PATH, claims)
+    print(f"moved {len(rows) - len(keep)} claim-only records to {CLAIMS_PATH.name} (private)")
+    return keep
+
+
 def main() -> int:
-    rows = read_jsonl(INCIDENTS_PATH)
+    rows = move_claims_out(read_jsonl(INCIDENTS_PATH))
     out, bad = [], 0
     for r in rows:
         r = to_1_1(r)

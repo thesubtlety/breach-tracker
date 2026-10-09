@@ -14,8 +14,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from common import (CANDIDATES_PATH, INCIDENTS_PATH, MERGE_WINDOW_DAYS, PROCESSED_PATH,  # noqa: E402
-                    PROMPT_VERSION, make_id, normalize_org, read_jsonl, today, validate, write_jsonl)
+from common import (CANDIDATES_PATH, CLAIMS_PATH, INCIDENTS_PATH, MERGE_WINDOW_DAYS,  # noqa: E402
+                    PROCESSED_PATH, PROMPT_VERSION, make_id, normalize_org, read_jsonl, today,
+                    validate, write_jsonl)
 from actors import default_actor, default_third_party, enrich_actor  # noqa: E402
 from dedupe import dedupe  # noqa: E402
 from fetch_text import fetch_text  # noqa: E402
@@ -197,6 +198,33 @@ def find_record(store: list[dict], org_name: str, disclosed_date: str,
     return best
 
 
+def attach_claim(rec: dict, c: dict) -> None:
+    """A leak-site claim about an incident another source confirmed: add the link and
+    what the claim tells you (group, extortion), nothing else."""
+    if c["source_url"] not in {s["url"] for s in rec["sources"]}:
+        rec["sources"].append({"url": c["source_url"], "type": "ransomware_leak_site",
+                               "title": c.get("title"), "fetched_at": None})
+    hint = (c.get("structured_hint") or {}).get("ransomware_leak_site") or c.get("structured_hint") or {}
+    if rec.get("ransomware") is None:
+        rec["ransomware"] = True
+    if not (rec.get("actor") or {}).get("name") and hint.get("group"):
+        rec["actor"] = enrich_actor(dict(rec.get("actor") or default_actor(), name=hint["group"]))
+
+
+def settle_claims(store: list[dict], claims: list[dict]) -> list[dict]:
+    """Pending claims that now match a confirmed record attach to it; the rest stay
+    pending. Claims older than a year are dropped: nothing is going to confirm them."""
+    cutoff = (date.today() - timedelta(days=365)).isoformat()
+    pending = []
+    for c in claims:
+        rec = find_record(store, c["org_name"], c["disclosed_date"])
+        if rec:
+            attach_claim(rec, c)
+        elif c["disclosed_date"] >= cutoff:
+            pending.append(c)
+    return pending
+
+
 def merge_into_store(store: list[dict], new: dict) -> None:
     """Attach to the matching record (see find_record) or append. When attaching, keep
     the richer record under the existing id; union sources; never overwrite reviewed=True."""
@@ -269,6 +297,11 @@ def main() -> int:
 
     store = read_jsonl(INCIDENTS_PATH)
     known_urls = {s["url"] for r in store for s in r["sources"]}
+    # Leak-site claims never enter the public store on their own (Ransomware.live terms:
+    # no raw data publishing). They wait in a private file until another source
+    # confirms the incident, then attach to it as a tag.
+    claims = read_jsonl(CLAIMS_PATH)
+    claim_urls = {c["source_url"] for c in claims}
     llm_calls = 0
     handled: set[str] = set()
 
@@ -282,16 +315,26 @@ def main() -> int:
             done(c, "already_stored")
             continue
         existing = find_record(store, c["org_name"], c["disclosed_date"]) if c.get("org_name") else None
-        if existing and c["source_type"] in ("hhs_portal", "state_ag", "ransomware_leak_site"):
+        if c["source_type"] == "ransomware_leak_site":
+            if existing:
+                attach_claim(existing, c)
+                done(c, "attached")
+            else:
+                if c["source_url"] not in claim_urls:
+                    claims.append(c)
+                    claim_urls.add(c["source_url"])
+                done(c, "claim_pending")
+            continue
+        if existing and c["source_type"] in ("hhs_portal", "state_ag"):
             # Already have this incident from a richer source; just attach the link.
             existing["sources"].append({"url": c["source_url"], "type": c["source_type"],
                                         "title": c.get("title"), "fetched_at": None})
             done(c, "attached")
             continue
 
-        # Regulator rows and leak-site claims carry no narrative worth an LLM call;
-        # build them from their checkboxes. Only 8-Ks, press and posts go to the model.
-        if c["source_type"] in ("hhs_portal", "state_ag", "ransomware_leak_site"):
+        # Regulator rows carry no narrative worth an LLM call; build them from their
+        # checkboxes. Only 8-Ks, press and posts go to the model.
+        if c["source_type"] in ("hhs_portal", "state_ag"):
             rec = deterministic_record(c, run_date)
             if rec:
                 merge_into_store(store, rec)
@@ -331,14 +374,16 @@ def main() -> int:
             merge_into_store(store, rec)
         done(c, "stored" if rec else "skipped")
 
+    claims = settle_claims(store, claims)
+    write_jsonl(CLAIMS_PATH, claims)
     store.sort(key=lambda r: (r["disclosed_date"], normalize_org(r["org_name"])), reverse=True)
     write_jsonl(INCIDENTS_PATH, store)
     remaining = [c for c in queue if c["source_url"] not in handled]
     write_jsonl(CANDIDATES_PATH, remaining)
     cutoff = (date.today() - timedelta(days=120)).isoformat()  # feeds never look back that far
     write_jsonl(PROCESSED_PATH, [p for p in processed if p["date"] >= cutoff])
-    log.info("store: %d incidents; queue: %d left. LLM calls=%d input_tokens=%d output_tokens=%d",
-             len(store), len(remaining), usage_totals["calls"], usage_totals["input"], usage_totals["output"])
+    log.info("store: %d incidents; %d claims pending (private); queue: %d left. LLM calls=%d input_tokens=%d output_tokens=%d",
+             len(store), len(claims), len(remaining), usage_totals["calls"], usage_totals["input"], usage_totals["output"])
     return 0
 
 

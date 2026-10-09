@@ -245,10 +245,10 @@ Ransomware.live's API policy, which applies now and not just to a paid tier:
 - Do not relay other people's queries to them. Users of anything built on this data query
   this system, never Ransomware.live directly.
 - No redistribution as an API or feed, and no publishing of their raw data in any form
-  (API, file, or otherwise). Claims are kept in `data/incidents.jsonl` so a later filing
-  or article can confirm them, but a record whose only source is a leak-site post is
-  never published: `build_site.claim_only` drops it from the page, the JSON and the
-  CSV. What is published is the claim tag (group, date, permalink) on records that
-  another source confirmed.
+  (API, file, or otherwise). The committed store is itself a published file, so a claim
+  with no confirming source never enters it. Claims wait in `data/claims.jsonl`
+  (gitignored, local only) and attach to a record only once a filing or article
+  confirms the incident; `build_site.claim_only` is a second guard on the site. What
+  is published is the claim tag (group, date, permalink) on confirmed records.
 - No quota circumvention: one account, one key.
 - No website or dashboard that mimics their look, layout, or branding.

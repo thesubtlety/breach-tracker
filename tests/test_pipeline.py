@@ -249,3 +249,20 @@ def test_maine_notice_parses_fields_and_builds_a_regulator_record():
     assert (r["org_type"], r["veris_action"], r["records_affected"], r["discovered_date"]) == ("healthcare", "hacking", 105387, "2026-06-01")
     assert r["data_types"] == ["medical", "personal"]
     assert parse_maine_notice("<html><body>nothing here</body></html>", "u") is None
+
+
+# --- leak-site claims stay private until confirmed -------------------------------------
+def test_claim_attaches_to_confirmed_record_and_settles_later():
+    from run import attach_claim, settle_claims
+    store = [record("Acme Hospital", "2026-09-10")]
+    claim = cand("ACME Hospital Inc", "2026-09-20", "ransomware_leak_site", "actor_claimed",
+                 url="https://www.ransomware.live/id/x", hint={"group": "qilin"})
+    attach_claim(store[0], claim)
+    assert store[0]["ransomware"] is True and store[0]["actor"]["name"] == "qilin" and store[0]["actor"]["variety"] == "organized_crime"
+    assert any(s["type"] == "ransomware_leak_site" for s in store[0]["sources"])
+    pending = [cand("Nobody Corp", "2026-09-01", "ransomware_leak_site", "actor_claimed", url="https://www.ransomware.live/id/y", hint={"group": "akira"}),
+               cand("Old Co", "2024-01-01", "ransomware_leak_site", "actor_claimed", url="https://www.ransomware.live/id/z", hint={"group": "akira"})]
+    left = settle_claims(store, pending)
+    assert [c["org_name"] for c in left] == ["Nobody Corp"]  # unmatched stays; year-old dropped
+    store.append(record("Nobody Corp", "2026-09-05"))
+    assert settle_claims(store, left) == [] and store[1]["ransomware"] is True
