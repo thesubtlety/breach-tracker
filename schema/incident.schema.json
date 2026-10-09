@@ -12,7 +12,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "description": "sha1 of normalized org_name + disclosed_date (YYYY-MM). Stable across runs so re-runs update rather than duplicate.",
+      "description": "sha1 of normalized org_name + the first disclosed_date. Permanent: later sources for the same incident attach to this id (pipeline merge window), so it is the handle for corrections.",
       "pattern": "^[0-9a-f]{40}$"
     },
     "org_name": { "type": "string", "minLength": 1, "maxLength": 200 },

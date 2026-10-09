@@ -14,8 +14,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from common import (CANDIDATES_PATH, INCIDENTS_PATH, PROCESSED_PATH, PROMPT_VERSION,  # noqa: E402
-                    make_id, normalize_org, read_jsonl, today, validate, write_jsonl)
+from common import (CANDIDATES_PATH, INCIDENTS_PATH, MERGE_WINDOW_DAYS, PROCESSED_PATH,  # noqa: E402
+                    PROMPT_VERSION, make_id, normalize_org, read_jsonl, today, validate, write_jsonl)
 from dedupe import dedupe  # noqa: E402
 from fetch_text import fetch_text  # noqa: E402
 from sources import collect  # noqa: E402
@@ -139,13 +139,43 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
     return rec
 
 
+def _days(a: str | None, b: str | None) -> int | None:
+    if not (a and b):
+        return None
+    return abs((date.fromisoformat(a[:10]) - date.fromisoformat(b[:10])).days)
+
+
+def find_record(store: list[dict], org_name: str, disclosed_date: str,
+                incident_date: str | None = None) -> dict | None:
+    """The existing record a new source belongs to, if any. Same organization and
+    either disclosed within MERGE_WINDOW_DAYS of the record, or the same stated
+    incident date (a follow-up months later that names the original date). Anything
+    else is a new record: the data cannot tell "second breach" from "late coverage
+    with no date", and a separate record with the same org name is the honest default.
+    The review loop can merge by hand."""
+    key = normalize_org(org_name)
+    best = None
+    for r in store:
+        if normalize_org(r["org_name"]) != key:
+            continue
+        d = _days(r["disclosed_date"], disclosed_date)
+        same_incident = incident_date and r.get("incident_date") and _days(r["incident_date"], incident_date) <= 7
+        if (d is not None and d <= MERGE_WINDOW_DAYS) or same_incident:
+            if best is None or d < _days(best["disclosed_date"], disclosed_date):
+                best = r
+    return best
+
+
 def merge_into_store(store: list[dict], new: dict) -> None:
-    """Upsert by id; keep the richer record; union sources; never overwrite reviewed=True."""
-    by_id = {r["id"]: r for r in store}
-    old = by_id.get(new["id"])
+    """Attach to the matching record (see find_record) or append. When attaching, keep
+    the richer record under the existing id; union sources; never overwrite reviewed=True."""
+    old = next((r for r in store if r["id"] == new["id"]), None) \
+        or find_record(store, new["org_name"], new["disclosed_date"], new.get("incident_date"))
     if not old:
         store.append(new)
         return
+    new["id"] = old["id"]
+    new["disclosed_date"] = min(old["disclosed_date"], new["disclosed_date"])
     if old.get("reviewed"):
         urls = {s["url"] for s in old["sources"]}
         old["sources"] += [s for s in new["sources"] if s["url"] not in urls]
@@ -208,7 +238,6 @@ def main() -> int:
 
     store = read_jsonl(INCIDENTS_PATH)
     known_urls = {s["url"] for r in store for s in r["sources"]}
-    known_ids = {r["id"] for r in store}
     llm_calls = 0
     handled: set[str] = set()
 
@@ -221,12 +250,11 @@ def main() -> int:
         if c["source_url"] in known_urls:
             done(c, "already_stored")
             continue
-        if c.get("org_name") and make_id(c["org_name"], c["disclosed_date"]) in known_ids \
-                and c["source_type"] in ("hhs_portal", "state_ag", "ransomware_leak_site"):
+        existing = find_record(store, c["org_name"], c["disclosed_date"]) if c.get("org_name") else None
+        if existing and c["source_type"] in ("hhs_portal", "state_ag", "ransomware_leak_site"):
             # Already have this incident from a richer source; just attach the link.
-            rec = next(r for r in store if r["id"] == make_id(c["org_name"], c["disclosed_date"]))
-            rec["sources"].append({"url": c["source_url"], "type": c["source_type"],
-                                   "title": c.get("title"), "fetched_at": None})
+            existing["sources"].append({"url": c["source_url"], "type": c["source_type"],
+                                        "title": c.get("title"), "fetched_at": None})
             done(c, "attached")
             continue
 

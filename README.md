@@ -120,8 +120,11 @@ is one environment variable; nothing else changes.
   reset to `unknown`.
 - `reviewed` — human flag. Reviewed records are never overwritten by later runs.
 
-`id` is `sha1(normalized org + YYYY-MM)`, so an 8-K, a Maine notice and a news story
-about the same org in the same month land on one record with three sources.
+`id` is `sha1(normalized org + first disclosed date)`. A later source for the same
+org joins that record if it lands within 45 days, or names the same incident date;
+otherwise it becomes a second record. The data cannot tell a second breach from late
+coverage, so two records with the same name is the honest default and the review loop
+merges by hand.
 
 ## Pipeline
 
@@ -171,10 +174,12 @@ That is more honest than asking a model to guess, and it is free.
 
 ## Review loop
 
-Everything the model produced shows ⚠ on the site until `reviewed: true`. A cheap
-monthly habit: open `data/incidents.jsonl`, filter to `initial_access != unknown`
-and `confidence != high`, read the `supporting_quote`, fix or confirm, set `reviewed`,
-commit. Reviewed records survive later runs untouched except for new source links.
+Unreviewed records are counted on the site and marked in the table until
+`reviewed: true`. The monthly habit is `python pipeline/review.py`: it walks the
+model's extractions with a stated mechanism first, shows the quote and sources, and
+one keypress confirms, corrects `initial_access`, adds a note, or deletes. `--merge
+ID1 ID2` folds a duplicate into its original. Reviewed records survive later runs
+untouched except for new source links.
 
 ## Source verification
 
@@ -227,8 +232,10 @@ Ransomware.live's API policy, which applies now and not just to a paid tier:
 - Do not relay other people's queries to them. Users of anything built on this data query
   this system, never Ransomware.live directly.
 - No redistribution as an API or feed, and no publishing of their raw data in any form
-  (API, file, or otherwise). This pipeline stores only the claim tag, group name, date,
-  sector, and a permalink; `site/incidents.json` and `incidents.csv` therefore carry
-  those fields and nothing else from them.
+  (API, file, or otherwise). Claims are kept in `data/incidents.jsonl` so a later filing
+  or article can confirm them, but a record whose only source is a leak-site post is
+  never published: `build_site.claim_only` drops it from the page, the JSON and the
+  CSV. What is published is the claim tag (group, date, permalink) on records that
+  another source confirmed.
 - No quota circumvention: one account, one key.
 - No website or dashboard that mimics their look, layout, or branding.

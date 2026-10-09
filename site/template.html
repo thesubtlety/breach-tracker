@@ -4,89 +4,259 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Breach Tracker</title>
+<meta name="description" content="Publicly reported organizational breaches, classified by how the attacker got in, only where a source actually said.">
 <style>
-  :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --line:#e3e3e3; --accent:#2b5bd7; --warn:#b36b00; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#9a9a9a; --line:#2a2a2a; --accent:#7aa2ff; --warn:#e0a84a; } }
-  body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:15px/1.45 system-ui, sans-serif; }
-  h1 { font-size:22px; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 16px; }
-  .stats { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
-  .stat { border:1px solid var(--line); border-radius:6px; padding:8px 12px; min-width:120px; }
-  .stat b { display:block; font-size:20px; }
-  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
-  select, input { padding:6px 8px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); }
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --line:#e3e3e3; --soft:#f5f5f5; --accent:#2b5bd7; --warn:#b36b00; --ok:#1f7a3a;
+          --bar:#2b5bd7; --bar-unk:#c8c8c8; --claim:#8a3ffc; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#9a9a9a; --line:#2a2a2a; --soft:#1a1a1a; --accent:#7aa2ff; --warn:#e0a84a; --ok:#5ac57a; --bar:#7aa2ff; --bar-unk:#444; --claim:#b78cff; } }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:15px/1.45 system-ui, sans-serif; max-width:1200px; margin-inline:auto; }
+  h1 { font-size:24px; margin:0 0 4px; } h2 { font-size:17px; margin:24px 0 8px; }
+  p { margin:0 0 8px; } .muted { color:var(--muted); } .small { font-size:13px; }
+  a { color:var(--accent); }
+  .lead { max-width:70ch; }
+  .fresh { font-size:13px; color:var(--muted); margin:8px 0 16px; }
+  .fresh .bad { color:var(--warn); }
+  .stats { display:flex; gap:12px; flex-wrap:wrap; margin:12px 0 16px; }
+  .stat { border:1px solid var(--line); border-radius:6px; padding:8px 12px; min-width:130px; }
+  .stat b { display:block; font-size:20px; font-weight:600; } .stat span { font-size:13px; color:var(--muted); }
+  .charts { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px; margin-bottom:8px; }
+  .chart { border:1px solid var(--line); border-radius:6px; padding:10px 12px; }
+  .chart h3 { font-size:14px; margin:0 0 6px; font-weight:600; }
+  .chart .note { font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .bars { display:grid; grid-template-columns:minmax(120px, 42%) 1fr auto; gap:3px 8px; align-items:center; font-size:13px; }
+  .bars .lbl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:default; }
+  .bars .trk { background:var(--soft); border-radius:3px; height:12px; overflow:hidden; }
+  .bars .fill { height:100%; background:var(--bar); } .bars .fill.unk { background:var(--bar-unk); }
+  .bars .n { font-variant-numeric:tabular-nums; color:var(--muted); min-width:3ch; text-align:right; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+  .filters label { font-size:13px; color:var(--muted); display:flex; gap:4px; align-items:center; }
+  select, input[type=search] { padding:6px 8px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); font:inherit; font-size:14px; }
+  input[type=search] { min-width:200px; }
+  button { padding:6px 10px; border:1px solid var(--line); border-radius:4px; background:var(--soft); color:var(--fg); font:inherit; font-size:13px; cursor:pointer; }
+  .count { font-size:13px; color:var(--muted); margin:4px 0 8px; }
+  .wrap { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; font-size:14px; }
-  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
-  th { position:sticky; top:0; background:var(--bg); cursor:pointer; }
-  .tag { display:inline-block; padding:1px 6px; border:1px solid var(--line); border-radius:10px; font-size:12px; color:var(--muted); }
-  .unrev { color:var(--warn); } .quote { color:var(--muted); font-size:13px; }
-  a { color:var(--accent); } .wrap { overflow-x:auto; }
-  footer { margin-top:24px; color:var(--muted); font-size:13px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { position:sticky; top:0; background:var(--bg); font-weight:600; white-space:nowrap; }
+  th[data-k] { cursor:pointer; } th[data-k]::after { content:" ↕"; color:var(--muted); font-size:11px; }
+  th[aria-sort=ascending]::after { content:" ↑"; color:var(--fg); } th[aria-sort=descending]::after { content:" ↓"; color:var(--fg); }
+  tr.row { cursor:pointer; } tr.row:hover td { background:var(--soft); }
+  tr.row td.chev { color:var(--muted); width:1.5em; text-align:center; }
+  tr.detail td { background:var(--soft); padding:10px 14px 12px 36px; }
+  .tag { display:inline-block; padding:1px 6px; border:1px solid var(--line); border-radius:10px; font-size:12px; color:var(--muted); white-space:nowrap; cursor:default; }
+  .tag.o-regulator { border-color:#6a9; } .tag.o-extracted { border-color:var(--accent); } .tag.o-imported { border-color:#c9a; }
+  .tag.claim { border-color:var(--claim); color:var(--claim); }
+  .rev { color:var(--ok); font-size:12px; } .unrev { color:var(--muted); font-size:12px; }
+  .detail dl { display:grid; grid-template-columns:max-content 1fr; gap:3px 14px; margin:0; font-size:14px; }
+  .detail dt { color:var(--muted); } .detail dd { margin:0; }
+  .quote { font-style:italic; color:var(--muted); }
+  details.gloss { margin-top:20px; } details.gloss summary { cursor:pointer; font-weight:600; }
+  .gloss dl { display:grid; grid-template-columns:max-content 1fr; gap:4px 14px; font-size:14px; margin:8px 0 0; }
+  .gloss dt { font-family:ui-monospace, monospace; font-size:13px; } .gloss dd { margin:0; }
+  footer { margin-top:28px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:12px; max-width:90ch; }
+  @media (max-width: 700px) { .hide-sm { display:none; } th, td { padding:6px 5px; } tr.detail td { padding-left:14px; } }
 </style>
 </head>
 <body>
 <h1>Breach Tracker</h1>
-<p class="sub">Publicly reported incidents, classified by how the attacker got in, where that is actually stated. "unknown" is the honest default. <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a></p>
+<p class="lead">How organizations actually get breached, counted only from what a public source said. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
+<div class="fresh" id="fresh"></div>
 <div class="stats" id="stats"></div>
-<div class="filters">
-  <input id="q" placeholder="search org, tech, actor…">
-  <select id="ia"><option value="">initial access: any</option></select>
-  <select id="ot"><option value="">org type: any</option></select>
-  <select id="ev"><option value="">evidence: any</option></select>
-  <label><input type="checkbox" id="known"> only known initial access</label>
+
+<div class="charts">
+  <div class="chart"><h3>Initial access, where stated</h3><div class="note" id="ia-note"></div><div class="bars" id="ia-bars"></div></div>
+  <div class="chart"><h3>Who said so</h3><div class="note">Evidence level of the strongest source on each record in the current view.</div><div class="bars" id="ev-bars"></div></div>
+  <div class="chart"><h3>Sector</h3><div class="note">Records in the current view by organization type.</div><div class="bars" id="ot-bars"></div></div>
 </div>
+
+<div class="filters" role="search">
+  <input id="q" type="search" placeholder="search organization, technology, actor, summary" aria-label="Search">
+  <label>period <select id="period"><option value="">all</option><option value="30">last 30 days</option><option value="90">last 90 days</option><option value="365">last year</option></select></label>
+  <label>origin <select id="origin"><option value="">any</option><option value="regulator">regulator</option><option value="extracted">extracted</option><option value="imported">imported</option></select></label>
+  <label>initial access <select id="ia"><option value="">any</option></select></label>
+  <label>evidence <select id="ev"><option value="">any</option></select></label>
+  <label>sector <select id="ot"><option value="">any</option></select></label>
+  <label>country <select id="cc"><option value="">any</option></select></label>
+  <label><input type="checkbox" id="known"> stated mechanism only</label>
+  <button id="reset" type="button">reset</button>
+  <button id="dl" type="button" title="CSV of the rows currently shown">download view as CSV</button>
+</div>
+<div class="count" id="count"></div>
+
 <div class="wrap"><table id="t">
   <thead><tr>
-    <th data-k="disclosed_date">Date</th><th data-k="org_name">Organization</th><th data-k="org_type">Type</th>
-    <th data-k="initial_access">Initial access</th><th>Root cause / technology</th>
-    <th data-k="impact_type">Impact</th><th data-k="records_affected">Records</th>
-    <th data-k="evidence_level">Evidence</th><th>Source</th>
+    <th data-k="disclosed_date" title="Date the incident became public. For imported VCDB records this is the incident date.">Disclosed</th>
+    <th data-k="org_name">Organization</th>
+    <th data-k="initial_access">Initial access</th>
+    <th data-k="evidence_level" class="hide-sm">Evidence</th>
+    <th data-k="impact_type" class="hide-sm">Impact</th>
+    <th data-k="records_affected" class="hide-sm">Records</th>
+    <th aria-hidden="true"></th>
   </tr></thead>
   <tbody></tbody>
 </table></div>
-<footer>Sources: SEC EDGAR, HHS OCR breach portal, Maine AG notices, news RSS, Mastodon #databreach, and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Records marked ⚠ are machine-extracted and not yet reviewed.</footer>
+
+<details class="gloss" id="gloss"><summary>Glossary: what the values mean</summary></details>
+
+<footer>
+  <p>Sources: SEC EDGAR full-text search, the HHS OCR breach portal, Maine Attorney General breach notices, security news feeds, Mastodon #databreach, the VERIS Community Database (CC BY-SA 4.0), and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Claims are shown only as a tag on records that another source confirmed; a claim on its own is never published here.</p>
+  <p>Records marked <span class="unrev">unreviewed</span> were produced by a fixed mapping or a language model and have not been checked by a person. Every stated mechanism carries a verbatim quote from its source; if the quote is not in the source, confidence is low. The data cannot tell a second breach at the same organization from late coverage of the first; two records with one name may be either.</p>
+  <p>Dataset: CC BY-SA 4.0. Corrections: open an issue with the record id. <a href="https://github.com/thesubtlety/breach-tracker/blob/master/docs/CHANGELOG.md">Changelog and corrections log</a>.</p>
+</footer>
+
 <script>
 const STATS = /*__STATS__*/{};
-let rows = [], sortKey = "disclosed_date", sortDir = -1;
+const G = STATS.glossary || {};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const gl = (k, v) => esc((G[k] || {})[v] || "");
+let rows = [], view = [], sortKey = "disclosed_date", sortDir = -1, open = new Set();
 
-function fill(sel, counts) {
-  for (const [k] of counts) { const o = document.createElement("option"); o.value = k; o.textContent = k; sel.appendChild(o); }
+function origin(r) {
+  if (r.imported_from) return "imported";
+  if (r.extracted_by && r.extracted_by.model === "deterministic") return "regulator";
+  return "extracted";
 }
-function renderStats() {
-  const pct = STATS.total ? Math.round(100 * STATS.known_initial_access / STATS.total) : 0;
+function claimOf(r) {
+  const s = (r.sources || []).find(x => x.type === "ransomware_leak_site");
+  return s ? { url: s.url, group: r.threat_actor } : null;
+}
+
+function renderFresh() {
+  const h = STATS.health || {}, counts = h.counts || {};
+  const bits = [`Updated ${STATS.generated}`, `${STATS.added_last_7_days} records added in the last 7 days`];
+  if (STATS.date_range) bits.push(`covers ${STATS.date_range[0]} to ${STATS.date_range[1]}`);
+  const src = Object.entries(counts).map(([k, v]) => v === null ? `${k}: off` : `${k}: ${v}`).join(", ");
+  if (src) bits.push(`last source check: ${src}`);
+  if ((h.problems || []).length) bits.push(`<span class="bad">source problems: ${esc(h.problems.join("; "))}</span>`);
+  if (STATS.withheld_claims) bits.push(`${STATS.withheld_claims} leak-site claims held back pending a second source`);
+  $("#fresh").innerHTML = bits.join(" · ");
+}
+function renderStats(v) {
+  const known = v.filter(x => x.initial_access !== "unknown").length;
+  const pct = v.length ? Math.round(100 * known / v.length) : 0;
+  const reviewed = v.filter(x => x.reviewed).length;
   $("#stats").innerHTML = [
-    ["incidents", STATS.total], ["known initial access", `${STATS.known_initial_access} (${pct}%)`],
-    ["updated", STATS.generated]
-  ].map(([l, v]) => `<div class="stat"><b>${v}</b>${l}</div>`).join("");
+    [v.length, "records in view"],
+    [`${known} (${pct}%)`, "with a stated mechanism"],
+    [`${reviewed} of ${v.length}`, "reviewed by a person"],
+    [v.filter(x => claimOf(x)).length, "also claimed on a leak site"],
+  ].map(([b, l]) => `<div class="stat"><b>${b}</b><span>${l}</span></div>`).join("");
+}
+function bars(el, counts, total, key, opts = {}) {
+  const max = Math.max(1, ...counts.map(c => c[1]));
+  el.innerHTML = counts.map(([k, n]) => `
+    <div class="lbl" title="${gl(key, k)}">${esc(k)}</div>
+    <div class="trk"><div class="fill ${k === "unknown" ? "unk" : ""}" style="width:${100 * n / max}%"></div></div>
+    <div class="n">${n}${opts.pct ? ` <span class="muted">${Math.round(100 * n / total)}%</span>` : ""}</div>`).join("");
+}
+function count(v, f) { const c = {}; for (const x of v) c[x[f]] = (c[x[f]] || 0) + 1; return Object.entries(c).sort((a, b) => b[1] - a[1]); }
+function renderCharts(v) {
+  const known = v.filter(x => x.initial_access !== "unknown");
+  const unk = v.length - known.length;
+  $("#ia-note").textContent = v.length ? `${known.length} of ${v.length} records in view say how. The other ${unk} are "unknown" and are not shown as a bar: counting them would make a filing that says nothing look like a cause.` : "";
+  bars($("#ia-bars"), count(known, "initial_access"), known.length, "initial_access", { pct: true });
+  bars($("#ev-bars"), count(v, "evidence_level"), v.length, "evidence_level", { pct: true });
+  bars($("#ot-bars"), count(v, "org_type").slice(0, 10), v.length, "org_type");
+}
+
+function filtered() {
+  const q = $("#q").value.trim().toLowerCase(), p = $("#period").value, o = $("#origin").value, ia = $("#ia").value,
+        ev = $("#ev").value, ot = $("#ot").value, cc = $("#cc").value, known = $("#known").checked;
+  const since = p ? new Date(Date.now() - p * 864e5).toISOString().slice(0, 10) : "";
+  return rows.filter(x =>
+    (!since || x.disclosed_date >= since) && (!o || origin(x) === o) && (!ia || x.initial_access === ia) &&
+    (!ev || x.evidence_level === ev) && (!ot || x.org_type === ot) && (!cc || x.org_country === cc) &&
+    (!known || x.initial_access !== "unknown") &&
+    (!q || [x.org_name, x.root_cause, x.threat_actor, (x.technology_involved || []).join(" "), x.summary, x.id].join(" ").toLowerCase().includes(q)));
+}
+function detail(x) {
+  const c = claimOf(x);
+  const dd = [
+    ["summary", x.summary],
+    ["quote", x.supporting_quote ? `<span class="quote">“${esc(x.supporting_quote)}”</span>` : null],
+    ["root cause", x.root_cause],
+    ["technology", (x.technology_involved || []).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") || null],
+    ["ATT&CK", x.initial_access_attack_id], ["VERIS action", x.veris_action],
+    ["impact", x.impact_type], ["records affected", x.records_affected != null ? x.records_affected.toLocaleString() : null],
+    ["threat actor", x.threat_actor], ["incident date", x.incident_date],
+    ["leak-site claim", c ? `<a href="${esc(c.url)}" rel="noopener">${esc(c.group || "claim")}</a> <span class="muted">Source: Ransomware.live</span>` : null],
+    ["confidence", x.confidence ? `<span title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span>` : null],
+    ["origin", `<span title="${gl("origin", origin(x))}">${origin(x)}</span>${x.imported_from ? ` (${esc(x.imported_from.dataset)} ${esc(x.imported_from.record_id)}, ${esc(x.imported_from.license || "")})` : ""} · ${esc(x.extracted_by.model)} · prompt ${esc(x.extracted_by.prompt_version)} · run ${esc(x.extracted_by.run_date)}`],
+    ["sources", (x.sources || []).map(s => `<a href="${esc(s.url)}" rel="noopener">${esc(s.type)}</a>${s.title ? ` <span class="muted">${esc(s.title)}</span>` : ""}`).join("<br>")],
+    ["notes", x.notes],
+    ["record", `<a href="#id=${esc(x.id)}" class="small">${esc(x.id)}</a> · ${x.reviewed ? '<span class="rev">reviewed</span>' : '<span class="unrev">unreviewed</span>'}`],
+  ].filter(([, v]) => v != null && v !== "");
+  return `<div class="detail"><dl>${dd.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div>`;
 }
 function render() {
-  const q = $("#q").value.toLowerCase(), ia = $("#ia").value, ot = $("#ot").value, ev = $("#ev").value, known = $("#known").checked;
-  let r = rows.filter(x =>
-    (!ia || x.initial_access === ia) && (!ot || x.org_type === ot) && (!ev || x.evidence_level === ev) &&
-    (!known || x.initial_access !== "unknown") &&
-    (!q || [x.org_name, x.root_cause, x.threat_actor, (x.technology_involved||[]).join(" "), x.summary].join(" ").toLowerCase().includes(q)));
-  r.sort((a, b) => ((a[sortKey] ?? "") > (b[sortKey] ?? "") ? 1 : (a[sortKey] ?? "") < (b[sortKey] ?? "") ? -1 : 0) * sortDir);
-  $("#t tbody").innerHTML = r.map(x => `<tr>
+  view = filtered();
+  const k = sortKey;
+  view.sort((a, b) => ((a[k] ?? "") > (b[k] ?? "") ? 1 : (a[k] ?? "") < (b[k] ?? "") ? -1 : 0) * sortDir);
+  for (const th of document.querySelectorAll("th[data-k]")) th.setAttribute("aria-sort", th.dataset.k === k ? (sortDir > 0 ? "ascending" : "descending") : "none");
+  $("#count").textContent = `${view.length} of ${rows.length} records`;
+  $("#t tbody").innerHTML = view.map(x => {
+    const c = claimOf(x), o = origin(x), isOpen = open.has(x.id);
+    return `<tr class="row" data-id="${esc(x.id)}" aria-expanded="${isOpen}">
     <td>${esc(x.disclosed_date)}</td>
-    <td>${esc(x.org_name)} ${x.reviewed ? "" : '<span class="unrev" title="not yet reviewed">⚠</span>'}<br><span class="tag">${esc(x.org_country || "")}</span></td>
-    <td>${esc(x.org_type)}</td>
-    <td>${esc(x.initial_access)}${x.initial_access_attack_id ? `<br><span class="tag">${esc(x.initial_access_attack_id)}</span>` : ""}</td>
-    <td>${esc(x.root_cause || "")}${(x.technology_involved||[]).length ? "<br>" + x.technology_involved.map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : ""}${x.supporting_quote ? `<div class="quote">“${esc(x.supporting_quote)}”</div>` : ""}</td>
-    <td>${esc(x.impact_type)}${x.threat_actor ? `<br><span class="tag">${esc(x.threat_actor)}</span>` : ""}</td>
-    <td>${x.records_affected != null ? x.records_affected.toLocaleString() : ""}</td>
-    <td>${esc(x.evidence_level)}<br><span class="tag">${esc(x.confidence)}</span></td>
-    <td>${(x.sources||[]).map(s => `<a href="${esc(s.url)}" rel="noopener">${esc(s.type)}</a>`).join("<br>")}</td>
-  </tr>`).join("");
+    <td>${esc(x.org_name)} <span class="tag" title="${gl("origin", o)}">${o}</span>${c ? ` <span class="tag claim" title="A ransomware group also claimed this on its leak site. Source: Ransomware.live">claimed</span>` : ""}<br><span class="small muted">${esc(x.org_type)} · ${esc(x.org_country || "")}${x.reviewed ? ' · <span class="rev">reviewed</span>' : ""}</span></td>
+    <td><span title="${gl("initial_access", x.initial_access)}">${esc(x.initial_access)}</span>${x.initial_access !== "unknown" && !x.supporting_quote ? ' <span class="unrev" title="no verbatim quote">no quote</span>' : ""}${(x.technology_involved || []).length ? "<br>" + x.technology_involved.slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : ""}</td>
+    <td class="hide-sm"><span title="${gl("evidence_level", x.evidence_level)}">${esc(x.evidence_level)}</span><br><span class="small muted" title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span></td>
+    <td class="hide-sm">${esc(x.impact_type)}${x.threat_actor ? `<br><span class="tag">${esc(x.threat_actor)}</span>` : ""}</td>
+    <td class="hide-sm">${x.records_affected != null ? x.records_affected.toLocaleString() : ""}</td>
+    <td class="chev">${isOpen ? "▾" : "▸"}</td></tr>${isOpen ? `<tr class="detail"><td colspan="7">${detail(x)}</td></tr>` : ""}`;
+  }).join("");
+  renderStats(view); renderCharts(view);
 }
+
+function fill(sel, values) { for (const v of values) { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); } }
+function glossary() {
+  const parts = [];
+  for (const [field, defs] of Object.entries(G)) parts.push(`<h3 class="small" style="margin:12px 0 0">${esc(field)}</h3><dl>${Object.entries(defs).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`);
+  $("#gloss").insertAdjacentHTML("beforeend", parts.join(""));
+}
+const FIELDS = ["q", "period", "origin", "ia", "ev", "ot", "cc", "known"];
+function toHash() {
+  const p = new URLSearchParams();
+  for (const f of FIELDS) { const el = $("#" + f); const v = el.type === "checkbox" ? (el.checked ? "1" : "") : el.value; if (v) p.set(f, v); }
+  if (sortKey !== "disclosed_date" || sortDir !== -1) p.set("sort", (sortDir < 0 ? "-" : "") + sortKey);
+  const id = [...open][0]; if (id && open.size === 1) p.set("id", id);
+  history.replaceState(null, "", p.toString() ? "#" + p.toString() : location.pathname);
+}
+function fromHash() {
+  const p = new URLSearchParams(location.hash.slice(1));
+  for (const f of FIELDS) { const el = $("#" + f); if (!p.has(f)) continue; if (el.type === "checkbox") el.checked = p.get(f) === "1"; else el.value = p.get(f); }
+  if (p.has("sort")) { const s = p.get("sort"); sortDir = s.startsWith("-") ? -1 : 1; sortKey = s.replace(/^-/, ""); }
+  if (p.has("id")) open.add(p.get("id"));
+}
+function downloadCsv() {
+  const cols = ["id", "disclosed_date", "org_name", "org_type", "org_country", "initial_access", "veris_action", "root_cause", "technology_involved", "impact_type", "records_affected", "threat_actor", "evidence_level", "confidence", "reviewed", "summary", "source_url"];
+  const cell = v => { v = Array.isArray(v) ? v.join("; ") : v ?? ""; v = String(v); return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
+  const lines = [cols.join(",")].concat(view.map(x => cols.map(c => cell(c === "source_url" ? (x.sources || [{}])[0].url : x[c])).join(",")));
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
+  a.download = `breach-tracker-${STATS.generated}.csv`; a.click();
+}
+
 fetch("incidents.json").then(r => r.json()).then(d => {
-  rows = d; renderStats();
-  fill($("#ia"), STATS.by_initial_access); fill($("#ot"), STATS.by_org_type); fill($("#ev"), STATS.by_evidence);
-  render();
+  rows = d;
+  renderFresh(); glossary();
+  fill($("#ia"), STATS.by_initial_access.map(c => c[0]));
+  fill($("#ev"), STATS.by_evidence.map(c => c[0]));
+  fill($("#ot"), STATS.by_org_type.map(c => c[0]));
+  fill($("#cc"), [...new Set(rows.map(x => x.org_country).filter(Boolean))].sort());
+  fromHash(); render();
+  if (open.size) { const el = document.querySelector(`tr.row[data-id="${[...open][0]}"]`); if (el) el.scrollIntoView({ block: "center" }); }
 });
-for (const el of ["#q", "#ia", "#ot", "#ev", "#known"]) $(el).addEventListener("input", render);
-for (const th of document.querySelectorAll("th[data-k]")) th.addEventListener("click", () => {
-  const k = th.dataset.k; sortDir = (sortKey === k) ? -sortDir : -1; sortKey = k; render();
+for (const f of FIELDS) $("#" + f).addEventListener("input", () => { render(); toHash(); });
+$("#reset").addEventListener("click", () => { for (const f of FIELDS) { const el = $("#" + f); if (el.type === "checkbox") el.checked = false; else el.value = ""; } sortKey = "disclosed_date"; sortDir = -1; open.clear(); render(); toHash(); });
+$("#dl").addEventListener("click", downloadCsv);
+for (const th of document.querySelectorAll("th[data-k]")) th.addEventListener("click", () => { const k = th.dataset.k; sortDir = sortKey === k ? -sortDir : (k === "disclosed_date" || k === "records_affected" ? -1 : 1); sortKey = k; render(); toHash(); });
+$("#t tbody").addEventListener("click", e => {
+  if (e.target.closest("a")) return;
+  const tr = e.target.closest("tr.row"); if (!tr) return;
+  const id = tr.dataset.id; open.has(id) ? open.delete(id) : open.add(id); render(); toHash();
 });
 </script>
 </body>

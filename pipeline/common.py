@@ -16,7 +16,10 @@ PROMPT_PATH = ROOT / "prompts" / "extract.md"
 INCIDENTS_PATH = DATA_DIR / "incidents.jsonl"
 CANDIDATES_PATH = DATA_DIR / "candidates.jsonl"   # the queue: collected, not yet processed
 PROCESSED_PATH = DATA_DIR / "processed.jsonl"     # every URL the run has handled, with its outcome
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"
+# A new source for the same org within this many days of a record's disclosed_date joins
+# that record instead of creating a new one. See run.find_record for the rule.
+MERGE_WINDOW_DAYS = 45
 
 # SEC and most public sites want a descriptive User-Agent with a contact.
 USER_AGENT = os.environ.get("EDGAR_USER_AGENT", "breach-tracker research contact@example.com")
@@ -40,8 +43,10 @@ def normalize_org(name: str) -> str:
 
 
 def make_id(org_name: str, disclosed_date: str) -> str:
-    """Stable ID: same org disclosed in the same month collapses to one record."""
-    key = f"{normalize_org(org_name)}|{disclosed_date[:7]}"
+    """ID for a *new* record: normalized org + the date it was first disclosed. Later
+    sources for the same incident keep this id (run.find_record), so the id is a
+    permanent handle for corrections and never depends on a calendar boundary."""
+    key = f"{normalize_org(org_name)}|{disclosed_date[:10]}"
     return hashlib.sha1(key.encode()).hexdigest()
 
 

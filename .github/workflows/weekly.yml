@@ -40,6 +40,7 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.txt
       - run: pip install -r pipeline/requirements.txt
+      - run: python -m pytest -q tests
       - run: python pipeline/run.py --since-days 8 --limit ${{ github.event.inputs.limit || 150 }}
       - run: python pipeline/verify_sources.py --strict
       - run: python pipeline/build_site.py

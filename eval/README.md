@@ -15,9 +15,10 @@ blind spots, so once a quarter also audit 30 *agreed* labels by hand (RISKS.md Y
 # 1. Freeze a document set (stratified by source type; text fetched once).
 python eval/sample_docs.py --n 150
 
-# 2. Reference labels from two frontier families.
-python eval/label.py --role reference --provider anthropic --model claude-opus-5-5
+# 2. Reference labels from two frontier families (one per key you hold; with only an
+#    OpenAI key, astra is the single reference and the human gold does the rest).
 python eval/label.py --role reference --provider openai    --model gpt-6-astra
+python eval/label.py --role reference --provider anthropic --model claude-opus-5-5   # needs ANTHROPIC_API_KEY
 
 # 3. Candidate labels.
 python eval/label.py --provider anthropic  --model claude-haiku-5-5
