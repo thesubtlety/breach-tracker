@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breach Tracker</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --line:#e3e3e3; --accent:#2b5bd7; --warn:#b36b00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#9a9a9a; --line:#2a2a2a; --accent:#7aa2ff; --warn:#e0a84a; } }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:15px/1.45 system-ui, sans-serif; }
+  h1 { font-size:22px; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 16px; }
+  .stats { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+  .stat { border:1px solid var(--line); border-radius:6px; padding:8px 12px; min-width:120px; }
+  .stat b { display:block; font-size:20px; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  select, input { padding:6px 8px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { position:sticky; top:0; background:var(--bg); cursor:pointer; }
+  .tag { display:inline-block; padding:1px 6px; border:1px solid var(--line); border-radius:10px; font-size:12px; color:var(--muted); }
+  .unrev { color:var(--warn); } .quote { color:var(--muted); font-size:13px; }
+  a { color:var(--accent); } .wrap { overflow-x:auto; }
+  footer { margin-top:24px; color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+<h1>Breach Tracker</h1>
+<p class="sub">Publicly reported incidents, classified by how the attacker got in, where that is actually stated. "unknown" is the honest default. <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a></p>
+<div class="stats" id="stats"></div>
+<div class="filters">
+  <input id="q" placeholder="search org, tech, actor…">
+  <select id="ia"><option value="">initial access: any</option></select>
+  <select id="ot"><option value="">org type: any</option></select>
+  <select id="ev"><option value="">evidence: any</option></select>
+  <label><input type="checkbox" id="known"> only known initial access</label>
+</div>
+<div class="wrap"><table id="t">
+  <thead><tr>
+    <th data-k="disclosed_date">Date</th><th data-k="org_name">Organization</th><th data-k="org_type">Type</th>
+    <th data-k="initial_access">Initial access</th><th>Root cause / technology</th>
+    <th data-k="impact_type">Impact</th><th data-k="records_affected">Records</th>
+    <th data-k="evidence_level">Evidence</th><th>Source</th>
+  </tr></thead>
+  <tbody></tbody>
+</table></div>
+<footer>Sources: SEC EDGAR, HHS OCR breach portal, Maine AG notices, news RSS, Mastodon #databreach, and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Records marked ⚠ are machine-extracted and not yet reviewed.</footer>
+<script>
+const STATS = /*__STATS__*/{};
+let rows = [], sortKey = "disclosed_date", sortDir = -1;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function fill(sel, counts) {
+  for (const [k] of counts) { const o = document.createElement("option"); o.value = k; o.textContent = k; sel.appendChild(o); }
+}
+function renderStats() {
+  const pct = STATS.total ? Math.round(100 * STATS.known_initial_access / STATS.total) : 0;
+  $("#stats").innerHTML = [
+    ["incidents", STATS.total], ["known initial access", `${STATS.known_initial_access} (${pct}%)`],
+    ["updated", STATS.generated]
+  ].map(([l, v]) => `<div class="stat"><b>${v}</b>${l}</div>`).join("");
+}
+function render() {
+  const q = $("#q").value.toLowerCase(), ia = $("#ia").value, ot = $("#ot").value, ev = $("#ev").value, known = $("#known").checked;
+  let r = rows.filter(x =>
+    (!ia || x.initial_access === ia) && (!ot || x.org_type === ot) && (!ev || x.evidence_level === ev) &&
+    (!known || x.initial_access !== "unknown") &&
+    (!q || [x.org_name, x.root_cause, x.threat_actor, (x.technology_involved||[]).join(" "), x.summary].join(" ").toLowerCase().includes(q)));
+  r.sort((a, b) => ((a[sortKey] ?? "") > (b[sortKey] ?? "") ? 1 : (a[sortKey] ?? "") < (b[sortKey] ?? "") ? -1 : 0) * sortDir);
+  $("#t tbody").innerHTML = r.map(x => `<tr>
+    <td>${esc(x.disclosed_date)}</td>
+    <td>${esc(x.org_name)} ${x.reviewed ? "" : '<span class="unrev" title="not yet reviewed">⚠</span>'}<br><span class="tag">${esc(x.org_country || "")}</span></td>
+    <td>${esc(x.org_type)}</td>
+    <td>${esc(x.initial_access)}${x.initial_access_attack_id ? `<br><span class="tag">${esc(x.initial_access_attack_id)}</span>` : ""}</td>
+    <td>${esc(x.root_cause || "")}${(x.technology_involved||[]).length ? "<br>" + x.technology_involved.map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : ""}${x.supporting_quote ? `<div class="quote">“${esc(x.supporting_quote)}”</div>` : ""}</td>
+    <td>${esc(x.impact_type)}${x.threat_actor ? `<br><span class="tag">${esc(x.threat_actor)}</span>` : ""}</td>
+    <td>${x.records_affected != null ? x.records_affected.toLocaleString() : ""}</td>
+    <td>${esc(x.evidence_level)}<br><span class="tag">${esc(x.confidence)}</span></td>
+    <td>${(x.sources||[]).map(s => `<a href="${esc(s.url)}" rel="noopener">${esc(s.type)}</a>`).join("<br>")}</td>
+  </tr>`).join("");
+}
+fetch("incidents.json").then(r => r.json()).then(d => {
+  rows = d; renderStats();
+  fill($("#ia"), STATS.by_initial_access); fill($("#ot"), STATS.by_org_type); fill($("#ev"), STATS.by_evidence);
+  render();
+});
+for (const el of ["#q", "#ia", "#ot", "#ev", "#known"]) $(el).addEventListener("input", render);
+for (const th of document.querySelectorAll("th[data-k]")) th.addEventListener("click", () => {
+  const k = th.dataset.k; sortDir = (sortKey === k) ? -sortDir : -1; sortKey = k; render();
+});
+</script>
+</body>
+</html>

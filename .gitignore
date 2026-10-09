@@ -1,0 +1,9 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+site/index.html
+site/incidents.json
+site/incidents.csv
+eval/labels/
+eval/docs.jsonl

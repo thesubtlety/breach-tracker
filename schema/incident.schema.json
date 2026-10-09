@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/breach-tracker/incident.schema.json",
+  "title": "Incident",
+  "description": "One publicly reported security incident affecting an organization. Small on purpose: every field must be fillable from public text, and 'unknown' is always allowed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "org_name", "org_type", "disclosed_date", "initial_access",
+    "impact_type", "evidence_level", "confidence", "sources", "extracted_by"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "sha1 of normalized org_name + disclosed_date (YYYY-MM). Stable across runs so re-runs update rather than duplicate.",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "org_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "org_type": {
+      "type": "string",
+      "description": "Coarse sector. Maps roughly onto VERIS victim.industry at the 2-digit NAICS level; kept to ~12 buckets so counts are meaningful.",
+      "enum": [
+        "healthcare", "financial", "government", "education", "technology_saas",
+        "manufacturing", "retail_ecommerce", "professional_services", "telecom",
+        "energy_utilities", "transportation_logistics", "nonprofit", "other", "unknown"
+      ]
+    },
+    "org_country": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2, or 'unknown'.",
+      "pattern": "^([A-Z]{2}|unknown)$"
+    },
+    "disclosed_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the incident became public (filing date, notice date, article date). Always known."
+    },
+    "incident_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "Date the intrusion began or was discovered, if stated. Null if not stated."
+    },
+    "initial_access": {
+      "type": "string",
+      "description": "How the attacker (or error) got in. Aligned to ATT&CK Initial Access (TA0001) plus non-attack causes. 'unknown' is the expected value for most regulator-only records.",
+      "enum": [
+        "phishing",
+        "vishing_or_social_engineering",
+        "stolen_or_valid_credentials",
+        "exploit_public_facing_app",
+        "supply_chain_or_third_party",
+        "misconfiguration_or_exposure",
+        "insider",
+        "lost_or_stolen_device",
+        "physical_or_paper",
+        "malware_other",
+        "unknown"
+      ]
+    },
+    "initial_access_attack_id": {
+      "type": ["string", "null"],
+      "description": "ATT&CK technique ID if one clearly applies (e.g. T1566, T1078, T1190, T1195, T1133). Null otherwise.",
+      "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+    },
+    "veris_action": {
+      "type": "string",
+      "description": "VERIS action category, for comparability with DBIR.",
+      "enum": ["hacking", "malware", "social", "misuse", "error", "physical", "environmental", "unknown"]
+    },
+    "root_cause": {
+      "type": ["string", "null"],
+      "maxLength": 300,
+      "description": "One plain sentence on the underlying weakness, only if the source states or clearly implies it (e.g. 'Long-lived OAuth token for a third-party integration was not rotated after a prior compromise'). Null if the source doesn't say."
+    },
+    "technology_involved": {
+      "type": "array",
+      "maxItems": 8,
+      "items": { "type": "string", "maxLength": 60 },
+      "description": "Named vendors, products or categories that were the point of entry or the system breached (e.g. 'Salesforce', 'Okta SSO', 'GitHub Actions', 'Citrix NetScaler', 'VPN appliance', 'email'). Empty if none named."
+    },
+    "impact_type": {
+      "type": "string",
+      "enum": ["data_theft", "disruption_or_ransomware", "both", "exposure_no_theft_confirmed", "unknown"]
+    },
+    "records_affected": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "description": "Individuals or records affected, only if a number is stated. Null otherwise. Never estimate."
+    },
+    "threat_actor": {
+      "type": ["string", "null"],
+      "maxLength": 80,
+      "description": "Group name if attributed or claimed (e.g. 'ShinyHunters', 'Qilin'). Null otherwise."
+    },
+    "evidence_level": {
+      "type": "string",
+      "description": "Strongest form of evidence among the sources. Order: org_confirmed > regulator_filing > press_report > actor_claimed.",
+      "enum": ["org_confirmed", "regulator_filing", "press_report", "actor_claimed"]
+    },
+    "confidence": {
+      "type": "string",
+      "description": "Extractor's confidence that initial_access and root_cause are supported by the text.",
+      "enum": ["high", "medium", "low"]
+    },
+    "supporting_quote": {
+      "type": ["string", "null"],
+      "maxLength": 300,
+      "description": "Verbatim sentence from the source that supports initial_access / root_cause. Required when initial_access != unknown. Used for spot-checking hallucination."
+    },
+    "summary": {
+      "type": ["string", "null"],
+      "maxLength": 280,
+      "description": "One neutral sentence: who, what was accessed, how (if known)."
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["url", "type"],
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "type": {
+            "type": "string",
+            "enum": ["sec_8k", "hhs_portal", "state_ag", "ransomware_leak_site", "company_notice", "press", "vendor_research", "mastodon", "other"]
+          },
+          "title": { "type": ["string", "null"], "maxLength": 200 },
+          "fetched_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      }
+    },
+    "extracted_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "prompt_version", "run_date"],
+      "properties": {
+        "model": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "run_date": { "type": "string", "format": "date" }
+      }
+    },
+    "reviewed": {
+      "type": "boolean",
+      "default": false,
+      "description": "True once a human has checked the record. Unreviewed records are shown with a flag on the site."
+    },
+    "notes": { "type": ["string", "null"], "maxLength": 500 },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Bump the minor on additive enum changes, the major on anything that breaks comparability. Log every change in docs/CHANGELOG.md."
+    },
+    "imported_from": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["dataset", "record_id"],
+      "properties": {
+        "dataset": { "type": "string", "enum": ["vcdb", "cedb", "eurepoc", "hackmageddon", "other"] },
+        "record_id": { "type": "string", "maxLength": 120 },
+        "license": { "type": ["string", "null"], "maxLength": 60 },
+        "mapping_version": { "type": ["string", "null"], "maxLength": 20 }
+      },
+      "description": "Set on records imported from an existing coded dataset rather than extracted here. Keeps provenance and license obligations attached to the record."
+    }
+  }
+}
