@@ -22,11 +22,12 @@ import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from actors import default_third_party, enrich_actor  # noqa: E402
 from common import INCIDENTS_PATH, make_id, read_jsonl, today, validate, write_jsonl  # noqa: E402
 
 log = logging.getLogger("import_vcdb")
 VCDB_ZIP = "https://raw.githubusercontent.com/vz-risk/VCDB/master/data/joined/vcdb.json.zip"
-MAPPING_VERSION = "1"
+MAPPING_VERSION = "2"
 
 NAICS2 = {
     "62": "healthcare", "52": "financial", "92": "government", "61": "education",
@@ -36,6 +37,56 @@ NAICS2 = {
     "49": "transportation_logistics",
 }
 VCDB_CONF = {"High": "high", "Medium": "medium", "Low": "low"}
+EXT_VARIETY = {"Organized crime": "organized_crime", "State-affiliated": "state_affiliated", "Nation-state": "state_affiliated",
+               "Activist": "activist", "Former employee": "former_employee", "Unaffiliated": "unaffiliated"}
+INT_VARIETY = {"End-user": "end_user", "System admin": "system_admin"}
+MOTIVE = {"Financial": "financial", "Espionage": "espionage", "Ideology": "ideology", "Grudge": "grudge"}
+VECTOR = {"VPN": "vpn_or_edge_device", "Web application": "web_application", "Desktop sharing": "remote_desktop",
+          "Desktop sharing software": "remote_desktop", "3rd party desktop": "remote_desktop", "Physical access": "physical"}
+DATA = {"Personal": "personal", "Medical": "medical", "Payment": "financial", "Bank": "financial", "Credentials": "credentials",
+        "Internal": "internal", "Secrets": "secrets"}
+
+
+def actor_of(rec: dict) -> dict:
+    a = rec.get("actor", {})
+    out = {"category": "unknown", "variety": "unknown", "motive": "unknown", "name": None, "country": None}
+    if "external" in a:
+        e = a["external"]
+        out["category"] = "external"
+        out["variety"] = next((EXT_VARIETY[v] for v in e.get("variety", []) if v in EXT_VARIETY), "unknown")
+        out["motive"] = next((MOTIVE[m] for m in e.get("motive", []) if m in MOTIVE), "unknown")
+        names = [n for n in e.get("name", []) if n and n != "Unknown"]
+        out["name"] = names[0][:80] if names else None
+        c = [x for x in e.get("country", []) if re.fullmatch(r"[A-Z]{2}", x or "")]
+        out["country"] = c[0] if c else None
+    elif "internal" in a:
+        i = a["internal"]
+        out["category"] = "internal"
+        out["variety"] = next((INT_VARIETY[v] for v in i.get("variety", []) if v in INT_VARIETY), "other" if i.get("variety") else "unknown")
+        out["motive"] = next((MOTIVE[m] for m in i.get("motive", []) if m in MOTIVE), "unknown")
+    elif "partner" in a:
+        out["category"] = "partner"
+        out["motive"] = next((MOTIVE[m] for m in a["partner"].get("motive", []) if m in MOTIVE), "unknown")
+    return enrich_actor(out)
+
+
+def third_party_of(rec: dict) -> dict:
+    hvec = set(rec.get("action", {}).get("hacking", {}).get("vector", []))
+    if "Partner" in hvec or "partner" in rec.get("actor", {}):
+        return {"involved": True, "archetype": "vendor_connection", "vendor": None}
+    return default_third_party()
+
+
+def control_failure_of(action: dict) -> str:
+    ev = set(action.get("error", {}).get("variety", []))
+    hv = set(action.get("hacking", {}).get("variety", []))
+    if ev & {"Misconfiguration", "Publishing error"} or "Exploit misconfig" in hv:
+        return "exposed_service_or_storage"
+    if "misuse" in action:
+        return "insider_access_abuse"
+    if "social" in action and not hv - {"Unknown", "Use of stolen creds"}:
+        return "staff_deceived"
+    return "unknown"
 
 
 def org_type(naics: str | None) -> str:
@@ -132,25 +183,36 @@ def map_record(rec: dict, run_date: str) -> dict | None:
         sources = [{"url": f"https://github.com/vz-risk/VCDB/issues/{gh}" if gh else "https://github.com/vz-risk/VCDB",
                     "type": "other", "title": "VCDB record", "fetched_at": None}]
     evidence = "regulator_filing" if any(s["type"] in ("state_ag", "hhs_portal") for s in sources) else "press_report"
-    actor_names = rec.get("actor", {}).get("external", {}).get("name", [])
     data_total = rec.get("attribute", {}).get("confidentiality", {}).get("data_total")
+    data_types = sorted({DATA[d["variety"]] for d in rec.get("attribute", {}).get("confidentiality", {}).get("data", []) if d.get("variety") in DATA})
+    hvec = action.get("hacking", {}).get("vector", [])
+    cves = sorted(set(re.findall(r"CVE-\d{4}-\d{4,}", (action.get("hacking", {}).get("cve") or "") + " " + (action.get("malware", {}).get("cve") or ""), re.I)))
+    ransomware = "Ransomware" in action.get("malware", {}).get("variety", [])
     country = (rec.get("victim", {}).get("country") or ["unknown"])[0]
     out = {
         "id": make_id(name, date),
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "org_name": name[:200],
         "org_type": org_type(rec.get("victim", {}).get("industry")),
         "org_country": country if re.fullmatch(r"[A-Z]{2}", country or "") else "unknown",
         "disclosed_date": date,
         "incident_date": date,
+        "discovered_date": None,
         "initial_access": ia,
         "initial_access_attack_id": attack_id,
         "veris_action": veris_action(action),
+        "entry_asset": next((VECTOR[v] for v in hvec if v in VECTOR), "unknown"),
+        "control_failure": control_failure_of(action),
+        "credential_source": "unknown" if ia == "stolen_or_valid_credentials" else None,
+        "cve": [c.upper() for c in cves][:10],
         "root_cause": None,
         "technology_involved": [],
+        "third_party": third_party_of(rec),
+        "actor": actor_of(rec),
         "impact_type": impact(rec),
+        "ransomware": True if ransomware else None,
+        "data_types": data_types,
         "records_affected": int(data_total) if isinstance(data_total, (int, float)) and data_total >= 0 else None,
-        "threat_actor": (actor_names[0][:80] if actor_names and actor_names[0] != "Unknown" else None),
         "evidence_level": evidence,
         "confidence": VCDB_CONF.get(rec.get("confidence"), "medium"),
         "supporting_quote": None,

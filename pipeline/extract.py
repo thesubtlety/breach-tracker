@@ -26,6 +26,7 @@ import time
 
 import requests
 
+from actors import default_actor, default_third_party, enrich_actor
 from common import PROMPT_PATH, PROMPT_VERSION, load_schema
 
 log = logging.getLogger("extract")
@@ -216,6 +217,28 @@ def post_check(inc: dict, text: str) -> dict:
         if n not in re.sub(r"[,\s]", "", text):
             notes.append("records_affected not found in source; cleared")
             inc["records_affected"] = None
+    if inc.get("control_failure", "unknown") != "unknown" and not inc.get("supporting_quote"):
+        notes.append("control_failure set without supporting_quote; reset to unknown")
+        inc["control_failure"] = "unknown"
+    low = text.lower()
+    cves = [c.upper() for c in (inc.get("cve") or [])]
+    kept = [c for c in cves if c.lower() in low]
+    if len(kept) != len(cves):
+        notes.append("cve not found in source; dropped " + ", ".join(sorted(set(cves) - set(kept))))
+    inc["cve"] = kept
+    actor = dict(default_actor(), **(inc.get("actor") or {}))
+    if actor.get("name") and _ws(actor["name"]) not in _ws(text):
+        notes.append(f"actor name {actor['name']!r} not in source; cleared")
+        actor["name"] = None
+    inc["actor"] = enrich_actor(actor)
+    inc["third_party"] = dict(default_third_party(), **(inc.get("third_party") or {}))
+    if inc.get("initial_access") != "stolen_or_valid_credentials":
+        inc["credential_source"] = None
+    inc.setdefault("control_failure", "unknown")
+    inc.setdefault("entry_asset", "unknown")
+    inc.setdefault("data_types", [])
+    inc.setdefault("ransomware", None)
+    inc.setdefault("discovered_date", None)
     inc["notes"] = "; ".join(notes) or None
     return inc
 
@@ -249,7 +272,7 @@ def extract_one(c: dict, text: str, run_date: str, provider: str | None = None,
     if c.get("evidence_level_hint") == "actor_claimed":
         inc["evidence_level"] = "actor_claimed"
     inc["id"] = make_id(inc["org_name"], inc["disclosed_date"])
-    inc["schema_version"] = "1.0"
+    inc["schema_version"] = "1.1"
     inc["sources"] = [{"url": s["url"], "type": s["type"], "title": s.get("title"), "fetched_at": None}
                       for s in c.get("all_sources", [{"url": c["source_url"], "type": c["source_type"]}])]
     inc["extracted_by"] = {"model": f"{provider}:{model}", "prompt_version": PROMPT_VERSION,

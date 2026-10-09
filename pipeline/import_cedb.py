@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from actors import default_third_party, enrich_actor  # noqa: E402
 from common import INCIDENTS_PATH, make_id, read_jsonl, today, validate, write_jsonl  # noqa: E402
 
 log = logging.getLogger("import_cedb")
@@ -45,6 +46,7 @@ INDUSTRY_MAP = {  # CEDB industry labels -> our org_type; extend after --inspect
     "energy": "energy_utilities", "transportation": "transportation_logistics",
     "professional": "professional_services", "nonprofit": "nonprofit",
 }
+CEDB_ACTOR_TYPE = {"criminal": "external", "nation-state": "external", "hacktivist": "external", "insider": "internal"}
 EVENT_TYPE_MAP = {"exploitive": "data_theft", "disruptive": "disruption_or_ransomware", "mixed": "both"}
 
 
@@ -65,7 +67,7 @@ def map_row(row: dict, run_date: str) -> dict | None:
     country = g("country")[:2].upper()
     out = {
         "id": make_id(name, d),
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "org_name": name[:200],
         "org_type": org_type(g("industry")),
         "org_country": country if len(country) == 2 and country.isalpha() else "unknown",
@@ -78,7 +80,10 @@ def map_row(row: dict, run_date: str) -> dict | None:
         "technology_involved": [],
         "impact_type": EVENT_TYPE_MAP.get(g("event_type").lower(), "unknown"),
         "records_affected": None,
-        "threat_actor": (g("actor")[:80] or None) if g("actor").lower() not in ("", "unknown") else None,
+        "discovered_date": None, "entry_asset": "unknown", "control_failure": "unknown", "credential_source": None,
+        "cve": [], "third_party": default_third_party(), "ransomware": None, "data_types": [],
+        "actor": enrich_actor({"name": (g("actor")[:80] or None) if g("actor").lower() not in ("", "unknown") else None,
+                               "category": CEDB_ACTOR_TYPE.get(g("actor_type").lower(), "unknown")}),
         "evidence_level": "press_report",
         "confidence": "medium",
         "supporting_quote": None,

@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from common import (CANDIDATES_PATH, INCIDENTS_PATH, MERGE_WINDOW_DAYS, PROCESSED_PATH,  # noqa: E402
                     PROMPT_VERSION, make_id, normalize_org, read_jsonl, today, validate, write_jsonl)
+from actors import default_actor, default_third_party, enrich_actor  # noqa: E402
 from dedupe import dedupe  # noqa: E402
 from fetch_text import fetch_text  # noqa: E402
 from sources import collect  # noqa: E402
@@ -42,6 +43,12 @@ MAINE_ORG_TYPE = {
     "Financial Services": "financial", "Education": "education", "Healthcare": "healthcare",
     "Government Entity in Maine": "government", "Other Commercial": "other",
     "Federal Government": "government",
+}
+MAINE_DATA_TYPES = {  # substrings of Maine's "Information Acquired" field -> data_types
+    "social security": "personal", "driver": "personal", "date of birth": "personal", "name": "personal",
+    "financial account": "financial", "credit": "financial", "debit": "financial", "bank": "financial",
+    "medical": "medical", "health": "medical", "insurance": "medical",
+    "password": "credentials", "username": "credentials", "account credentials": "credentials",
 }
 HHS_ENTITY_TYPE = {
     "Healthcare Provider": "healthcare", "Health Plan": "healthcare",
@@ -83,11 +90,19 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
     """Regulator rows with no narrative: build the record from checkboxes, no LLM."""
     hints = c.get("structured_hint") or {}
     h = hints.get(c["source_type"], hints) if c["source_type"] in hints else hints
+    actor, third_party, data_types, entry, discovered, ransomware = default_actor(), default_third_party(), [], "unknown", None, None
     if c["source_type"] == "hhs_portal":
         ia, veris = HHS_BREACH_TYPE.get((h.get("breach_type") or "").split(",")[0].strip(), ("unknown", "unknown"))
         org_type = HHS_ENTITY_TYPE.get(h.get("covered_entity_type") or "", "healthcare")
         records = _int(h.get("individuals_affected"))
         tech = [t.strip() for t in (h.get("location") or "").split(",") if t.strip()][:4]
+        data_types = ["medical"]  # every HHS row is protected health information by definition
+        if veris == "hacking" and tech == ["Email"]:
+            entry = "email_account"
+        if (h.get("business_associate_present") or "").strip().lower() == "yes":
+            third_party = {"involved": True, "archetype": "vendor_hosted_data", "vendor": None}
+        if ia == "insider":
+            actor = {"category": "internal", "variety": "unknown", "motive": "unknown", "name": None, "country": None}
     elif c["source_type"] == "state_ag":
         ia, veris = ("unknown", "unknown")
         for k, v in MAINE_DESC.items():
@@ -97,30 +112,46 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
         org_type = MAINE_ORG_TYPE.get(h.get("org_type_raw") or "", "unknown")
         records = _int(h.get("persons_affected"))
         tech = []
+        acquired = (h.get("information_acquired") or "").lower()
+        data_types = sorted({v for k, v in MAINE_DATA_TYPES.items() if k in acquired})
+        from sources import _iso
+        discovered = _iso(h.get("date_discovered"))
+        if ia == "insider":
+            actor = {"category": "internal", "variety": "unknown", "motive": "unknown", "name": None, "country": None}
     elif c["source_type"] == "ransomware_leak_site":
         # An actor claim tells you the group and that extortion is under way. It does not
         # tell you how they got in. Record exactly that much.
         ia, veris = ("unknown", "hacking")
         org_type, records, tech = "unknown", None, []
+        actor = enrich_actor({"name": h.get("group"), "category": "external", "variety": "organized_crime", "motive": "financial"})
+        ransomware = True
     else:
         return None
     is_claim = c["source_type"] == "ransomware_leak_site"
     rec = {
         "id": make_id(c["org_name"], c["disclosed_date"]),
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "org_name": c["org_name"],
         "org_type": org_type,
         "org_country": c.get("org_country", "US"),
         "disclosed_date": c["disclosed_date"],
         "incident_date": None,
+        "discovered_date": discovered,
         "initial_access": ia,
         "initial_access_attack_id": None,
         "veris_action": veris,
+        "entry_asset": entry,
+        "control_failure": "unknown",
+        "credential_source": None,
+        "cve": [],
         "root_cause": None,
         "technology_involved": tech,
+        "third_party": third_party,
+        "actor": actor,
         "impact_type": "disruption_or_ransomware" if is_claim else "unknown",
+        "ransomware": ransomware,
+        "data_types": data_types,
         "records_affected": records,
-        "threat_actor": (h.get("group") if is_claim else None) or None,
         "evidence_level": "actor_claimed" if is_claim else "regulator_filing",
         "confidence": "medium",
         "supporting_quote": None,

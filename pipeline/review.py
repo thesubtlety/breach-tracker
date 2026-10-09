@@ -31,8 +31,12 @@ def show(r: dict) -> None:
         print(f"root_cause:     {r['root_cause']}")
     if r.get("technology_involved"):
         print(f"technology:     {', '.join(r['technology_involved'])}")
-    if r.get("threat_actor") or r.get("records_affected") is not None:
-        print(f"actor: {r.get('threat_actor') or '-'}   records: {r.get('records_affected')}")
+    a = r.get("actor") or {}
+    print(f"actor: {a.get('name') or '-'} ({a.get('category')}/{a.get('variety')}/{a.get('motive')})   records: {r.get('records_affected')}"
+          f"   ransomware: {r.get('ransomware')}")
+    tp = r.get("third_party") or {}
+    print(f"control_failure: {r.get('control_failure')}   entry: {r.get('entry_asset')}   cve: {', '.join(r.get('cve') or []) or '-'}"
+          f"   third_party: {tp.get('involved')}/{tp.get('archetype') or '-'}/{tp.get('vendor') or '-'}   data: {', '.join(r.get('data_types') or []) or '-'}")
     if r.get("summary"):
         print(f"summary:        {r['summary']}")
     if r.get("supporting_quote"):

@@ -60,13 +60,15 @@
 </head>
 <body>
 <h1>Breach Tracker</h1>
-<p class="lead">How organizations actually get breached, counted only from what a public source said. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
+<p class="lead">How organizations actually get breached, counted only from what a public source said. This is a sample that grows weekly, not a census: the coverage line below says what each part of it spans. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
 <div class="fresh" id="fresh"></div>
 <div class="stats" id="stats"></div>
 
 <div class="charts">
   <div class="chart"><h3>Initial access, where stated</h3><div class="note" id="ia-note"></div><div class="bars" id="ia-bars"></div></div>
   <div class="chart"><h3>Who said so</h3><div class="note">Evidence level of the strongest source on each record in the current view.</div><div class="bars" id="ev-bars"></div></div>
+  <div class="chart"><h3>Why it worked, where stated</h3><div class="note" id="cf-note"></div><div class="bars" id="cf-bars"></div></div>
+  <div class="chart"><h3>Who, where stated</h3><div class="note" id="ac-note"></div><div class="bars" id="ac-bars"></div></div>
   <div class="chart"><h3>Sector</h3><div class="note">Records in the current view by organization type.</div><div class="bars" id="ot-bars"></div></div>
 </div>
 
@@ -78,7 +80,11 @@
   <label>evidence <select id="ev"><option value="">any</option></select></label>
   <label>sector <select id="ot"><option value="">any</option></select></label>
   <label>country <select id="cc"><option value="">any</option></select></label>
+  <label>control failure <select id="cf"><option value="">any</option></select></label>
+  <label>actor <select id="ac"><option value="">any</option></select></label>
   <label><input type="checkbox" id="known"> stated mechanism only</label>
+  <label><input type="checkbox" id="tp"> third party involved</label>
+  <label><input type="checkbox" id="rw"> ransomware</label>
   <button id="reset" type="button">reset</button>
   <button id="dl" type="button" title="CSV of the rows currently shown">download view as CSV</button>
 </div>
@@ -126,7 +132,7 @@ function claimOf(r) {
 function renderFresh() {
   const h = STATS.health || {}, counts = h.counts || {};
   const bits = [`Updated ${STATS.generated}`, `${STATS.added_last_7_days} records added in the last 7 days`];
-  if (STATS.date_range) bits.push(`covers ${STATS.date_range[0]} to ${STATS.date_range[1]}`);
+  for (const c of STATS.coverage || []) bits.push(`${c.n} ${c.origin} records, ${c.from} to ${c.to}`);
   const src = Object.entries(counts).map(([k, v]) => v === null ? `${k}: off` : `${k}: ${v}`).join(", ");
   if (src) bits.push(`last source check: ${src}`);
   if ((h.problems || []).length) bits.push(`<span class="bad">source problems: ${esc(h.problems.join("; "))}</span>`);
@@ -141,7 +147,8 @@ function renderStats(v) {
     [v.length, "records in view"],
     [`${known} (${pct}%)`, "with a stated mechanism"],
     [`${reviewed} of ${v.length}`, "reviewed by a person"],
-    [v.filter(x => claimOf(x)).length, "also claimed on a leak site"],
+    [v.filter(x => (x.third_party || {}).involved === true).length, "third party involved"],
+    [v.filter(x => x.ransomware === true).length, "ransomware or extortion"],
   ].map(([b, l]) => `<div class="stat"><b>${b}</b><span>${l}</span></div>`).join("");
 }
 function bars(el, counts, total, key, opts = {}) {
@@ -159,17 +166,35 @@ function renderCharts(v) {
   bars($("#ia-bars"), count(known, "initial_access"), known.length, "initial_access", { pct: true });
   bars($("#ev-bars"), count(v, "evidence_level"), v.length, "evidence_level", { pct: true });
   bars($("#ot-bars"), count(v, "org_type").slice(0, 10), v.length, "org_type");
+  const cf = v.filter(x => (x.control_failure || "unknown") !== "unknown");
+  $("#cf-note").textContent = v.length ? `${cf.length} of ${v.length} records say which control was missing or weak.` : "";
+  bars($("#cf-bars"), count(cf, "control_failure"), cf.length, "control_failure", { pct: true });
+  const av = v.map(x => ({ actor_variety: (x.actor || {}).variety || "unknown" })).filter(x => x.actor_variety !== "unknown");
+  $("#ac-note").textContent = v.length ? `${av.length} of ${v.length} records name or imply the kind of actor.` : "";
+  bars($("#ac-bars"), count(av, "actor_variety"), av.length, "actor_variety", { pct: true });
 }
 
 function filtered() {
   const q = $("#q").value.trim().toLowerCase(), p = $("#period").value, o = $("#origin").value, ia = $("#ia").value,
-        ev = $("#ev").value, ot = $("#ot").value, cc = $("#cc").value, known = $("#known").checked;
+        ev = $("#ev").value, ot = $("#ot").value, cc = $("#cc").value, known = $("#known").checked,
+        cf = $("#cf").value, ac = $("#ac").value, tp = $("#tp").checked, rw = $("#rw").checked;
   const since = p ? new Date(Date.now() - p * 864e5).toISOString().slice(0, 10) : "";
   return rows.filter(x =>
     (!since || x.disclosed_date >= since) && (!o || origin(x) === o) && (!ia || x.initial_access === ia) &&
     (!ev || x.evidence_level === ev) && (!ot || x.org_type === ot) && (!cc || x.org_country === cc) &&
-    (!known || x.initial_access !== "unknown") &&
-    (!q || [x.org_name, x.root_cause, x.threat_actor, (x.technology_involved || []).join(" "), x.summary, x.id].join(" ").toLowerCase().includes(q)));
+    (!known || x.initial_access !== "unknown") && (!cf || x.control_failure === cf) && (!ac || (x.actor || {}).variety === ac) &&
+    (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) &&
+    (!q || [x.org_name, x.root_cause, (x.actor || {}).name, (x.technology_involved || []).join(" "), (x.cve || []).join(" "), (x.third_party || {}).vendor, x.summary, x.id].join(" ").toLowerCase().includes(q)));
+}
+function actorLine(x) {
+  const a = x.actor || {};
+  const bits = [];
+  if (a.name) bits.push(esc(a.name));
+  if (a.variety && a.variety !== "unknown") bits.push(`<span class="tag" title="${gl("actor_variety", a.variety)}">${esc(a.variety)}</span>`);
+  if (a.motive && a.motive !== "unknown") bits.push(`<span class="tag">${esc(a.motive)}</span>`);
+  if (a.category && a.category !== "unknown" && a.category !== "external") bits.push(`<span class="tag">${esc(a.category)}</span>`);
+  if (a.country) bits.push(`<span class="tag">${esc(a.country)}</span>`);
+  return bits.join(" ") || null;
 }
 function detail(x) {
   const c = claimOf(x);
@@ -177,10 +202,17 @@ function detail(x) {
     ["summary", x.summary],
     ["quote", x.supporting_quote ? `<span class="quote">“${esc(x.supporting_quote)}”</span>` : null],
     ["root cause", x.root_cause],
+    ["control failure", x.control_failure && x.control_failure !== "unknown" ? `<span title="${gl("control_failure", x.control_failure)}">${esc(x.control_failure)}</span>` : null],
+    ["entry asset", x.entry_asset && x.entry_asset !== "unknown" ? `<span title="${gl("entry_asset", x.entry_asset)}">${esc(x.entry_asset)}</span>` : null],
+    ["CVE", (x.cve || []).map(c => `<a href="https://nvd.nist.gov/vuln/detail/${esc(c)}" rel="noopener">${esc(c)}</a>`).join(", ") || null],
+    ["credential source", x.credential_source && x.credential_source !== "unknown" ? x.credential_source : null],
     ["technology", (x.technology_involved || []).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") || null],
+    ["third party", (x.third_party || {}).involved === true ? `${esc(x.third_party.vendor || "yes")}${x.third_party.archetype ? ` <span class="tag" title="${gl("third_party", x.third_party.archetype)}">${esc(x.third_party.archetype)}</span>` : ""}` : (x.third_party || {}).involved === false ? "no" : null],
     ["ATT&CK", x.initial_access_attack_id], ["VERIS action", x.veris_action],
-    ["impact", x.impact_type], ["records affected", x.records_affected != null ? x.records_affected.toLocaleString() : null],
-    ["threat actor", x.threat_actor], ["incident date", x.incident_date],
+    ["impact", `${esc(x.impact_type)}${x.ransomware === true ? " · ransomware" : x.ransomware === false ? " · no ransomware" : ""}`],
+    ["data types", (x.data_types || []).join(", ") || null],
+    ["records affected", x.records_affected != null ? x.records_affected.toLocaleString() : null],
+    ["actor", actorLine(x)], ["incident date", x.incident_date], ["discovered", x.discovered_date],
     ["leak-site claim", c ? `<a href="${esc(c.url)}" rel="noopener">${esc(c.group || "claim")}</a> <span class="muted">Source: Ransomware.live</span>` : null],
     ["confidence", x.confidence ? `<span title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span>` : null],
     ["origin", `<span title="${gl("origin", origin(x))}">${origin(x)}</span>${x.imported_from ? ` (${esc(x.imported_from.dataset)} ${esc(x.imported_from.record_id)}, ${esc(x.imported_from.license || "")})` : ""} · ${esc(x.extracted_by.model)} · prompt ${esc(x.extracted_by.prompt_version)} · run ${esc(x.extracted_by.run_date)}`],
@@ -201,9 +233,9 @@ function render() {
     return `<tr class="row" data-id="${esc(x.id)}" aria-expanded="${isOpen}">
     <td>${esc(x.disclosed_date)}</td>
     <td>${esc(x.org_name)} <span class="tag" title="${gl("origin", o)}">${o}</span>${c ? ` <span class="tag claim" title="A ransomware group also claimed this on its leak site. Source: Ransomware.live">claimed</span>` : ""}<br><span class="small muted">${esc(x.org_type)} · ${esc(x.org_country || "")}${x.reviewed ? ' · <span class="rev">reviewed</span>' : ""}</span></td>
-    <td><span title="${gl("initial_access", x.initial_access)}">${esc(x.initial_access)}</span>${x.initial_access !== "unknown" && !x.supporting_quote ? ' <span class="unrev" title="no verbatim quote">no quote</span>' : ""}${(x.technology_involved || []).length ? "<br>" + x.technology_involved.slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : ""}</td>
+    <td><span title="${gl("initial_access", x.initial_access)}">${esc(x.initial_access)}</span>${x.initial_access !== "unknown" && !x.supporting_quote ? ' <span class="unrev" title="no verbatim quote">no quote</span>' : ""}${x.control_failure && x.control_failure !== "unknown" ? `<br><span class="small muted" title="${gl("control_failure", x.control_failure)}">why: ${esc(x.control_failure)}</span>` : ""}${(x.cve || []).length ? "<br>" + x.cve.slice(0, 2).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : (x.technology_involved || []).length ? "<br>" + x.technology_involved.slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : ""}</td>
     <td class="hide-sm"><span title="${gl("evidence_level", x.evidence_level)}">${esc(x.evidence_level)}</span><br><span class="small muted" title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span></td>
-    <td class="hide-sm">${esc(x.impact_type)}${x.threat_actor ? `<br><span class="tag">${esc(x.threat_actor)}</span>` : ""}</td>
+    <td class="hide-sm">${esc(x.impact_type)}${x.ransomware === true ? ' <span class="tag">ransomware</span>' : ""}${(x.actor || {}).name ? `<br><span class="tag">${esc(x.actor.name)}</span>` : (x.actor || {}).variety && x.actor.variety !== "unknown" ? `<br><span class="tag">${esc(x.actor.variety)}</span>` : ""}</td>
     <td class="hide-sm">${x.records_affected != null ? x.records_affected.toLocaleString() : ""}</td>
     <td class="chev">${isOpen ? "▾" : "▸"}</td></tr>${isOpen ? `<tr class="detail"><td colspan="7">${detail(x)}</td></tr>` : ""}`;
   }).join("");
@@ -216,7 +248,7 @@ function glossary() {
   for (const [field, defs] of Object.entries(G)) parts.push(`<h3 class="small" style="margin:12px 0 0">${esc(field)}</h3><dl>${Object.entries(defs).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`);
   $("#gloss").insertAdjacentHTML("beforeend", parts.join(""));
 }
-const FIELDS = ["q", "period", "origin", "ia", "ev", "ot", "cc", "known"];
+const FIELDS = ["q", "period", "origin", "ia", "ev", "ot", "cc", "cf", "ac", "known", "tp", "rw"];
 function toHash() {
   const p = new URLSearchParams();
   for (const f of FIELDS) { const el = $("#" + f); const v = el.type === "checkbox" ? (el.checked ? "1" : "") : el.value; if (v) p.set(f, v); }
@@ -231,9 +263,10 @@ function fromHash() {
   if (p.has("id")) open.add(p.get("id"));
 }
 function downloadCsv() {
-  const cols = ["id", "disclosed_date", "org_name", "org_type", "org_country", "initial_access", "veris_action", "root_cause", "technology_involved", "impact_type", "records_affected", "threat_actor", "evidence_level", "confidence", "reviewed", "summary", "source_url"];
+  const cols = ["id", "disclosed_date", "org_name", "org_type", "org_country", "initial_access", "entry_asset", "control_failure", "cve", "veris_action", "root_cause", "technology_involved", "third_party", "actor_name", "actor_variety", "actor_motive", "impact_type", "ransomware", "data_types", "records_affected", "evidence_level", "confidence", "reviewed", "summary", "source_url"];
   const cell = v => { v = Array.isArray(v) ? v.join("; ") : v ?? ""; v = String(v); return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
-  const lines = [cols.join(",")].concat(view.map(x => cols.map(c => cell(c === "source_url" ? (x.sources || [{}])[0].url : x[c])).join(",")));
+  const get = (x, c) => c === "source_url" ? (x.sources || [{}])[0].url : c === "third_party" ? ((x.third_party || {}).involved === true ? (x.third_party.archetype || "yes") : "") : c.startsWith("actor_") ? (x.actor || {})[c.slice(6)] : x[c];
+  const lines = [cols.join(",")].concat(view.map(x => cols.map(c => cell(get(x, c))).join(",")));
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
   a.download = `breach-tracker-${STATS.generated}.csv`; a.click();
@@ -246,6 +279,8 @@ fetch("incidents.json").then(r => r.json()).then(d => {
   fill($("#ev"), STATS.by_evidence.map(c => c[0]));
   fill($("#ot"), STATS.by_org_type.map(c => c[0]));
   fill($("#cc"), [...new Set(rows.map(x => x.org_country).filter(Boolean))].sort());
+  fill($("#cf"), STATS.by_control_failure.map(c => c[0]).filter(k => k !== "unknown"));
+  fill($("#ac"), STATS.by_actor_variety.map(c => c[0]).filter(k => k !== "unknown"));
   fromHash(); render();
   if (open.size) { const el = document.querySelector(`tr.row[data-id="${[...open][0]}"]`); if (el) el.scrollIntoView({ block: "center" }); }
 });

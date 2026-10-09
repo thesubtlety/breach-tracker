@@ -1,4 +1,4 @@
-# Extraction prompt (v1)
+# Extraction prompt (v3)
 
 Two parts: a system prompt (fixed, cacheable) and a user message (per incident).
 `pipeline/extract.py` loads this file, splits on the `---USER---` marker, and fills the
@@ -39,7 +39,45 @@ Rules:
    the entry point or the breached system ("Salesforce", "Okta", "GitHub Actions", "Citrix
    NetScaler", "self-hosted VPN appliance", "email account"). Do not add generic words like
    "network" or "servers".
-6. threat_actor: a named group only if the text attributes or the group claims it.
+6. actor: name only if the text attributes the incident to a group or person, or the
+   group claims it. category (external/internal/partner), variety (organized_crime,
+   state_affiliated, activist, former_employee, unaffiliated, end_user, system_admin)
+   and motive (financial, espionage, ideology, grudge) only if the text says so; a
+   ransom demand or leak-site post is enough for organized_crime + financial. Otherwise
+   "unknown". country only if stated. Never infer variety from the victim's industry.
+6a. control_failure: why the attack worked, only if the text states the missing or weak
+   control: unpatched_known_vuln (a patch existed), zero_day (no patch existed),
+   missing_mfa, weak_or_reused_password, excessive_privilege, exposed_service_or_storage
+   (open to the internet with no auth), unrotated_secret_or_token, eol_software,
+   staff_deceived (social engineering succeeded), insider_access_abuse,
+   vendor_control_failure (the failure was at a third party). Requires a
+   supporting_quote. "unknown" otherwise. This is distinct from initial_access: an
+   exploited VPN is initial_access=exploit_public_facing_app and control_failure is
+   unpatched_known_vuln only if the text says the patch was available.
+6b. cve: CVE ids exactly as written in the text, only those described as exploited here.
+6c. entry_asset: the asset the attacker came in through, only if named: vpn_or_edge_device,
+   web_application, remote_desktop, email_account, saas_or_cloud_console,
+   api_or_integration_token, endpoint, physical. "unknown" otherwise.
+6d. credential_source: when initial_access is stolen_or_valid_credentials and the text
+   says where the credentials came from: infostealer, phishing, leak_or_reuse,
+   brute_force. Null when initial_access is anything else.
+6e. third_party: involved=true only if a vendor, supplier, integration or service
+   provider was part of how it happened; then archetype: vendor_product (a flaw or
+   backdoor in a vendor product running in the victim's environment),
+   vendor_hosted_data (the vendor held the victim's data and was breached, or the
+   victim's account on the vendor platform was abused), vendor_connection (the vendor's
+   access, credentials or tokens into the victim were used). vendor = its name.
+   involved=null if the text doesn't say; false only if the text says it was not.
+   When a third party is involved, initial_access is still the mechanism if the text
+   states one (an unpatched system at a contractor is exploit_public_facing_app; a
+   stolen vendor token is stolen_or_valid_credentials). Use
+   supply_chain_or_third_party only when the text says it came through a vendor and
+   says nothing about how.
+6f. data_types: kinds of data taken or exposed, only if stated: personal, medical,
+   financial, credentials, internal, secrets, other.
+6g. ransomware: true if ransomware was deployed or extortion demanded; false only if the
+   text says it was not; null otherwise. discovered_date: when the organization
+   discovered it, if stated.
 7. org_type: pick the closest bucket from the enum. A hospital system is healthcare; a
    benefits administrator serving hospitals is professional_services unless it is itself a
    covered entity; a SaaS vendor is technology_saas; a school district is education.

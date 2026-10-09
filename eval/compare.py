@@ -34,8 +34,8 @@ from common import read_jsonl, write_jsonl  # noqa: E402
 LABELS_DIR = ROOT / "eval" / "labels"
 GOLD_PATH = ROOT / "eval" / "gold.jsonl"
 DOCS_PATH = ROOT / "eval" / "docs.jsonl"
-ENUM_FIELDS = ["initial_access", "org_type", "evidence_level", "impact_type", "veris_action"]
-ALL_FIELDS = ["skip"] + ENUM_FIELDS + ["records_affected", "threat_actor", "root_cause_present", "technology_involved"]
+ENUM_FIELDS = ["initial_access", "org_type", "evidence_level", "impact_type", "veris_action", "control_failure", "entry_asset"]
+ALL_FIELDS = ["skip"] + ENUM_FIELDS + ["records_affected", "actor_name", "actor_variety", "third_party", "cve", "root_cause_present", "technology_involved"]
 
 
 def field_value(row: dict, field: str):
@@ -47,8 +47,14 @@ def field_value(row: dict, field: str):
         return None
     if field == "root_cause_present":
         return bool(rec.get("root_cause"))
-    if field == "threat_actor":
-        return (rec.get("threat_actor") or "").strip().lower() or None
+    if field == "actor_name":
+        return ((rec.get("actor") or {}).get("name") or "").strip().lower() or None
+    if field == "actor_variety":
+        return (rec.get("actor") or {}).get("variety")
+    if field == "third_party":
+        return (rec.get("third_party") or {}).get("involved")
+    if field == "cve":
+        return frozenset(c.upper() for c in rec.get("cve") or [])
     if field == "technology_involved":
         return frozenset(t.strip().lower() for t in rec.get("technology_involved") or [])
     return rec.get(field)
@@ -99,11 +105,11 @@ def score(cand: dict[str, dict], silver: dict[str, dict], fields: list[str]) -> 
                 continue
             v = field_value(cand[doc_id], f)
             n += 1
-            if f == "technology_involved":
+            if f in ("technology_involved", "cve"):
                 j += jaccard(v or frozenset(), truth[f] or frozenset())
             elif v == truth[f]:
                 hits += 1
-        out[f] = round((j if f == "technology_involved" else hits) / n, 3) if n else None
+        out[f] = round((j if f in ("technology_involved", "cve") else hits) / n, 3) if n else None
         out[f + "_n"] = n
     # initial_access precision on confident answers, and unknown rate
     known, known_hit, unk, tot = 0, 0, 0, 0

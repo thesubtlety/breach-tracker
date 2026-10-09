@@ -5,6 +5,25 @@ Every entry that changes how a field is populated gets a `schema_version` bump.
 
 ## Unreleased
 
+### 2026-10-09 — schema 1.1
+
+Additive. Existing records migrated with `pipeline/migrate.py` (new fields unknown/null).
+
+- `actor` object (category, variety, motive, name, country) replaces `threat_actor`.
+  Variety and motive are filled deterministically for known groups (`pipeline/actors.py`);
+  the model may only name a group the text attributes.
+- `third_party` object (involved, archetype, vendor) following the DBIR's three archetypes.
+  `initial_access` stays the mechanism; `supply_chain_or_third_party` is kept for texts
+  that say only "through a vendor".
+- `control_failure` enum: why the attack worked, only when stated, quote required.
+- `cve` (checked verbatim against the text), `entry_asset` (VERIS hacking vector,
+  collapsed), `credential_source`, `data_types`, `discovered_date`, `ransomware`.
+- VCDB import mapping v2 fills actor, entry asset, CVE, data types and ransomware from
+  the VERIS coding. Maine notices fill data_types and discovered_date; HHS rows fill
+  data_types=medical and third_party from "Business Associate Present".
+- Prompt v3 adds the rules for these fields.
+- See docs/VERIS-MAPPING.md for the crosswalk.
+
 ### 2026-10-09
 
 - Prompt v2: org_name must be the plain common name (no "(FBI)"-style suffix);

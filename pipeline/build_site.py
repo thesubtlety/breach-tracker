@@ -43,6 +43,47 @@ GLOSSARY = {
         "extracted": "A language model read the source and filled the fields; a verbatim quote is required for any stated mechanism.",
         "imported": "Mapped from an existing coded dataset (VCDB). Not re-read. The date is the incident date, not a disclosure date.",
     },
+    "control_failure": {
+        "unpatched_known_vuln": "A fix existed and was not applied.",
+        "zero_day": "No fix existed when it was exploited.",
+        "missing_mfa": "The abused account had no second factor.",
+        "weak_or_reused_password": "Guessable, default or previously leaked password.",
+        "excessive_privilege": "An account or token could reach far more than its job needed.",
+        "exposed_service_or_storage": "Open to the internet with no authentication: bucket, database, admin panel.",
+        "unrotated_secret_or_token": "A long-lived key or token stayed valid after it should have been retired.",
+        "eol_software": "Software past end of support, no fixes available.",
+        "staff_deceived": "Social engineering worked on a person.",
+        "insider_access_abuse": "Legitimate access used for an illegitimate purpose.",
+        "vendor_control_failure": "The failing control belonged to a third party.",
+        "unknown": "The source did not say why the attack worked. Most sources don't.",
+    },
+    "entry_asset": {
+        "vpn_or_edge_device": "VPN, firewall, gateway or other perimeter appliance.",
+        "web_application": "An internet-facing application or its server.",
+        "remote_desktop": "RDP, VNC or remote-support tooling.",
+        "email_account": "A mailbox or mail platform.",
+        "saas_or_cloud_console": "A cloud or SaaS tenant reached through its own login.",
+        "api_or_integration_token": "A programmatic credential: API key, OAuth token, service account.",
+        "endpoint": "A laptop, workstation or server reached directly.",
+        "physical": "In person, or a device that was taken.",
+        "unknown": "Not stated.",
+    },
+    "actor_variety": {
+        "organized_crime": "Criminals running a repeatable operation, almost always for money: ransomware and extortion crews.",
+        "state_affiliated": "Working for or on behalf of a government, usually for espionage.",
+        "activist": "Ideologically motivated.",
+        "former_employee": "Someone who used to have legitimate access.",
+        "unaffiliated": "An individual with no known group.",
+        "end_user": "An employee without elevated access, usually by mistake.",
+        "system_admin": "An employee with elevated access.",
+        "other": "Stated, but none of the above.",
+        "unknown": "Not stated and not a known group.",
+    },
+    "third_party": {
+        "vendor_product": "A flaw or backdoor in a vendor product running in the victim's own environment.",
+        "vendor_hosted_data": "The vendor held the victim's data and was breached, or the victim's account on the vendor platform was abused.",
+        "vendor_connection": "The vendor's access, credentials or tokens into the victim were used.",
+    },
     "confidence": {
         "high": "Mechanism and cause are directly supported by the quoted text.",
         "medium": "Supported, with some interpretation.",
@@ -50,11 +91,32 @@ GLOSSARY = {
     },
 }
 
-CSV_COLS = ["disclosed_date", "org_name", "org_type", "org_country", "initial_access",
-            "veris_action", "root_cause", "technology_involved", "impact_type", "records_affected",
-            "threat_actor", "evidence_level", "confidence", "reviewed", "summary", "source_url"]
+CSV_COLS = ["id", "disclosed_date", "incident_date", "discovered_date", "org_name", "org_type", "org_country",
+            "initial_access", "entry_asset", "control_failure", "credential_source", "cve", "veris_action",
+            "root_cause", "technology_involved", "third_party_involved", "third_party_archetype", "third_party_vendor",
+            "actor_name", "actor_category", "actor_variety", "actor_motive", "actor_country",
+            "impact_type", "ransomware", "data_types", "records_affected",
+            "evidence_level", "confidence", "reviewed", "summary", "source_url"]
 
 TEMPLATE = (Path(__file__).parent.parent / "site" / "template.html")
+
+
+def origin(r: dict) -> str:
+    if r.get("imported_from"):
+        return "imported"
+    return "regulator" if r["extracted_by"]["model"] == "deterministic" else "extracted"
+
+
+def coverage(rows: list[dict]) -> list[dict]:
+    """What the dataset actually spans, per origin: readers should not mistake a young
+    pipeline for the history of breaches."""
+    out = []
+    for o in ("regulator", "extracted", "imported"):
+        sub = [r for r in rows if origin(r) == o]
+        if sub:
+            out.append({"origin": o, "n": len(sub), "from": min(r["disclosed_date"] for r in sub),
+                        "to": max(r["disclosed_date"] for r in sub)})
+    return out
 
 
 def claim_only(r: dict) -> bool:
@@ -76,7 +138,12 @@ def main() -> int:
         w.writeheader()
         for r in rows:
             flat = dict(r)
-            flat["technology_involved"] = "; ".join(r.get("technology_involved") or [])
+            for k in ("technology_involved", "cve", "data_types"):
+                flat[k] = "; ".join(r.get(k) or [])
+            tp, a = r.get("third_party") or {}, r.get("actor") or {}
+            flat.update(third_party_involved=tp.get("involved"), third_party_archetype=tp.get("archetype"), third_party_vendor=tp.get("vendor"),
+                        actor_name=a.get("name"), actor_category=a.get("category"), actor_variety=a.get("variety"),
+                        actor_motive=a.get("motive"), actor_country=a.get("country"))
             flat["source_url"] = r["sources"][0]["url"] if r.get("sources") else ""
             w.writerow(flat)
 
@@ -93,6 +160,12 @@ def main() -> int:
         "by_initial_access": Counter(r["initial_access"] for r in rows).most_common(),
         "by_org_type": Counter(r["org_type"] for r in rows).most_common(),
         "by_evidence": Counter(r["evidence_level"] for r in rows).most_common(),
+        "by_control_failure": Counter(r.get("control_failure", "unknown") for r in rows).most_common(),
+        "by_actor_variety": Counter((r.get("actor") or {}).get("variety", "unknown") for r in rows).most_common(),
+        "known_control_failure": sum(1 for r in rows if r.get("control_failure", "unknown") != "unknown"),
+        "third_party_involved": sum(1 for r in rows if (r.get("third_party") or {}).get("involved") is True),
+        "ransomware": sum(1 for r in rows if r.get("ransomware") is True),
+        "coverage": coverage(rows),
         "health": {"run_at": health.get("run_at"), "counts": (health.get("health") or {}).get("counts", {}),
                    "problems": (health.get("health") or {}).get("problems", []),
                    "skipped": (health.get("health") or {}).get("skipped", [])},

@@ -47,7 +47,7 @@ Review this file when something breaks, and once a quarter regardless. Last revi
 
 | # | Risk | Why it matters | Mitigation | Status |
 |---|---|---|---|---|
-| Y1 | Taxonomy drift | ATT&CK ships twice a year; "AI integration / agent credential / MCP token" is already a real initial-access pattern with no bucket | `schema_version` on records; enum changes are additive only; migration note per change in `docs/CHANGELOG.md` | mitigated (field exists); discipline required |
+| Y1 | Taxonomy drift | ATT&CK ships twice a year; the DBIR split Pretexting from Phishing in 2026; "agent credential / MCP token" is a real pattern with no bucket yet (`api_or_integration_token` + `unrotated_secret_or_token` is the closest) | `schema_version` on records; enum changes are additive only; `pipeline/migrate.py` for each bump; migration note per change in `docs/CHANGELOG.md`; `docs/VERIS-MAPPING.md` kept current | mitigated; 1.1 done this way |
 | Y2 | Data volume | ~15k records/year; multi-MB `incidents.json` makes the client table slow on phones | Split `incidents.json` by year, or move to SQLite + Datasette-lite. JSONL in git stays fine | planned when >10k records |
 | Y3 | Disputes and takedowns | `actor_claimed` records name organizations from leak sites that misattribute; someone will dispute | Visible corrections process; "claim, not confirmed" labeling; `reviewed` + `notes` on corrected records; CHANGELOG entry per correction | planned |
 | Y4 | Source landscape moves | SEC cyber rule under political pressure; NIS2 feeds may appear; more state AG feeds | Fetchers are isolated per source; yearly review of the source table in README | accepted; annual review |

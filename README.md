@@ -106,7 +106,7 @@ is one environment variable; nothing else changes.
 
 ## Schema
 
-`schema/incident.schema.json`. Roughly 15 fields; the ones that carry the point:
+`schema/incident.schema.json` (1.1). The fields that carry the point:
 
 - `initial_access` — ATT&CK Initial Access (TA0001) collapsed to 10 values plus
   `unknown`. `initial_access_attack_id` holds the T-number when clear.
@@ -118,7 +118,20 @@ is one environment variable; nothing else changes.
 - `supporting_quote` — verbatim sentence; checked as a substring of the source. If it
   isn't there, confidence drops to `low`; if `initial_access` was set without one, it is
   reset to `unknown`.
+- `control_failure` — why it worked, when a source says: missing MFA, unpatched known
+  vuln, exposed storage, unrotated token, and so on. Distinct from `initial_access`
+  (how they got in). Quote required. Expect `unknown` for most records.
+- `cve`, `entry_asset`, `credential_source` — the technical detail around initial access
+  when stated: which CVE, through what kind of asset, where the credentials came from.
+- `third_party` — DBIR's three archetypes (vendor product, vendor-hosted data, vendor
+  connection) as a flag separate from the mechanism.
+- `actor` — category, variety, motive, name, country. Name only if attributed; variety
+  and motive filled deterministically for known groups (`pipeline/actors.py`).
+- `data_types`, `ransomware`, `discovered_date` — cheap VERIS attributes; regulators and
+  VCDB supply most of them.
 - `reviewed` — human flag. Reviewed records are never overwritten by later runs.
+
+`docs/VERIS-MAPPING.md` is the crosswalk to VERIS and the DBIR.
 
 `id` is `sha1(normalized org + first disclosed date)`. A later source for the same
 org joins that record if it lands within 45 days, or names the same incident date;

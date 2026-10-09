@@ -16,6 +16,9 @@ from run import (deterministic_record, find_record, looks_like_incident_8k,  # n
                  merge_into_store, mostly_english)
 from sources import _hhs_csv_rows, _iso  # noqa: E402
 from build_site import claim_only  # noqa: E402
+from actors import enrich_actor  # noqa: E402
+from migrate import to_1_1  # noqa: E402
+import import_vcdb  # noqa: E402
 
 
 def cand(org, d, st="press", ev="press_report", url=None, hint=None):
@@ -25,12 +28,14 @@ def cand(org, d, st="press", ev="press_report", url=None, hint=None):
 
 
 def record(org, d, **over):
-    r = {"id": make_id(org, d), "schema_version": "1.0", "org_name": org, "org_type": "other",
+    r = {"id": make_id(org, d), "schema_version": "1.1", "org_name": org, "org_type": "other",
          "org_country": "US", "disclosed_date": d, "incident_date": None, "initial_access": "unknown",
          "initial_access_attack_id": None, "veris_action": "unknown", "root_cause": None,
          "technology_involved": [], "impact_type": "unknown", "records_affected": None,
          "threat_actor": None, "evidence_level": "press_report", "confidence": "medium",
          "supporting_quote": None, "summary": None,
+         "actor": {"category": "unknown", "variety": "unknown", "motive": "unknown", "name": None, "country": None},
+         "third_party": {"involved": None, "archetype": None, "vendor": None}, "control_failure": "unknown",
          "sources": [{"url": f"https://x/{org}/{d}", "type": "press", "title": None, "fetched_at": None}],
          "extracted_by": {"model": "t", "prompt_version": "t", "run_date": d}, "reviewed": False, "notes": None}
     r.update(over)
@@ -150,3 +155,67 @@ def test_claim_only_records_are_withheld_from_publication():
     assert claim_only(claim)
     claim["sources"].append({"url": "https://news/x", "type": "press", "title": None, "fetched_at": None})
     assert not claim_only(claim)
+
+
+# --- 1.1: root cause and actor ---------------------------------------------------------
+CVE_TEXT = "Attackers exploited CVE-2025-12345 in the company's Citrix NetScaler; a patch had been available since June. ShinyHunters claimed the theft."
+
+
+def test_post_check_keeps_only_cves_present_in_text():
+    inc = post_check({"initial_access": "exploit_public_facing_app", "supporting_quote": "Attackers exploited CVE-2025-12345",
+                      "cve": ["cve-2025-12345", "CVE-2024-99999"], "confidence": "high"}, CVE_TEXT)
+    assert inc["cve"] == ["CVE-2025-12345"] and "CVE-2024-99999" in inc["notes"]
+
+
+def test_post_check_clears_actor_name_absent_from_text_and_enriches_known_groups():
+    inc = post_check({"initial_access": "unknown", "actor": {"name": "LockBit"}, "confidence": "low"}, CVE_TEXT)
+    assert inc["actor"]["name"] is None
+    inc = post_check({"initial_access": "unknown", "actor": {"name": "ShinyHunters"}, "confidence": "low"}, CVE_TEXT)
+    assert inc["actor"] == {"category": "external", "variety": "organized_crime", "motive": "financial", "name": "ShinyHunters", "country": None}
+
+
+def test_post_check_resets_control_failure_without_quote_and_credential_source_without_cred_access():
+    inc = post_check({"initial_access": "unknown", "control_failure": "missing_mfa", "credential_source": "infostealer", "confidence": "high"}, CVE_TEXT)
+    assert inc["control_failure"] == "unknown" and inc["credential_source"] is None
+
+
+def test_enrich_actor_never_overrides_a_stated_value():
+    a = enrich_actor({"name": "Salt Typhoon", "motive": "financial"})
+    assert (a["variety"], a["motive"], a["country"]) == ("state_affiliated", "financial", "CN")
+    assert enrich_actor({"name": "Nobody Special"})["variety"] == "unknown"
+
+
+def test_migration_to_1_1_is_idempotent_and_valid():
+    old = record("Acme", "2026-01-01"); old["schema_version"] = "1.0"
+    for k in ("actor", "third_party", "control_failure"):
+        old.pop(k)
+    old["threat_actor"] = "Qilin"; old["initial_access"] = "supply_chain_or_third_party"
+    new = to_1_1(dict(old))
+    assert not validate(new)
+    assert new["actor"]["name"] == "Qilin" and new["actor"]["variety"] == "organized_crime"
+    assert new["third_party"]["involved"] is True and "threat_actor" not in new
+    assert to_1_1(dict(new)) == new
+
+
+def test_hhs_and_leak_site_records_fill_1_1_fields():
+    c = cand("Woodlawn Hospital", "2026-09-21", "hhs_portal", "regulator_filing",
+             hint={"covered_entity_type": "Healthcare Provider", "individuals_affected": "742",
+                   "breach_type": "Hacking/IT Incident", "location": "Email", "business_associate_present": "Yes"})
+    r = deterministic_record(c, "2026-10-09")
+    assert r["data_types"] == ["medical"] and r["entry_asset"] == "email_account" and r["third_party"]["involved"] is True
+    c = cand("Victim Co", "2026-10-01", "ransomware_leak_site", "actor_claimed", hint={"group": "qilin"})
+    r = deterministic_record(c, "2026-10-09")
+    assert r["ransomware"] is True and r["actor"]["variety"] == "organized_crime" and r["actor"]["name"] == "qilin" and not validate(r)
+
+
+def test_vcdb_actor_vector_and_data_mapping():
+    rec = {"actor": {"external": {"variety": ["Organized crime"], "motive": ["Financial"], "name": ["LockBit"], "country": ["RU"]}},
+           "action": {"hacking": {"variety": ["Exploit vuln"], "vector": ["VPN"], "cve": "CVE-2023-4966"}, "malware": {"variety": ["Ransomware"]}},
+           "attribute": {"confidentiality": {"data": [{"variety": "Personal"}, {"variety": "Medical"}], "data_disclosure": "Yes"}},
+           "victim": {"victim_id": "Acme Hospital", "industry": "622", "country": ["US"]},
+           "timeline": {"incident": {"year": 2024, "month": 3}}, "reference": "https://example.org/a", "confidence": "High", "summary": "x"}
+    out = import_vcdb.map_record(rec, "2026-10-09")
+    assert out and not validate(out)
+    assert out["actor"]["variety"] == "organized_crime" and out["actor"]["name"] == "LockBit" and out["actor"]["country"] == "RU"
+    assert out["entry_asset"] == "vpn_or_edge_device" and out["cve"] == ["CVE-2023-4966"] and out["ransomware"] is True
+    assert out["data_types"] == ["medical", "personal"] and out["initial_access"] == "exploit_public_facing_app"

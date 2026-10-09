@@ -269,6 +269,7 @@ def maine_ag(since: date, max_pages: int = 150) -> list[dict]:
                 "persons_affected": fields.get("Total number of persons affected (including residents)"),
                 "date_occurred": fields.get("Date(s) Breach Occured"),
                 "date_discovered": fields.get("Date Breach Discovered"),
+                "information_acquired": next((v for k, v in fields.items() if k.startswith("Information Acquired")), None),
                 "state": fields.get("State, or Country if outside the US"),
             },
             "evidence_level_hint": "regulator_filing",
