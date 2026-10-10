@@ -1,6 +1,7 @@
 """Shared helpers: paths, IDs, normalization, schema validation."""
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import os
@@ -32,6 +33,7 @@ _SUFFIXES = re.compile(
 )
 
 
+@functools.lru_cache(maxsize=None)
 def normalize_org(name: str) -> str:
     """Lowercase, strip punctuation and corporate suffixes, collapse whitespace.
     Good enough for same-week dedupe; not an entity resolver."""

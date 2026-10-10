@@ -449,6 +449,19 @@
       ],
       "maxLength": 500
     },
+    "first_seen": {
+      "type": "string",
+      "format": "date",
+      "description": "Run date on which this record entered the store. Survives merges; extracted_by.run_date does not."
+    },
+    "updated_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date",
+      "description": "Last run date on which a later source changed this record (new source, richer fields, or an attached claim)."
+    },
     "imported_from": {
       "type": [
         "object",

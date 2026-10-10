@@ -5,6 +5,17 @@ Every entry that changes how a field is populated gets a `schema_version` bump.
 
 ## Unreleased
 
+### 2026-10-10
+
+- `first_seen` and `updated_at` on every record (optional in the schema; migrated with
+  `pipeline/migrate.py`, first_seen = the original run date). `merge_into_store` stamps
+  `updated_at` only when a merge actually changed the record. The site gets a "This week"
+  panel and a `new or updated this week` filter; imported dataset rows are excluded there.
+- VCDB imported from 2010 onward (was 2022), MOVEit 2023 campaign excluded as before:
+  7,432 records, incident-year dated. Store 961 -> 8,275.
+- `find_record` takes an optional org index; `settle_claims` uses it, so a weekly run with
+  10k pending claims against an 8k store no longer takes minutes.
+
 ### 2026-10-09 — schema 1.1
 
 Additive. Existing records migrated with `pipeline/migrate.py` (new fields unknown/null).

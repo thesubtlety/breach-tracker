@@ -17,6 +17,14 @@
   .lead { max-width:70ch; }
   .fresh { font-size:13px; color:var(--muted); margin:8px 0 16px; }
   .fresh .bad { color:var(--warn); }
+  .week { border:1px solid var(--line); border-radius:6px; padding:10px 12px; margin:0 0 16px; }
+  .week h3 { font-size:14px; margin:0 0 4px; font-weight:600; }
+  .week .note { font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .week ul { list-style:none; margin:0; padding:0; columns:2; column-gap:24px; font-size:13px; }
+  .week li { break-inside:avoid; padding:2px 0; } .week li a { color:inherit; text-decoration:none; } .week li a:hover { text-decoration:underline; }
+  .week .d { color:var(--muted); font-variant-numeric:tabular-nums; margin-right:6px; }
+  .tag.new { border-color:var(--ok); color:var(--ok); } .tag.upd { border-color:var(--warn); color:var(--warn); }
+  @media (max-width: 700px) { .week ul { columns:1; } }
   .stats { display:flex; gap:12px; flex-wrap:wrap; margin:12px 0 16px; }
   .stat { border:1px solid var(--line); border-radius:6px; padding:8px 12px; min-width:130px; }
   .stat b { display:block; font-size:20px; font-weight:600; } .stat span { font-size:13px; color:var(--muted); }
@@ -63,6 +71,7 @@
 <p class="lead">How organizations actually get breached, counted only from what a public source said. This is a sample that grows weekly, not a census: the coverage line below says what each part of it spans. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
 <div class="fresh" id="fresh"></div>
 <div class="stats" id="stats"></div>
+<div class="week" id="week" hidden></div>
 
 <div class="charts">
   <div class="chart"><h3>Initial access, where stated</h3><div class="note" id="ia-note"></div><div class="bars" id="ia-bars"></div></div>
@@ -85,6 +94,7 @@
   <label><input type="checkbox" id="known"> stated mechanism only</label>
   <label><input type="checkbox" id="tp"> third party involved</label>
   <label><input type="checkbox" id="rw"> ransomware</label>
+  <label><input type="checkbox" id="wk" title="First recorded, or changed by a later source, in the 7 days before this build. Imported dataset rows excluded."> new or updated this week</label>
   <button id="reset" type="button">reset</button>
   <button id="dl" type="button" title="CSV of the rows currently shown">download view as CSV</button>
 </div>
@@ -129,9 +139,29 @@ function claimOf(r) {
   return s ? { url: s.url, group: r.threat_actor } : null;
 }
 
+function firstSeen(x) { return x.first_seen || (x.extracted_by || {}).run_date || ""; }
+function isNew(x) { return firstSeen(x) >= STATS.week_ago; }
+function changedThisWeek(x) { return isNew(x) || (x.updated_at || "") >= STATS.week_ago; }
+function openRow(id) {
+  open.clear(); open.add(id); render(); toHash();
+  const el = document.querySelector(`tr.row[data-id="${id}"]`); if (el) el.scrollIntoView({ block: "center" });
+}
+function renderWeek() {
+  const items = rows.filter(x => origin(x) !== "imported" && changedThisWeek(x)).sort((a, b) => a.disclosed_date < b.disclosed_date ? 1 : -1);
+  const el = $("#week");
+  if (!items.length) { el.hidden = true; return; }
+  const LIMIT = 30, shown = items.slice(0, LIMIT);
+  const nNew = items.filter(isNew).length, nUpd = items.length - nNew;
+  el.hidden = false;
+  el.innerHTML = `<h3>This week</h3><div class="note">${nNew} records first recorded and ${nUpd} changed by a later source since ${esc(STATS.week_ago)}. Imported dataset rows are not listed${STATS.imported_last_7_days ? ` (${STATS.imported_last_7_days} added)` : ""}. Click a row to open it.</div>
+  <ul>${shown.map(x => `<li><a href="#id=${esc(x.id)}" data-open="${esc(x.id)}"><span class="d">${esc(x.disclosed_date)}</span>${esc(x.org_name)} <span class="muted">· ${esc(x.initial_access)}${x.ransomware === true ? " · ransomware" : ""}</span> <span class="tag ${isNew(x) ? "new" : "upd"}">${isNew(x) ? "new" : "updated"}</span></a></li>`).join("")}</ul>
+  ${items.length > LIMIT ? `<div class="note" style="margin-top:6px"><a href="#wk=1" id="week-all">Show all ${items.length} in the table</a></div>` : ""}`;
+  el.querySelectorAll("a[data-open]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openRow(a.dataset.open); }));
+  const all = $("#week-all"); if (all) all.addEventListener("click", e => { e.preventDefault(); $("#wk").checked = true; render(); toHash(); $("#t").scrollIntoView({ block: "start" }); });
+}
 function renderFresh() {
   const h = STATS.health || {}, counts = h.counts || {};
-  const bits = [`Updated ${STATS.generated}`, `${STATS.added_last_7_days} records added in the last 7 days`];
+  const bits = [`Updated ${STATS.generated}`, `${STATS.added_last_7_days} records added and ${STATS.updated_last_7_days} updated in the last 7 days${STATS.imported_last_7_days ? ` (plus ${STATS.imported_last_7_days} imported dataset rows)` : ""}`];
   for (const c of STATS.coverage || []) bits.push(`${c.n} ${c.origin} records, ${c.from} to ${c.to}`);
   const src = Object.entries(counts).map(([k, v]) => v === null ? `${k}: off` : `${k}: ${v}`).join(", ");
   if (src) bits.push(`last source check: ${src}`);
@@ -177,13 +207,13 @@ function renderCharts(v) {
 function filtered() {
   const q = $("#q").value.trim().toLowerCase(), p = $("#period").value, o = $("#origin").value, ia = $("#ia").value,
         ev = $("#ev").value, ot = $("#ot").value, cc = $("#cc").value, known = $("#known").checked,
-        cf = $("#cf").value, ac = $("#ac").value, tp = $("#tp").checked, rw = $("#rw").checked;
+        cf = $("#cf").value, ac = $("#ac").value, tp = $("#tp").checked, rw = $("#rw").checked, wk = $("#wk").checked;
   const since = p ? new Date(Date.now() - p * 864e5).toISOString().slice(0, 10) : "";
   return rows.filter(x =>
     (!since || x.disclosed_date >= since) && (!o || origin(x) === o) && (!ia || x.initial_access === ia) &&
     (!ev || x.evidence_level === ev) && (!ot || x.org_type === ot) && (!cc || x.org_country === cc) &&
     (!known || x.initial_access !== "unknown") && (!cf || x.control_failure === cf) && (!ac || (x.actor || {}).variety === ac) &&
-    (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) &&
+    (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) && (!wk || (changedThisWeek(x) && origin(x) !== "imported")) &&
     (!q || [x.org_name, x.root_cause, (x.actor || {}).name, (x.technology_involved || []).join(" "), (x.cve || []).join(" "), (x.third_party || {}).vendor, x.summary, x.id].join(" ").toLowerCase().includes(q)));
 }
 function actorLine(x) {
@@ -215,7 +245,7 @@ function detail(x) {
     ["actor", actorLine(x)], ["incident date", x.incident_date], ["discovered", x.discovered_date],
     ["leak-site claim", c ? `<a href="${esc(c.url)}" rel="noopener">${esc(c.group || "claim")}</a> <span class="muted">Source: Ransomware.live</span>` : null],
     ["confidence", x.confidence ? `<span title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span>` : null],
-    ["origin", `<span title="${gl("origin", origin(x))}">${origin(x)}</span>${x.imported_from ? ` (${esc(x.imported_from.dataset)} ${esc(x.imported_from.record_id)}, ${esc(x.imported_from.license || "")})` : ""} · ${esc(x.extracted_by.model)} · prompt ${esc(x.extracted_by.prompt_version)} · run ${esc(x.extracted_by.run_date)}`],
+    ["origin", `<span title="${gl("origin", origin(x))}">${origin(x)}</span>${x.imported_from ? ` (${esc(x.imported_from.dataset)} ${esc(x.imported_from.record_id)}, ${esc(x.imported_from.license || "")})` : ""} · ${esc(x.extracted_by.model)} · prompt ${esc(x.extracted_by.prompt_version)} · run ${esc(x.extracted_by.run_date)} · first seen ${esc(firstSeen(x))}${x.updated_at ? ` · updated ${esc(x.updated_at)}` : ""}`],
     ["sources", (x.sources || []).map(s => `<a href="${esc(s.url)}" rel="noopener">${esc(s.type)}</a>${s.title ? ` <span class="muted">${esc(s.title)}</span>` : ""}`).join("<br>")],
     ["notes", x.notes],
     ["record", `<a href="#id=${esc(x.id)}" class="small">${esc(x.id)}</a> · ${x.reviewed ? '<span class="rev">reviewed</span>' : '<span class="unrev">unreviewed</span>'}`],
@@ -248,7 +278,7 @@ function glossary() {
   for (const [field, defs] of Object.entries(G)) parts.push(`<h3 class="small" style="margin:12px 0 0">${esc(field)}</h3><dl>${Object.entries(defs).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`);
   $("#gloss").insertAdjacentHTML("beforeend", parts.join(""));
 }
-const FIELDS = ["q", "period", "origin", "ia", "ev", "ot", "cc", "cf", "ac", "known", "tp", "rw"];
+const FIELDS = ["q", "period", "origin", "ia", "ev", "ot", "cc", "cf", "ac", "known", "tp", "rw", "wk"];
 function toHash() {
   const p = new URLSearchParams();
   for (const f of FIELDS) { const el = $("#" + f); const v = el.type === "checkbox" ? (el.checked ? "1" : "") : el.value; if (v) p.set(f, v); }
@@ -274,7 +304,7 @@ function downloadCsv() {
 
 fetch("incidents.json").then(r => r.json()).then(d => {
   rows = d;
-  renderFresh(); glossary();
+  renderFresh(); renderWeek(); glossary();
   fill($("#ia"), STATS.by_initial_access.map(c => c[0]));
   fill($("#ev"), STATS.by_evidence.map(c => c[0]));
   fill($("#ot"), STATS.by_org_type.map(c => c[0]));

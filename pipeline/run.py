@@ -177,8 +177,16 @@ def _days(a: str | None, b: str | None) -> int | None:
     return abs((date.fromisoformat(a[:10]) - date.fromisoformat(b[:10])).days)
 
 
+def org_index(store: list[dict]) -> dict[str, list[dict]]:
+    """normalize_org -> records, for callers that look up many names against one store."""
+    idx: dict[str, list[dict]] = {}
+    for r in store:
+        idx.setdefault(normalize_org(r["org_name"]), []).append(r)
+    return idx
+
+
 def find_record(store: list[dict], org_name: str, disclosed_date: str,
-                incident_date: str | None = None) -> dict | None:
+                incident_date: str | None = None, index: dict | None = None) -> dict | None:
     """The existing record a new source belongs to, if any. Same organization and
     either disclosed within MERGE_WINDOW_DAYS of the record, or the same stated
     incident date (a follow-up months later that names the original date). Anything
@@ -187,9 +195,8 @@ def find_record(store: list[dict], org_name: str, disclosed_date: str,
     The review loop can merge by hand."""
     key = normalize_org(org_name)
     best = None
-    for r in store:
-        if normalize_org(r["org_name"]) != key:
-            continue
+    candidates = index.get(key, []) if index is not None else (r for r in store if normalize_org(r["org_name"]) == key)
+    for r in candidates:
         d = _days(r["disclosed_date"], disclosed_date)
         same_incident = incident_date and r.get("incident_date") and _days(r["incident_date"], incident_date) <= 7
         if (d is not None and d <= MERGE_WINDOW_DAYS) or same_incident:
@@ -201,23 +208,29 @@ def find_record(store: list[dict], org_name: str, disclosed_date: str,
 def attach_claim(rec: dict, c: dict) -> None:
     """A leak-site claim about an incident another source confirmed: add the link and
     what the claim tells you (group, extortion), nothing else."""
+    changed = False
     if c["source_url"] not in {s["url"] for s in rec["sources"]}:
         rec["sources"].append({"url": c["source_url"], "type": "ransomware_leak_site",
                                "title": c.get("title"), "fetched_at": None})
+        changed = True
     hint = (c.get("structured_hint") or {}).get("ransomware_leak_site") or c.get("structured_hint") or {}
     if rec.get("ransomware") is None:
         rec["ransomware"] = True
+        changed = True
     if not (rec.get("actor") or {}).get("name") and hint.get("group"):
         rec["actor"] = enrich_actor(dict(rec.get("actor") or default_actor(), name=hint["group"]))
+        changed = True
+    if changed:
+        rec["updated_at"] = today()
 
 
 def settle_claims(store: list[dict], claims: list[dict]) -> list[dict]:
     """Pending claims that now match a confirmed record attach to it; the rest stay
     pending. Claims older than a year are dropped: nothing is going to confirm them."""
     cutoff = (date.today() - timedelta(days=365)).isoformat()
-    pending = []
+    pending, index = [], org_index(store)
     for c in claims:
-        rec = find_record(store, c["org_name"], c["disclosed_date"])
+        rec = find_record(store, c["org_name"], c["disclosed_date"], index=index)
         if rec:
             attach_claim(rec, c)
         elif c["disclosed_date"] >= cutoff:
@@ -225,25 +238,40 @@ def settle_claims(store: list[dict], claims: list[dict]) -> list[dict]:
     return pending
 
 
+CHANGE_FIELDS = ("initial_access", "control_failure", "records_affected", "actor", "third_party", "impact_type", "cve")
+
+
 def merge_into_store(store: list[dict], new: dict) -> None:
     """Attach to the matching record (see find_record) or append. When attaching, keep
-    the richer record under the existing id; union sources; never overwrite reviewed=True."""
+    the richer record under the existing id; union sources; never overwrite reviewed=True.
+    first_seen stays with the record; updated_at is stamped when a merge changed it."""
     old = next((r for r in store if r["id"] == new["id"]), None) \
         or find_record(store, new["org_name"], new["disclosed_date"], new.get("incident_date"))
+    stamp = new["extracted_by"]["run_date"]
     if not old:
+        new.setdefault("first_seen", stamp)
         store.append(new)
         return
     new["id"] = old["id"]
     new["disclosed_date"] = min(old["disclosed_date"], new["disclosed_date"])
+    new["first_seen"] = old.get("first_seen") or old["extracted_by"]["run_date"]
     if old.get("reviewed"):
         urls = {s["url"] for s in old["sources"]}
-        old["sources"] += [s for s in new["sources"] if s["url"] not in urls]
+        added = [s for s in new["sources"] if s["url"] not in urls]
+        if added:
+            old["sources"] += added
+            old["updated_at"] = stamp
         return
     richness = lambda r: (r["initial_access"] != "unknown", bool(r.get("root_cause")),  # noqa: E731
                           r.get("records_affected") is not None, len(r.get("technology_involved") or []))
+    before = {s["url"] for s in old["sources"]}
     keep, drop = (new, old) if richness(new) >= richness(old) else (old, new)
     urls = {s["url"] for s in keep["sources"]}
     keep["sources"] += [s for s in drop["sources"] if s["url"] not in urls]
+    if {s["url"] for s in keep["sources"]} != before or any(keep.get(k) != drop.get(k) for k in CHANGE_FIELDS):
+        keep["updated_at"] = stamp
+    elif keep is new:
+        keep["updated_at"] = old.get("updated_at")
     if keep is new:
         store[store.index(old)] = new
 

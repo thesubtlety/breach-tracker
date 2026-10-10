@@ -130,6 +130,9 @@ is one environment variable; nothing else changes.
 - `data_types`, `ransomware`, `discovered_date` — cheap VERIS attributes; regulators and
   VCDB supply most of them.
 - `reviewed` — human flag. Reviewed records are never overwritten by later runs.
+- `first_seen`, `updated_at` — the run that first stored the record, and the last run in
+  which a later source changed it (new source, richer fields, attached claim). The site's
+  "This week" panel and the `new or updated this week` filter are built from these.
 
 `docs/VERIS-MAPPING.md` is the crosswalk to VERIS and the DBIR.
 
@@ -178,7 +181,7 @@ That is more honest than asking a model to guess, and it is free.
    `www.sec.gov` returns 403 unless `EDGAR_USER_AGENT` contains an email address.
 4. Import history, then backfill:
    ```
-   python pipeline/import_vcdb.py --since-year 2022 --exclude-summary-regex MOVEit
+   python pipeline/import_vcdb.py --since-year 2010 --exclude-summary-regex MOVEit   # ~6 min, no model calls
    python pipeline/backfill.py --start 2023-12-18 --sources sec_edgar,hhs,maine_ag
    python pipeline/run.py --no-collect --limit 200     # repeat until the queue drains
    ```

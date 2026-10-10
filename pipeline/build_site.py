@@ -91,7 +91,7 @@ GLOSSARY = {
     },
 }
 
-CSV_COLS = ["id", "disclosed_date", "incident_date", "discovered_date", "org_name", "org_type", "org_country",
+CSV_COLS = ["id", "first_seen", "updated_at", "disclosed_date", "incident_date", "discovered_date", "org_name", "org_type", "org_country",
             "initial_access", "entry_asset", "control_failure", "credential_source", "cve", "veris_action",
             "root_cause", "technology_involved", "third_party_involved", "third_party_archetype", "third_party_vendor",
             "actor_name", "actor_category", "actor_variety", "actor_motive", "actor_country",
@@ -105,6 +105,10 @@ def origin(r: dict) -> str:
     if r.get("imported_from"):
         return "imported"
     return "regulator" if r["extracted_by"]["model"] == "deterministic" else "extracted"
+
+
+def first_seen(r: dict) -> str:
+    return r.get("first_seen") or r["extracted_by"]["run_date"]
 
 
 def coverage(rows: list[dict]) -> list[dict]:
@@ -153,7 +157,10 @@ def main() -> int:
         "total": len(rows),
         "withheld_claims": withheld,
         "generated": today(),
-        "added_last_7_days": sum(1 for r in rows if r["extracted_by"]["run_date"] >= week_ago),
+        "week_ago": week_ago,
+        "added_last_7_days": sum(1 for r in rows if origin(r) != "imported" and first_seen(r) >= week_ago),
+        "imported_last_7_days": sum(1 for r in rows if origin(r) == "imported" and first_seen(r) >= week_ago),
+        "updated_last_7_days": sum(1 for r in rows if (r.get("updated_at") or "") >= week_ago and first_seen(r) < week_ago),
         "reviewed": sum(1 for r in rows if r.get("reviewed")),
         "known_initial_access": sum(1 for r in rows if r["initial_access"] != "unknown"),
         "date_range": [min(r["disclosed_date"] for r in rows), max(r["disclosed_date"] for r in rows)] if rows else None,

@@ -12,7 +12,13 @@ from actors import default_actor, default_third_party, enrich_actor  # noqa: E40
 from common import INCIDENTS_PATH, read_jsonl, validate, write_jsonl  # noqa: E402
 
 
+def stamp_first_seen(r: dict) -> dict:
+    r.setdefault("first_seen", r["extracted_by"]["run_date"])
+    return r
+
+
 def to_1_1(r: dict) -> dict:
+    stamp_first_seen(r)
     if r.get("schema_version") == "1.1" and "actor" in r:
         return r
     name = r.pop("threat_actor", None)

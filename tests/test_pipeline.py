@@ -266,3 +266,27 @@ def test_claim_attaches_to_confirmed_record_and_settles_later():
     assert [c["org_name"] for c in left] == ["Nobody Corp"]  # unmatched stays; year-old dropped
     store.append(record("Nobody Corp", "2026-09-05"))
     assert settle_claims(store, left) == [] and store[1]["ransomware"] is True
+
+
+def test_merge_keeps_first_seen_and_stamps_updated_at_only_on_change():
+    store = []
+    merge_into_store(store, record("Acme Inc", "2026-09-01"))
+    assert store[0]["first_seen"] == "2026-09-01" and "updated_at" not in store[0]
+    # a richer follow-up replaces the record but keeps the original first_seen
+    merge_into_store(store, record("Acme Inc", "2026-09-10", initial_access="phishing", supporting_quote="q",
+                                   extracted_by={"model": "t", "prompt_version": "t", "run_date": "2026-09-10"},
+                                   sources=[{"url": "https://y", "type": "press", "title": None, "fetched_at": None}]))
+    assert len(store) == 1 and store[0]["first_seen"] == "2026-09-01" and store[0]["updated_at"] == "2026-09-10"
+    # the same source again changes nothing
+    merge_into_store(store, record("Acme Inc", "2026-09-10", initial_access="phishing", supporting_quote="q",
+                                   extracted_by={"model": "t", "prompt_version": "t", "run_date": "2026-09-20"},
+                                   sources=[{"url": "https://y", "type": "press", "title": None, "fetched_at": None}]))
+    assert store[0]["updated_at"] == "2026-09-10"
+
+
+def test_find_record_with_index_matches_linear_scan():
+    from run import org_index
+    store = [record("Acme Inc", "2026-01-10"), record("Beta LLC", "2026-01-12"), record("Acme Inc", "2026-06-10")]
+    idx = org_index(store)
+    for org, d in [("ACME, Inc.", "2026-01-20"), ("Beta", "2026-02-01"), ("Acme", "2026-06-15"), ("Nobody", "2026-01-10")]:
+        assert find_record(store, org, d) is find_record(store, org, d, index=idx)
