@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import sys
+from xml.sax.saxutils import escape
 from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
@@ -16,6 +18,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import DATA_DIR, INCIDENTS_PATH, SITE_DIR, read_jsonl, today  # noqa: E402
 
 HEALTH_PATH = DATA_DIR / "source_health.json"
+SITE_URL = os.environ.get("SITE_URL", "https://thesubtlety.github.io/breach-tracker/").rstrip("/") + "/"
+RECENT_DAYS = 730
+FEED_DAYS = 30
 
 # Shown as hover text and in the page glossary. Keep in step with prompts/extract.md.
 GLOSSARY = {
@@ -123,6 +128,39 @@ def coverage(rows: list[dict]) -> list[dict]:
     return out
 
 
+def feed(rows: list[dict], since: str, generated: str) -> str:
+    """Atom feed of records first recorded or changed since `since`, newest change first.
+    Imported dataset rows are left out: a bulk import is not news."""
+    items = [r for r in rows if origin(r) != "imported" and max(first_seen(r), r.get("updated_at") or "") >= since]
+    items.sort(key=lambda r: (max(first_seen(r), r.get("updated_at") or ""), r["disclosed_date"]), reverse=True)
+    entries = []
+    for r in items[:100]:
+        changed = max(first_seen(r), r.get("updated_at") or "")
+        kind = "updated" if (r.get("updated_at") or "") > first_seen(r) else "new"
+        title = f"{r['org_name']}: {r['initial_access'].replace('_', ' ')} ({r['evidence_level'].replace('_', ' ')})"
+        body = " ".join(filter(None, [r.get("summary"), f"Disclosed {r['disclosed_date']}.",
+                                      f"{r['records_affected']:,} records." if r.get("records_affected") else None,
+                                      f"Source: {r['sources'][0]['url']}" if r.get("sources") else None]))
+        entries.append(f"""  <entry>
+    <id>{SITE_URL}#id={r['id']}</id>
+    <title>{escape(title)}</title>
+    <link href="{SITE_URL}#id={r['id']}"/>
+    <updated>{changed}T00:00:00Z</updated>
+    <category term="{kind}"/>
+    <summary>{escape(body)}</summary>
+  </entry>""")
+    return f"""<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Breach Tracker: new and updated records</title>
+  <id>{SITE_URL}feed.xml</id>
+  <link href="{SITE_URL}"/>
+  <link rel="self" href="{SITE_URL}feed.xml"/>
+  <updated>{generated}T00:00:00Z</updated>
+{chr(10).join(entries)}
+</feed>
+"""
+
+
 def claim_only(r: dict) -> bool:
     """Only a leak-site post says this happened. Kept in the store so a later filing or
     article can confirm it, never published on its own: that would be re-serving
@@ -136,7 +174,13 @@ def main() -> int:
     withheld = len(all_rows) - len(rows)
     SITE_DIR.mkdir(exist_ok=True)
 
-    (SITE_DIR / "incidents.json").write_text(json.dumps(rows, ensure_ascii=False))
+    compact = dict(ensure_ascii=False, separators=(",", ":"))
+    (SITE_DIR / "incidents.json").write_text(json.dumps(rows, **compact))
+    recent_cutoff = (date.today() - timedelta(days=RECENT_DAYS)).isoformat()
+    week_ago = (date.today() - timedelta(days=7)).isoformat()
+    recent = [r for r in rows if r["disclosed_date"] >= recent_cutoff or (origin(r) != "imported" and first_seen(r) >= week_ago)]
+    (SITE_DIR / "recent.json").write_text(json.dumps(recent, **compact))
+    (SITE_DIR / "feed.xml").write_text(feed(rows, (date.today() - timedelta(days=FEED_DAYS)).isoformat(), today()))
     with (SITE_DIR / "incidents.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLS, extrasaction="ignore")
         w.writeheader()
@@ -151,10 +195,10 @@ def main() -> int:
             flat["source_url"] = r["sources"][0]["url"] if r.get("sources") else ""
             w.writerow(flat)
 
-    week_ago = (date.today() - timedelta(days=7)).isoformat()
     health = json.loads(HEALTH_PATH.read_text()) if HEALTH_PATH.exists() else {}
     stats = {
         "total": len(rows),
+        "recent": len(recent),
         "withheld_claims": withheld,
         "generated": today(),
         "week_ago": week_ago,
@@ -180,7 +224,7 @@ def main() -> int:
     }
     html = TEMPLATE.read_text().replace("/*__STATS__*/{}", json.dumps(stats, ensure_ascii=False))
     (SITE_DIR / "index.html").write_text(html)
-    print(f"site: {len(rows)} incidents ({withheld} claim-only withheld) -> {SITE_DIR}")
+    print(f"site: {len(rows)} incidents ({len(recent)} in first load, {withheld} claim-only withheld) -> {SITE_DIR}")
     return 0
 
 

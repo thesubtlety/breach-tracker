@@ -1,6 +1,6 @@
 # breach-tracker
 
-A weekly, mostly-automatic list of publicly reported organizational breaches with a small
+A daily, mostly-automatic list of publicly reported organizational breaches with a small
 set of classifications: organization type, how the attacker got in, root cause when stated,
 technology involved, impact, and how strong the evidence is. Good-enough data, cheap to run.
 
@@ -22,8 +22,9 @@ Three phases, in order:
 2. **Import existing coded datasets** (`pipeline/import_vcdb.py`, `import_cedb.py`):
    VCDB and UMD CEDB mapped into our schema with `imported_from` provenance, never
    re-extracted. Gives years of org-type/impact/actor history for free.
-3. **Monitoring** (`daily-collect.yml` + `weekly.yml`): daily fetch into the queue, weekly
-   extraction, site build, source verification.
+3. **Monitoring** (`.github/workflows/daily.yml`): one job a day fetches sources, extracts
+   what is new (capped by `--limit`), verifies sources, rebuilds the site and commits the
+   data. Actions are pinned to commit SHAs and pip is locked; Dependabot proposes bumps.
 
 See `docs/RISKS.md` for what will go wrong now, soon, and in a year, and `eval/README.md`
 for how models get compared before one is trusted.
@@ -57,9 +58,9 @@ pipeline treats "unknown" as a normal value and tracks the share that is known.
 Checked against current plan pages:
 
 - **GitHub Actions**: free with no minute cap on standard runners for public repos;
-  2,000 min/month for private repos on the Free plan. One weekly run is 5–10 minutes.
+  2,000 min/month for private repos on the Free plan. One daily run is 3–5 minutes.
   One gotcha: in a public repo, scheduled workflows are disabled automatically after 60
-  days with no repository activity. The weekly data commit counts as activity, so a
+  days with no repository activity. The daily data commit counts as activity, so a
   healthy run keeps itself alive; if it ever stalls, re-enable it from the Actions tab.
 - **GitHub Pages**: 1 GB site, soft 100 GB/month bandwidth, soft 10 builds/hour (the
   build cap doesn't apply when deploying via Actions, which this workflow does).
@@ -146,7 +147,7 @@ merges by hand.
 
 ```
 sources.collect   -> candidates (one per source hit)  --> data/candidates.jsonl (queue, keyed by URL)
-                     daily: run.py --collect-only       backfill.py also writes here
+                     daily: run.py (collect + extract)   backfill.py also writes here
 dedupe.dedupe     -> one candidate per org per 30 days, strongest evidence first
 run.main          -> regulator/leak rows: deterministic record from checkboxes (no LLM)
                      8-K: prefilter for Item 1.05/8.01 + incident language, else dropped
@@ -199,7 +200,7 @@ untouched except for new source links.
 
 ## Source verification
 
-`pipeline/verify_sources.py` runs in the weekly workflow and writes
+`pipeline/verify_sources.py` runs in the daily workflow and writes
 `data/source_health.json`:
 
 - **health**: every fetcher is called for the last 30 days; required fields checked; a
@@ -244,7 +245,7 @@ Two constraints before taking any money: the paid product has to exclude ransomw
 Ransomware.live's API policy, which applies now and not just to a paid tier:
 
 - Query fairly. Their data is cached for 30 minutes; polling more often returns nothing
-  fresher and counts as abuse. The daily collect makes one request per run.
+  fresher and counts as abuse. The daily run makes one request.
 - Do not relay other people's queries to them. Users of anything built on this data query
   this system, never Ransomware.live directly.
 - No redistribution as an API or feed, and no publishing of their raw data in any form

@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Breach Tracker: new and updated records</title>
+  <id>https://thesubtlety.github.io/breach-tracker/feed.xml</id>
+  <link href="https://thesubtlety.github.io/breach-tracker/"/>
+  <link rel="self" href="https://thesubtlety.github.io/breach-tracker/feed.xml"/>
+  <updated>2026-10-10T00:00:00Z</updated>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=f723daa7ebc180f5084196ea6bf6fb28118cda26</id>
+    <title>Adventure Inc.: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=f723daa7ebc180f5084196ea6bf6fb28118cda26"/>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="updated"/>
+    <summary>Adventure Inc. reported unauthorized access to Skyticket administrative functionality from October 2 to October 4, 2026, affecting approximately 14.64 million customer records. Disclosed 2026-10-09. 14,640,000 records. Source: https://beyondmachines.net/event_details/adventure-inc-data-breach-affects-approximately-14-64-million-skyticket-customer-records-j-o-l-x-1/gD2P6Ple2L</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=8929348472dcb701a5092e46713af8390da98883</id>
+    <title>Coupang, Inc.: insider (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=8929348472dcb701a5092e46713af8390da98883"/>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="updated"/>
+    <summary>Coupang disclosed that a former employee may have obtained personal data associated with up to 33 million customer accounts. Disclosed 2025-12-16. Source: https://www.sec.gov/Archives/edgar/data/1834584/000183458425000196/cpng-20251215.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=ab5e9c2160ee8cb21279e4a9948ef0d7a64fda2b</id>
+    <title>Zoomcar Holdings, Inc.: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=ab5e9c2160ee8cb21279e4a9948ef0d7a64fda2b"/>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="updated"/>
+    <summary>Zoomcar Holdings identified unauthorized access to a dataset containing personal information associated with approximately 8.4 million users. Disclosed 2025-06-13. 8,400,000 records. Source: https://www.sec.gov/Archives/edgar/data/1854275/000121390025054319/ea0245724-8k_zoomcar.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=6155a9c879ef7ed4657d4a5438ce61442b977e5b</id>
+    <title>loanDepot: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=6155a9c879ef7ed4657d4a5438ce61442b977e5b"/>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="updated"/>
+    <summary>loanDepot reported that a cybersecurity incident affected sensitive personal information of up to approximately 16.9 million individuals. Disclosed 2024-02-27. 16,900,000 records. Source: https://www.sec.gov/Archives/edgar/data/1831631/000183163124000020/ldi-20240104.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=41ca463bcaf583583c6b0dc7732071bc394ff04b</id>
+    <title>VF Corporation: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=41ca463bcaf583583c6b0dc7732071bc394ff04b"/>
+    <updated>2026-10-10T00:00:00Z</updated>
+    <category term="updated"/>
+    <summary>VF Corporation reported that a cyber incident disrupted operations and resulted in the theft of personal data belonging to approximately 35.5 million consumers. Disclosed 2023-12-18. 35,500,000 records. Source: https://www.sec.gov/Archives/edgar/data/103379/000119312524010243/d641969d8ka.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=0f7b659fbdc1074e6e79756bfc7502717aae47d1</id>
+    <title>Waco Independent School District: exploit public facing app (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=0f7b659fbdc1074e6e79756bfc7502717aae47d1"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Waco Independent School District employee and applicant information was exposed in a Frontline Education security incident after attackers exploited a vulnerability in software used by the provider. Disclosed 2026-10-09. Source: https://beyondmachines.net/event_details/waco-isd-employee-data-exposed-in-frontline-education-security-incident-n-e-j-k-u/gD2P6Ple2L</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=703d14a0e0eac3a452c0d10f30d2cb8d502e5e0f</id>
+    <title>Trump Mobile: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=703d14a0e0eac3a452c0d10f30d2cb8d502e5e0f"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>A report said hackers stole personal data belonging to 3,615 Trump Mobile customers; the attack method was not stated. Disclosed 2026-10-09. 3,615 records. Source: https://arstechnica.com/tech-policy/2026/10/trump-mobile-doesnt-seem-to-have-fcc-authorization-for-phone-service-senator-says/</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=f03b13425492fdc51a27045bce66fff3aba9db54</id>
+    <title>Taiwan Ministry of the Interior: unknown (actor claimed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=f03b13425492fdc51a27045bce66fff3aba9db54"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>pkevin claimed possession of a Taiwan Ministry of the Interior citizen registry database containing 23.5 million records. Disclosed 2026-10-09. Source: https://infosec.exchange/@darkwebsonar/117411052546657826</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=b14283544a109aa1c176abe580eaf459b15243f3</id>
+    <title>SOCOCO: unknown (actor claimed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=b14283544a109aa1c176abe580eaf459b15243f3"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>UmBra claimed on its leak site that it exfiltrated data from SOCOCO, but the claim has not been independently verified. Disclosed 2026-10-09. Source: https://www.yazoul.net/intel/claim/2026-10-09-sococo-ransomware-claim-by-umbra-october-2026</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=6a88b028ff41e5a03b9e71e31bf1176de7be6dd5</id>
+    <title>Neogen: unknown (actor claimed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=6a88b028ff41e5a03b9e71e31bf1176de7be6dd5"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>ShinyHunters published data it claimed came from Neogen, including 435,963 unique email addresses, after an extortion demand went unpaid. Disclosed 2026-10-09. 435,963 records. Source: https://www.yazoul.net/breaches/breach/neogen-breach-436k-email-addresses-leaked-by-shinyhunters-2026</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e459b22cddc9a73b35d41ce8c70f82757af5df11</id>
+    <title>Moscow Department of Health: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e459b22cddc9a73b35d41ce8c70f82757af5df11"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>The Belarusian Cyber Partisans claimed a 2023 intrusion into the Moscow Department of Health, and researchers reported that attackers accessed sensitive medical information without disrupting operations. Disclosed 2026-10-09. Source: https://therecord.media/belarusian-cyber-partisans-claim-2023-russia-healthcare-hack</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=5ab7859ddfa5123137b485f751a6018ef2003335</id>
+    <title>Liberty X: unknown (actor claimed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=5ab7859ddfa5123137b485f751a6018ef2003335"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>BYOD claimed to possess Liberty X data in an unverified leak-site post, but no breach or data exfiltration was independently confirmed. Disclosed 2026-10-09. Source: https://www.yazoul.net/intel/claim/2026-10-08-liberty-x-ransomware-claim-by-byod-oct-2026</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=648e2a40c14970cbd817f360ece17adbbaa7658e</id>
+    <title>iRhythm: vishing or social engineering (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=648e2a40c14970cbd817f360ece17adbbaa7658e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>iRhythm reported that attackers used social engineering to access third-party-hosted business applications and exfiltrate personal and medical information. Disclosed 2026-10-09. 360,000 records. Source: https://therecord.media/irhythm-data-breach-reports</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=d6bd71da0c8bbda994a2333dd3666cc62d0be75b</id>
+    <title>IDC Frontier: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=d6bd71da0c8bbda994a2333dd3666cc62d0be75b"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>IDC Frontier confirmed that a third-party ransomware attack disrupted four zones of IDCF Cloud, affecting 495 companies and local governments. Disclosed 2026-10-09. Source: https://japancyberwatch.com/articles/idcf-cloud-unauthorized-access-outage-2026</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=f370fa0c68b6cf02e4d3e03a1aff151a5848ccfe</id>
+    <title>Google: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=f370fa0c68b6cf02e4d3e03a1aff151a5848ccfe"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Google domains were affected by hijacks of third-party country-code domains that led to unauthorized HTTPS certificates being issued. Disclosed 2026-10-09. Source: https://www.securityweek.com/google-domains-impacted-by-recent-cctld-domain-hijacks/</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=235f616182b14561bfff547e9a9db7aeab6ca5e3</id>
+    <title>Federal Bureau of Investigation: exploit public facing app (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=235f616182b14561bfff547e9a9db7aeab6ca5e3"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>The FBI reported a breach involving a third-party contractor-managed platform, with ShinyHunters claiming it stole FBI data. Disclosed 2026-10-09. Source: https://www.bleepingcomputer.com/news/security/fbi-arrests-another-suspected-shinyhunters-hacker-after-agency-breach/</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=6d71f851f26a93077ff291e16de7cacfb6da5de6</id>
+    <title>Casper Orthopedic Associates: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=6d71f851f26a93077ff291e16de7cacfb6da5de6"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Casper Orthopedic Associates disclosed a cyberattack discovered on May 23, 2026, that may have exposed patient information affecting 56,197 individuals. Disclosed 2026-10-09. 56,197 records. Source: https://beyondmachines.net/event_details/casper-orthopedic-associates-data-breach-affects-more-than-56000-individuals-u-o-b-f-k/gD2P6Ple2L</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=a113bec94af42058bafcf3dbd3d421ec9542797e</id>
+    <title>Canadian Mennonite University: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=a113bec94af42058bafcf3dbd3d421ec9542797e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Canadian Mennonite University reported that an unauthorized party accessed files containing personal and tax information, and that information was stolen. Disclosed 2026-10-09. Source: https://beyondmachines.net/event_details/canadian-mennonite-university-data-breach-exposes-personal-and-tax-information-o-j-t-d-o/gD2P6Ple2L</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=098bc2c50919523167f65cad3fecbf23bfb4bc1e</id>
+    <title>Atlantic Digestive Specialists: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=098bc2c50919523167f65cad3fecbf23bfb4bc1e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Atlantic Digestive Specialists reported unauthorized access to files containing personal and protected health information after suspicious activity was detected in March 2026. Disclosed 2026-10-09. Source: https://beyondmachines.net/event_details/atlantic-digestive-specialists-data-breach-exposes-patient-information-d-n-s-a-i/gD2P6Ple2L</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=581fadb9d20292fea4656bb3aa797cd35ebe95e5</id>
+    <title>ASOS: vishing or social engineering (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=581fadb9d20292fea4656bb3aa797cd35ebe95e5"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>ASOS said an attacker impersonated a trusted contact to obtain an employee’s credentials and access information on third-party platforms, exposing personal and account-related information. Disclosed 2026-10-09. Source: https://www.bleepingcomputer.com/news/security/asos-links-data-breach-to-social-engineering-attack-credential-theft/</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=94937949aba3d31e0267c2f3b9895436a9670842</id>
+    <title>Coupang: unknown (press report)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=94937949aba3d31e0267c2f3b9895436a9670842"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Coupang reported a November 2025 data breach affecting more than 33 million customers. Disclosed 2026-10-08. Source: https://databreaches.net/2026/10/08/kr-coupang-files-lawsuits-against-620-billion-won-fine-over-data-leak/</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=5e4883651f630a1e1c899345b9322dc592e4b840</id>
+    <title>Astrana Health: vishing or social engineering (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=5e4883651f630a1e1c899345b9322dc592e4b840"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Astrana Health reported that social engineering attempts targeting employees led to unauthorized activity and access to or acquisition of confidential information. Disclosed 2026-09-23. Source: https://www.sec.gov/Archives/edgar/data/1083446/000110465926109813/asth-20260922x8k.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=9a5ef9d82793225a7a908be6e356e3846a2735e2</id>
+    <title>Woodlawn Hospital: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=9a5ef9d82793225a7a908be6e356e3846a2735e2"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-21. 742 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-21-woodlawn-hospital</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=28b1978a5673ec472eff3c6afe58bdd5c495325c</id>
+    <title>Imagine the Possibilities: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=28b1978a5673ec472eff3c6afe58bdd5c495325c"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-21. 1,693 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-21-imagine-the-possibilities</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=c3af3e5d077d69e8829819d6dcc553c38d5a3b7e</id>
+    <title>Applied Healthcare Nursing Division, Inc. d/b/a Doctor's Choice Home Care: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=c3af3e5d077d69e8829819d6dcc553c38d5a3b7e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-19. 14,333 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-19-applied-healthcare-nursing-division-inc-d-b-a-doctor-s-choice-home-care</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=683f3cab6255109cb59dcfe95135330f036375d2</id>
+    <title>OU Medicine, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=683f3cab6255109cb59dcfe95135330f036375d2"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-18. 854 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-18-ou-medicine-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=a6a0ecc0d27efbec6ff9a0a9acae87bb3d79de34</id>
+    <title>Three Oaks Hospice, Incorporated: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=a6a0ecc0d27efbec6ff9a0a9acae87bb3d79de34"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-17. 36,622 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-17-three-oaks-hospice-incorporated</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=98bbea7f8acc202f710e33263ec0834df4ab7662</id>
+    <title>WindRose Health Network: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=98bbea7f8acc202f710e33263ec0834df4ab7662"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-16. 33,158 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-16-windrose-health-network</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=b0630c93a636ee1efa4d958778198b4a402b21e9</id>
+    <title>At Home Medical, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=b0630c93a636ee1efa4d958778198b4a402b21e9"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-16. 1,091 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-16-at-home-medical-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=c1fdaf1674e1e99a582a8f2b45e61504164219f1</id>
+    <title>AngMar Management Services: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=c1fdaf1674e1e99a582a8f2b45e61504164219f1"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-16. 126,196 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-16-angmar-management-services</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=2c8853a5e5ea80c48098e299337f7326c308698f</id>
+    <title>Advanced Radiology Services, P.C.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=2c8853a5e5ea80c48098e299337f7326c308698f"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-16. 826 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-16-advanced-radiology-services-p-c</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=3a9ed17fca938fb4518c07b7ca9f4fa0ba8d5466</id>
+    <title>Camden-on-Gauley Medical Center: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=3a9ed17fca938fb4518c07b7ca9f4fa0ba8d5466"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-15. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-15-camden-on-gauley-medical-center</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=df27a917172160423e0e5f913052c9af9119f879</id>
+    <title>Bacon County Health Services, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=df27a917172160423e0e5f913052c9af9119f879"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-15. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-15-bacon-county-health-services-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=71d162421950436e8653868b86e72804ee0f6b27</id>
+    <title>Lakes Region Visiting Nursing Association: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=71d162421950436e8653868b86e72804ee0f6b27"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-14. 1,274 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-14-lakes-region-visiting-nursing-association</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=d0c255a3ebad9f9e2213ad93ca20a88298f8a1de</id>
+    <title>Clover Health: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=d0c255a3ebad9f9e2213ad93ca20a88298f8a1de"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-14. 138,677 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-14-clover-health</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=bc5eb8920bdad0d3e3c17e8ee2c31b405dad332d</id>
+    <title>CenterPoint Energy: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=bc5eb8920bdad0d3e3c17e8ee2c31b405dad332d"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>CenterPoint Energy reported that an unauthorized third party obtained personal information relating to some customers through an external-facing system. Disclosed 2026-09-14. Source: https://www.sec.gov/Archives/edgar/data/1130310/000110465926107560/tm2625326d1_8k.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=928c582906013e4cce9a68f7a57e84b752f8b3ab</id>
+    <title>Vernon &amp; Waldrep OB-Gyn Associates: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=928c582906013e4cce9a68f7a57e84b752f8b3ab"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-10. 17,435 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-10-vernon-waldrep-ob-gyn-associates</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=3d0a4df237f7a6be4ed9cd29b98a16b9e2c5f981</id>
+    <title>Persona Dental: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=3d0a4df237f7a6be4ed9cd29b98a16b9e2c5f981"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-10. 3,386 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-10-persona-dental</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=0a63469726c329aec075000d76a73016eebcaed5</id>
+    <title>Interim HealthCare Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=0a63469726c329aec075000d76a73016eebcaed5"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-10. 1,283 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-10-interim-healthcare-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=cef4f2f50f813bc895225e4e17d12a3978c75f60</id>
+    <title>Conduent Incorporated: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=cef4f2f50f813bc895225e4e17d12a3978c75f60"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Conduent disclosed an agreement in principle to settle lawsuits related to a previously disclosed January 2025 cybersecurity incident in which individuals’ personal information may have been affected. Disclosed 2026-09-10. Source: https://www.sec.gov/Archives/edgar/data/1677703/000167770326000113/cndt-20260910.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e90ebabf4d8d0d257ee40fbabc32b7988f98ffc4</id>
+    <title>Comprehensive Orthopedics &amp; Musculoskeletal Care, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e90ebabf4d8d0d257ee40fbabc32b7988f98ffc4"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-10. 21,897 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-10-comprehensive-orthopedics-musculoskeletal-care-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=b6a0e2938d10bd40ecaa84787357eab771bbad31</id>
+    <title>Alma Family Services: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=b6a0e2938d10bd40ecaa84787357eab771bbad31"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-10. 2,753 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-10-alma-family-services</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=b6c2c9d1bddcaa0b1fc6ec8069bd51bb8842f739</id>
+    <title>Novocure Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=b6c2c9d1bddcaa0b1fc6ec8069bd51bb8842f739"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-09. 1,464 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-09-novocure-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=b8b18482fbd446890f57ac5a0958ed28fc88ce28</id>
+    <title>Next Level Medical, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=b8b18482fbd446890f57ac5a0958ed28fc88ce28"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-09. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-09-next-level-medical-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=7a7913348cb0afb7e16d98ce8623cb12e3293f7a</id>
+    <title>Azle Cube Smiles PLLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=7a7913348cb0afb7e16d98ce8623cb12e3293f7a"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-09. 3,280 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-09-azle-cube-smiles-pllc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=0c6b81d51d098f3dd5cbc7e8a85bac1049766a49</id>
+    <title>Veradigm Inc.: stolen or valid credentials (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=0c6b81d51d098f3dd5cbc7e8a85bac1049766a49"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>An unauthorized party used vendor-environment credentials to access Veradigm’s API and download copies of patients’ personal data. Disclosed 2026-09-08. Source: https://www.sec.gov/Archives/edgar/data/1124804/000119312526385249/mdrx-20260908.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=4418ef446cf7378debd623af8a8238388c007485</id>
+    <title>Lexington Hospital Corporation: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=4418ef446cf7378debd623af8a8238388c007485"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-08. 67,000 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-08-lexington-hospital-corporation</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=1a36df63f40a216f8fb5769b3e955d3432fb020e</id>
+    <title>Hamaspik (Choice and Inc.): unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=1a36df63f40a216f8fb5769b3e955d3432fb020e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-06. 8,181 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-06-hamaspik-choice-and-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=0a35f9d29c08e6462c1d08e0d4116f4c572e6aa7</id>
+    <title>Provident Behavioral Health: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=0a35f9d29c08e6462c1d08e0d4116f4c572e6aa7"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-04. 25,086 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-04-provident-behavioral-health</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=41e2c6f4594886a564a65d5feb22326b8249b2b7</id>
+    <title>Minuteman Press Macon: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=41e2c6f4594886a564a65d5feb22326b8249b2b7"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-04. 1,489 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-04-minuteman-press-macon</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=39e43d3024febb2ea3a5d06cb37bf6da07e345a9</id>
+    <title>Life Unlimited, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=39e43d3024febb2ea3a5d06cb37bf6da07e345a9"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-04. 1,530 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-04-life-unlimited-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=1f6e550c32f97fff7618e4db2afedb9967018cca</id>
+    <title>LHC Group, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=1f6e550c32f97fff7618e4db2afedb9967018cca"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-04. 500 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-04-lhc-group-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=23e30e8f2603616c5f93a97a5d72ec7cd5e50ac8</id>
+    <title>COMHAR, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=23e30e8f2603616c5f93a97a5d72ec7cd5e50ac8"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-04. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-04-comhar-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=6ae247c85d9b614a77d4d42e0cb26d4b5d86cb63</id>
+    <title>Beaver County Behavioral Health: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=6ae247c85d9b614a77d4d42e0cb26d4b5d86cb63"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-04. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-04-beaver-county-behavioral-health</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=93bd7e4c4b881e8219f1443658eebe71c4cbbb3f</id>
+    <title>Capital Family Physicians: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=93bd7e4c4b881e8219f1443658eebe71c4cbbb3f"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-03. 2,545 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-03-capital-family-physicians</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=c5f1b99a709ac083ee5da8ca669895ed708158f6</id>
+    <title>Oculus Pathology: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=c5f1b99a709ac083ee5da8ca669895ed708158f6"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-02. 20,040 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-02-oculus-pathology</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=00e1a50caef51cc71a1e1d05f853e54e60c20c63</id>
+    <title>Craneware, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=00e1a50caef51cc71a1e1d05f853e54e60c20c63"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-09-02. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-09-02-craneware-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=c86313d21781fda199ef48f564a2eb9a56949195</id>
+    <title>The Foot and Ankle Wellness Center of Western Pennsylvania: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=c86313d21781fda199ef48f564a2eb9a56949195"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-31. 653 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-31-the-foot-and-ankle-wellness-center-of-western-pennsylvania</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=beae49e5ee60c8f938c088c9fd51a75740cae441</id>
+    <title>Nutex Health Inc.: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=beae49e5ee60c8f938c088c9fd51a75740cae441"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Nutex Health reported that an unauthorized third party accessed and exfiltrated information maintained on its servers, including patient, employee, provider, business and financial information. Disclosed 2026-08-31. Source: https://www.sec.gov/Archives/edgar/data/1479681/000162828026059602/nutx-20260831.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=803b15ebc3fff7b9fa43cacb13f23a804370b72b</id>
+    <title>Vista Del Mar Child and Family Services: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=803b15ebc3fff7b9fa43cacb13f23a804370b72b"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-29. 500 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-29-vista-del-mar-child-and-family-services</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=28a9054fe3f07e6bad82863321199ff1d8a97227</id>
+    <title>White River Junction VA Medical Center: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=28a9054fe3f07e6bad82863321199ff1d8a97227"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-28. 1,408 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-28-white-river-junction-va-medical-center</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=f8647369ef233d49ee3140cfc4802802b974cdfe</id>
+    <title>McKesson Corporation: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=f8647369ef233d49ee3140cfc4802802b974cdfe"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>McKesson disclosed that it discovered a cybersecurity incident affecting its information systems on August 25, 2026; ShinyHunters was reported to have claimed the incident. Disclosed 2026-08-28. Source: https://www.sec.gov/Archives/edgar/data/927653/000092765326000247/mck-20260825.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=d1be7a4f0c3c9f98444a3a16c78152f604ba33c4</id>
+    <title>Psychiatry of Texas PLLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=d1be7a4f0c3c9f98444a3a16c78152f604ba33c4"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-27. 5,902 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-27-psychiatry-of-texas-pllc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=704db46452ddb9a626c02ead80b6c1aa469aac5b</id>
+    <title>AnMed Health: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=704db46452ddb9a626c02ead80b6c1aa469aac5b"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-27. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-27-anmed-health</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=f5a23f863cc58c4b9e88d0e0ee68383ba4dfde0e</id>
+    <title>McDermott Will &amp; Schulte LLP: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=f5a23f863cc58c4b9e88d0e0ee68383ba4dfde0e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-26. 5,427 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-26-mcdermott-will-schulte-llp</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=df35b6417fc531c4d4e0bcdc3214554e507ae2b3</id>
+    <title>Boston Scientific: unknown (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=df35b6417fc531c4d4e0bcdc3214554e507ae2b3"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Boston Scientific reported a cybersecurity incident identified on August 25, 2026, that disrupted access to some information systems and business applications and affected operations, including order processing and shipping. Disclosed 2026-08-26. Source: https://www.sec.gov/Archives/edgar/data/885725/000088572526000056/bsx-20260826.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e4cfd61a3ee2f5a0ea52e032bb2ea1e05e3fb998</id>
+    <title>WellDyneRX, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e4cfd61a3ee2f5a0ea52e032bb2ea1e05e3fb998"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-25. 500 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-25-welldynerx-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=f768053fab65ac15f06e9d03866c44b89ce9820e</id>
+    <title>Shoshone Medical Center: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=f768053fab65ac15f06e9d03866c44b89ce9820e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-25. 553 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-25-shoshone-medical-center</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e1078c9b78757f6aa3bd8bd666b58588492d14dd</id>
+    <title>Advantage Home Health Care: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e1078c9b78757f6aa3bd8bd666b58588492d14dd"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-25. 19,851 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-25-advantage-home-health-care</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=137263f91fed30b51d26b0c5bf635ce444f61208</id>
+    <title>Grafton City Hospital, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=137263f91fed30b51d26b0c5bf635ce444f61208"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-22. 1,215 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-22-grafton-city-hospital-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=085134cf85c13db8a6703603a2a7759169e5195c</id>
+    <title>Premier Medical Group of the Hudson Valley P.C.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=085134cf85c13db8a6703603a2a7759169e5195c"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-21. 282,075 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-21-premier-medical-group-of-the-hudson-valley-p-c</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=141d81cdad8bbdc4bea1b3cc8db49fb7c2bb7622</id>
+    <title>North Dakota Department of Health and Human Services, Developmental Disabilities Section: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=141d81cdad8bbdc4bea1b3cc8db49fb7c2bb7622"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-21. 1,750 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-21-north-dakota-department-of-health-and-human-services-developmental-disabilities-</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=d47806c73ab46c015fa4ea2aa57e4d3476bd61ab</id>
+    <title>Kern Psychiatric Health and Wellness Center, Inc: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=d47806c73ab46c015fa4ea2aa57e4d3476bd61ab"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-21. 51,352 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-21-kern-psychiatric-health-and-wellness-center-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=6fc3f071de91c4e0d8d8dd13ba72392345ca7ee8</id>
+    <title>Hawaii Dental Group, Inc DBA Hawaii Family Dental: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=6fc3f071de91c4e0d8d8dd13ba72392345ca7ee8"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-21. 45,853 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-21-hawaii-dental-group-inc-dba-hawaii-family-dental</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=badfa73c6d092b9051de2537a4f816684aa6303f</id>
+    <title>Baraga County Memorial Hospital: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=badfa73c6d092b9051de2537a4f816684aa6303f"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-21. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-21-baraga-county-memorial-hospital</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=71cb52536ee624ca720efcbd23dffc7a5b71ab7e</id>
+    <title>Allergic Disease Associates, P.C. dba The Asthma Center: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=71cb52536ee624ca720efcbd23dffc7a5b71ab7e"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-21. 5,321 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-21-allergic-disease-associates-p-c-dba-the-asthma-center</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=d3f210e043e1d07c808f3554c3441ec4627e5fc8</id>
+    <title>Life Bridges, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=d3f210e043e1d07c808f3554c3441ec4627e5fc8"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-20. 5,194 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-20-life-bridges-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=d7238e65a8b0269e2889856759ceb289d64ca8a2</id>
+    <title>United Language Group, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=d7238e65a8b0269e2889856759ceb289d64ca8a2"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-19. 4,649 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-19-united-language-group-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=5a849d9eb803e1d1f0dc551e19e5af2e84b21f71</id>
+    <title>Hillcrest Medical Research LLC.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=5a849d9eb803e1d1f0dc551e19e5af2e84b21f71"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-17. 5,785 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-17-hillcrest-medical-research-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=65f794338ba11f2a3649cd544210fa62b16ed48b</id>
+    <title>PSI Premier Specialties, Inc. d/b/a Medical Express PSI: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=65f794338ba11f2a3649cd544210fa62b16ed48b"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-16. 4,100 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-16-psi-premier-specialties-inc-d-b-a-medical-express-psi</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e87ac6d2cff336837155c75dc6c099487db06e30</id>
+    <title>Well Child, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e87ac6d2cff336837155c75dc6c099487db06e30"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-14. 500 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-14-well-child-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=ef2ec3951c82cddbadbebcdaa8925fcb6825e96f</id>
+    <title>Mountain Rheumatology Professional, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=ef2ec3951c82cddbadbebcdaa8925fcb6825e96f"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-14. 5,378 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-14-mountain-rheumatology-professional-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e5fb7243a58752b90c73eaae25287b7f5bf654a1</id>
+    <title>Integrative Emergency Services, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e5fb7243a58752b90c73eaae25287b7f5bf654a1"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-14. 2,009 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-14-integrative-emergency-services-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e8d0f0404ada0df505c6fbf4230abc858d460ad9</id>
+    <title>Gardiner Family Chiropractic, PC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e8d0f0404ada0df505c6fbf4230abc858d460ad9"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-14. 5,000 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-14-gardiner-family-chiropractic-pc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=2142ef2d6cad984be7c1ca223ac59c98ed38d0bf</id>
+    <title>Baylor Genetics: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=2142ef2d6cad984be7c1ca223ac59c98ed38d0bf"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-14. 2,810,878 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-14-baylor-genetics</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=87cc438d6e18c55c2a1bd5296862c09cc54602c4</id>
+    <title>AdaptHealth, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=87cc438d6e18c55c2a1bd5296862c09cc54602c4"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-14. 4,115,802 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-14-adapthealth-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=aff87e7bcdfbc3855b0b9054abea89d7c4250aa7</id>
+    <title>BestCare Treatment Services, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=aff87e7bcdfbc3855b0b9054abea89d7c4250aa7"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-13. 4,216 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-13-bestcare-treatment-services-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=1155c8ed2b7636640343b1c9b101fc7da58ad59a</id>
+    <title>Oakdale Ear Nose &amp; Throat PA d/b/a Minnesota ENT: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=1155c8ed2b7636640343b1c9b101fc7da58ad59a"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-12. 99,714 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-12-oakdale-ear-nose-throat-pa-d-b-a-minnesota-ent</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=228d5c495f39557dacd2da2060b5a3c35d7bcdd6</id>
+    <title>Longview ER Operations, LLC: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=228d5c495f39557dacd2da2060b5a3c35d7bcdd6"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-11. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-11-longview-er-operations-llc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=13bcfb4866bbc81ac1dd10cbddc74660842050e3</id>
+    <title>Community Health Care, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=13bcfb4866bbc81ac1dd10cbddc74660842050e3"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-11. 808 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-11-community-health-care-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=cc1bbc8552ddee52a9be31ce4cc6ca4d620ab91c</id>
+    <title>Westchester Institute for Human Development, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=cc1bbc8552ddee52a9be31ce4cc6ca4d620ab91c"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-10. 938 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-10-westchester-institute-for-human-development-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=6d0096d6dff24d5c154d3bba32470a7f3eb4d5fe</id>
+    <title>Boston Healthcare for the Homeless Program: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=6d0096d6dff24d5c154d3bba32470a7f3eb4d5fe"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-10. 201,260 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-10-boston-healthcare-for-the-homeless-program</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=d5496f9be124d567a1285f22a859aa9ac99a6c52</id>
+    <title>Levi Strauss &amp; Co.: vishing or social engineering (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=d5496f9be124d567a1285f22a859aa9ac99a6c52"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Levi Strauss &amp; Co. reported that social engineering enabled unauthorized access to three employees’ company-issued computers, and that corporate information was accessed and exfiltrated. Disclosed 2026-08-07. Source: https://www.sec.gov/Archives/edgar/data/94845/000199937126017264/levi-8k_080726.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=b3d2197c7cc2248acd407f5078a7d4da2d4e9f64</id>
+    <title>Indico Data Solutions, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=b3d2197c7cc2248acd407f5078a7d4da2d4e9f64"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-07. 4,840 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-07-indico-data-solutions-inc</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=948a748b08001730a30a454858d14daa9ebc5135</id>
+    <title>Horizon Eye Care Laser &amp; Eye Surgery Center: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=948a748b08001730a30a454858d14daa9ebc5135"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-07. 501 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-07-horizon-eye-care-laser-eye-surgery-center</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=dae6d7263c59d3a9e133e514f9bce9010a267d68</id>
+    <title>Deseye, PLLC d/b/a Princeton Family Eye Care: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=dae6d7263c59d3a9e133e514f9bce9010a267d68"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-07. 1,050 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-07-deseye-pllc-d-b-a-princeton-family-eye-care</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=84870112e7c35b1131ad1c82c51e69cc4e51b236</id>
+    <title>Central Arkansas Pediatrics, P.A.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=84870112e7c35b1131ad1c82c51e69cc4e51b236"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-07. 1,500 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-07-central-arkansas-pediatrics-p-a</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=e637402911fb88f8e149570cf9a1b9d4a1c775f6</id>
+    <title>American Addiction Centers: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=e637402911fb88f8e149570cf9a1b9d4a1c775f6"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-07. 327,754 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-07-american-addiction-centers</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=cc28c13d00b24b679e81617cb7f39bb5a0789bb4</id>
+    <title>IEH Corporation: phishing (org confirmed)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=cc28c13d00b24b679e81617cb7f39bb5a0789bb4"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>IEH Corporation reported that phishing led to unauthorized access to an employee’s Microsoft 365 mailbox, where information was accessible but no successful exfiltration was confirmed. Disclosed 2026-08-06. Source: https://www.sec.gov/Archives/edgar/data/50292/000117494726000761/form8k-36187_iehc.htm</summary>
+  </entry>
+  <entry>
+    <id>https://thesubtlety.github.io/breach-tracker/#id=833915c6ed4151bb93740e2863308e5df9d14f71</id>
+    <title>NFI North, Inc.: unknown (regulator filing)</title>
+    <link href="https://thesubtlety.github.io/breach-tracker/#id=833915c6ed4151bb93740e2863308e5df9d14f71"/>
+    <updated>2026-10-09T00:00:00Z</updated>
+    <category term="new"/>
+    <summary>Disclosed 2026-08-05. 49,540 records. Source: https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf#2026-08-05-nfi-north-inc</summary>
+  </entry>
+</feed>

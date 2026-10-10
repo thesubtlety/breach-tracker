@@ -13,6 +13,14 @@ Every entry that changes how a field is populated gets a `schema_version` bump.
   panel and a `new or updated this week` filter; imported dataset rows are excluded there.
 - VCDB imported from 2010 onward (was 2022), MOVEit 2023 campaign excluded as before:
   7,432 records, incident-year dated. Store 961 -> 8,275.
+- One daily workflow (`daily.yml`) replaces daily-collect + weekly: collect, extract with
+  `--limit`, verify, build, commit, deploy. Actions pinned to commit SHAs, pip locked,
+  Dependabot added, dispatch input passed through an env var, permissions scoped per job.
+- Page loads `recent.json` (last two years plus this week's additions, ~1.2 MB) first and
+  swaps in the full `incidents.json` when it arrives. `feed.xml` is an Atom feed of records
+  new or changed in the last 30 days.
+- `records_affected` guard accepts scaled figures ("14.64 million"); `pipeline/reextract.py`
+  re-reads selected records. Counts restored for Adventure Inc, Zoomcar, loanDepot, VF Corp.
 - `find_record` takes an optional org index; `settle_claims` uses it, so a weekly run with
   10k pending claims against an 8k store no longer takes minutes.
 

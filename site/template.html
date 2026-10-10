@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Breach Tracker</title>
+<link rel="alternate" type="application/atom+xml" title="Breach Tracker: new and updated records" href="feed.xml">
 <meta name="description" content="Publicly reported organizational breaches, classified by how the attacker got in, only where a source actually said.">
 <style>
   :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --line:#e3e3e3; --soft:#f5f5f5; --accent:#2b5bd7; --warn:#b36b00; --ok:#1f7a3a;
@@ -68,7 +69,7 @@
 </head>
 <body>
 <h1>Breach Tracker</h1>
-<p class="lead">How organizations actually get breached, counted only from what a public source said. This is a sample that grows weekly, not a census: the coverage line below says what each part of it spans. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
+<p class="lead">How organizations actually get breached, counted only from what a public source said. This is a sample that grows weekly, not a census: the coverage line below says what each part of it spans. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="feed.xml" title="Atom feed of records new or changed in the last 30 days; any feed reader or a free feed-to-email service will deliver it">feed</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
 <div class="fresh" id="fresh"></div>
 <div class="stats" id="stats"></div>
 <div class="week" id="week" hidden></div>
@@ -127,7 +128,7 @@ const G = STATS.glossary || {};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const gl = (k, v) => esc((G[k] || {})[v] || "");
-let rows = [], view = [], sortKey = "disclosed_date", sortDir = -1, open = new Set();
+let rows = [], view = [], sortKey = "disclosed_date", sortDir = -1, open = new Set(), loadingFull = true;
 
 function origin(r) {
   if (r.imported_from) return "imported";
@@ -257,7 +258,7 @@ function render() {
   const k = sortKey;
   view.sort((a, b) => ((a[k] ?? "") > (b[k] ?? "") ? 1 : (a[k] ?? "") < (b[k] ?? "") ? -1 : 0) * sortDir);
   for (const th of document.querySelectorAll("th[data-k]")) th.setAttribute("aria-sort", th.dataset.k === k ? (sortDir > 0 ? "ascending" : "descending") : "none");
-  $("#count").textContent = `${view.length} of ${rows.length} records`;
+  $("#count").textContent = `${view.length} of ${rows.length} records${loadingFull ? ` · loading the full history (${STATS.total} records)…` : ""}`;
   $("#t tbody").innerHTML = view.map(x => {
     const c = claimOf(x), o = origin(x), isOpen = open.has(x.id);
     return `<tr class="row" data-id="${esc(x.id)}" aria-expanded="${isOpen}">
@@ -302,18 +303,31 @@ function downloadCsv() {
   a.download = `breach-tracker-${STATS.generated}.csv`; a.click();
 }
 
-fetch("incidents.json").then(r => r.json()).then(d => {
+function fillCountries() {
+  const sel = $("#cc"), cur = sel.value;
+  sel.innerHTML = '<option value="">any</option>';
+  fill(sel, [...new Set(rows.map(x => x.org_country).filter(Boolean))].sort());
+  sel.value = cur;
+}
+function scrollToOpen() { if (open.size) { const el = document.querySelector(`tr.row[data-id="${[...open][0]}"]`); if (el) el.scrollIntoView({ block: "center" }); } }
+// Two loads: the last two years render at once, then the full file replaces it in place.
+fetch("recent.json").then(r => r.json()).then(d => {
   rows = d;
   renderFresh(); renderWeek(); glossary();
   fill($("#ia"), STATS.by_initial_access.map(c => c[0]));
   fill($("#ev"), STATS.by_evidence.map(c => c[0]));
   fill($("#ot"), STATS.by_org_type.map(c => c[0]));
-  fill($("#cc"), [...new Set(rows.map(x => x.org_country).filter(Boolean))].sort());
+  fillCountries();
   fill($("#cf"), STATS.by_control_failure.map(c => c[0]).filter(k => k !== "unknown"));
   fill($("#ac"), STATS.by_actor_variety.map(c => c[0]).filter(k => k !== "unknown"));
-  fromHash(); render();
-  if (open.size) { const el = document.querySelector(`tr.row[data-id="${[...open][0]}"]`); if (el) el.scrollIntoView({ block: "center" }); }
-});
+  fromHash(); render(); scrollToOpen();
+  return fetch("incidents.json").then(r => r.json());
+}).then(d => {
+  const hadOpenRow = open.size && document.querySelector(`tr.row[data-id="${[...open][0]}"]`);
+  rows = d; loadingFull = false;
+  fillCountries(); renderWeek(); render();
+  if (!hadOpenRow) scrollToOpen();
+}).catch(e => { loadingFull = false; render(); console.warn("full history not loaded", e); });
 for (const f of FIELDS) $("#" + f).addEventListener("input", () => { render(); toHash(); });
 $("#reset").addEventListener("click", () => { for (const f of FIELDS) { const el = $("#" + f); if (el.type === "checkbox") el.checked = false; else el.value = ""; } sortKey = "disclosed_date"; sortDir = -1; open.clear(); render(); toHash(); });
 $("#dl").addEventListener("click", downloadCsv);

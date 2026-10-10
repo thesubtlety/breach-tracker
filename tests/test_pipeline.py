@@ -299,3 +299,18 @@ def test_records_affected_accepts_scaled_figures():
     assert number_in_text(12345, "About 12,345 people were affected.")
     assert not number_in_text(14640000, "affecting 14 million customer records")
     assert not number_in_text(5000, "no figure was given")
+
+
+def test_feed_lists_new_and_updated_but_not_imported():
+    import xml.etree.ElementTree as ET
+    from build_site import feed
+    rows = [record("Acme Inc", "2026-10-01", first_seen="2026-10-01"),
+            record("Beta LLC", "2026-08-01", first_seen="2026-08-01", updated_at="2026-10-05"),
+            record("Old Co", "2026-01-01", first_seen="2026-01-01"),
+            record("Imported Co", "2026-10-02", first_seen="2026-10-02", imported_from={"dataset": "vcdb", "record_id": "x"})]
+    root = ET.fromstring(feed(rows, "2026-09-28", "2026-10-10"))
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    entries = root.findall("a:entry", ns)
+    titles = [e.find("a:title", ns).text for e in entries]
+    assert [t.split(":")[0] for t in titles] == ["Beta LLC", "Acme Inc"]
+    assert [e.find("a:category", ns).get("term") for e in entries] == ["updated", "new"]
