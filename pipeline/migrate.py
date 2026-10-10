@@ -17,8 +17,15 @@ def stamp_first_seen(r: dict) -> dict:
     return r
 
 
+def stamp_org_id(r: dict) -> dict:
+    from orgs import org_id
+    r["org_id"] = org_id(r["org_name"])
+    return r
+
+
 def to_1_1(r: dict) -> dict:
     stamp_first_seen(r)
+    stamp_org_id(r)
     if r.get("schema_version") == "1.1" and "actor" in r:
         return r
     name = r.pop("threat_actor", None)

@@ -18,6 +18,7 @@ from common import (CANDIDATES_PATH, CLAIMS_PATH, INCIDENTS_PATH, MERGE_WINDOW_D
                     PROCESSED_PATH, PROMPT_VERSION, make_id, normalize_org, read_jsonl, today,
                     url_key, validate, write_jsonl)
 from actors import default_actor, default_third_party, enrich_actor  # noqa: E402
+from orgs import org_id  # noqa: E402
 from dedupe import dedupe  # noqa: E402
 from fetch_text import fetch_text  # noqa: E402
 from sources import collect  # noqa: E402
@@ -301,6 +302,7 @@ def merge_into_store(store: list[dict], new: dict) -> None:
     stamp = new["extracted_by"]["run_date"]
     if not old:
         new.setdefault("first_seen", stamp)
+        new.setdefault("org_id", org_id(new["org_name"]))
         store.append(new)
         return
     new["id"] = old["id"]

@@ -40,7 +40,7 @@ for how models get compared before one is trusted.
 | News RSS (BleepingComputer, The Record, SecurityWeek, DataBreaches.net, Hackmageddon) | Free | RSS; article text fetched for extraction | The only place root cause and technology usually appear | Coverage of small orgs | Copyright: store one supporting sentence and the link, not the article |
 | Mastodon `#databreach` | Free | Public tag timeline on mastodon.social (infosec.exchange now requires login) | Early pointers, often to the same news | Signal-to-noise | Instance ToS |
 | VCDB (Verizon) | Free | GitHub, one JSON zip, CC BY-SA 4.0 | 10,047 incidents coded in VERIS (July 2026 file; has 2025 and 2026 entries). `import_vcdb.py` maps it | Representative sampling. 747 of the 749 VCDB records for 2023 are MOVEit victims coded by one analyst; use `--exclude-summary-regex MOVEit` or treat 2023 as one campaign | CC BY-SA (share-alike applies to the derived dataset) |
-| California AG | Free | `oag.ca.gov/privacy/databreach/list`, HTML table, 50 rows a page back to 2012 | Organization, breach date(s), report date for every notice sent to a Californian; ~5,300 so far. Reachable from outside the US | No description, so no mechanism; the sample notice PDF has one and is not read yet | Public record |
+| California AG | Free | `oag.ca.gov/privacy/databreach/list`, HTML table, 50 rows a page back to 2012 | Organization, breach date(s), report date for every notice sent to a Californian; ~5,300 so far. Reachable from outside the US | No description on the list; `letters.py` reads the notice PDF's narrative sections (1 in 8 is a scan with no text) | Public record |
 | Have I Been Pwned breach list | Free, no key | `haveibeenpwned.com/api/v3/breaches` | 1,000+ loaded breaches: breach date, date added, record count, data classes, a description that often says how. Spam lists, stealer logs and fabricated sets skipped; the description goes through the model, the count and dates come from HIBP | Account-data breaches only; many are small forums; HIBP dates "added" can lag the breach by years | Attribution asked, given in the footer |
 | Texas AG | Free | `oag.my.site.com` Salesforce app | Entity, Texans affected, data types, since 2021 | Not reachable from this host (geofenced like Maine); untested | Public record |
 | UMD Cyber Events Database 2.0 | Free | cybereventsdatabase.org, CSV and JSON download | 16.7k events 2014–Mar 2026 coded by actor, motive, industry, effect | Root cause; weekly cadence | Academic citation requested |
@@ -163,8 +163,11 @@ run.main          -> regulator/leak rows: deterministic record from checkboxes (
                      8-K / press / posts: fetch text -> extract.extract_one -> validate
                   -> merge into data/incidents.jsonl (upsert by id, union sources)
                   -> processed candidates leave the queue; --limit leftovers stay
+letters.py        -> California notices: read the notification letter PDF (two sections),
+                     extract, merge; outcome kept on the record so each letter is read once
+orgs.py           -> org_id per record (name hash + data/org_aliases.json); site/orgs.json
 verify_sources    -> data/source_health.json (zero-twice canary, link rot, quote re-check)
-build_site        -> site/index.html + incidents.json + incidents.csv
+build_site        -> site/index.html + incidents.json + recent.json + orgs.json + feed.xml + csv
 ```
 
 Deterministic path matters: HHS "Theft" → `lost_or_stolen_device`, Maine "Insider

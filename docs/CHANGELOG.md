@@ -7,6 +7,14 @@ Every entry that changes how a field is populated gets a `schema_version` bump.
 
 ### 2026-10-10
 
+- `pipeline/letters.py` reads the notification letter behind a California AG notice
+  (only the "what happened" and "what information was involved" sections, about a
+  tenth of the letter) and merges the result; outcome kept on the record as `letter`.
+  One letter per record, never re-read. Daily run reads 30 new ones.
+- `org_id` on every record: hash of the normalized name after `data/org_aliases.json`
+  (pipeline/orgs.py). The page gets an organization view (`#org=`), name links, and a
+  repeat-organizations chart; `site/orgs.json` lists organizations with more than one
+  incident or a listing. Rerun `migrate.py` after editing the alias map.
 - New sources: California AG breach list (deterministic rows, incident date carried) and
   the Have I Been Pwned breach list (`hibp` source type; description extracted by the
   model, count and dates taken from HIBP; a model skip falls back to a plain row).

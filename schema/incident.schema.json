@@ -455,6 +455,22 @@
       "format": "date",
       "description": "Run date on which this record entered the store. Survives merges; extracted_by.run_date does not."
     },
+    "org_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{12}$",
+      "description": "Stable organization key (pipeline/orgs.py): hash of the canonical name after alias mapping."
+    },
+    "letter": {
+      "type": "object",
+      "description": "Notification letter read for this record (pipeline/letters.py).",
+      "additionalProperties": false,
+      "required": ["url", "date", "outcome"],
+      "properties": {
+        "url": {"type": ["string", "null"]},
+        "date": {"type": "string", "format": "date"},
+        "outcome": {"type": "string", "enum": ["extracted", "skipped", "no_text", "no_letter"]}
+      }
+    },
     "updated_at": {
       "type": [
         "string",

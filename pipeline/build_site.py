@@ -16,6 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import DATA_DIR, INCIDENTS_PATH, SITE_DIR, read_jsonl, today  # noqa: E402
+from orgs import org_id, registry  # noqa: E402
 
 HEALTH_PATH = DATA_DIR / "source_health.json"
 SITE_URL = os.environ.get("SITE_URL", "https://thesubtlety.github.io/breach-tracker/").rstrip("/") + "/"
@@ -97,7 +98,7 @@ GLOSSARY = {
     },
 }
 
-CSV_COLS = ["id", "first_seen", "updated_at", "disclosed_date", "incident_date", "discovered_date", "org_name", "org_type", "org_country",
+CSV_COLS = ["id", "org_id", "first_seen", "updated_at", "disclosed_date", "incident_date", "discovered_date", "org_name", "org_type", "org_country",
             "initial_access", "entry_asset", "control_failure", "credential_source", "cve", "veris_action",
             "root_cause", "technology_involved", "third_party_involved", "third_party_archetype", "third_party_vendor",
             "actor_name", "actor_category", "actor_variety", "actor_motive", "actor_country",
@@ -211,6 +212,7 @@ def with_context(rows: list[dict], kev: dict, prices: dict) -> list[dict]:
     spy = prices.get("_SPY", {})
     out = []
     for r in rows:
+        r.setdefault("org_id", org_id(r["org_name"]))
         d = {}
         if r.get("cve"):
             d["kev"] = kev_context(r, kev)
@@ -241,6 +243,9 @@ def main() -> int:
 
     compact = dict(ensure_ascii=False, separators=(",", ":"))
     (SITE_DIR / "incidents.json").write_text(json.dumps(rows, **compact))
+    # Only organizations with something to say beyond the one row; the page builds the rest from rows.
+    orgs = [o for o in registry(rows, prices) if o["incidents"] > 1 or o["ticker"] or o["sec_filer"]]
+    (SITE_DIR / "orgs.json").write_text(json.dumps(orgs, **compact))
     recent_cutoff = (date.today() - timedelta(days=RECENT_DAYS)).isoformat()
     week_ago = (date.today() - timedelta(days=7)).isoformat()
     window = (date.today() - timedelta(days=NEW_WINDOW_DAYS)).isoformat()
@@ -285,6 +290,8 @@ def main() -> int:
         "ransomware": sum(1 for r in rows if r.get("ransomware") is True),
         "with_price_reaction": sum(1 for r in rows if (r.get("derived") or {}).get("price")),
         "with_kev": sum(1 for r in rows if (r.get("derived") or {}).get("kev")),
+        "organizations": len({r["org_id"] for r in rows}),
+        "with_letter": sum(1 for r in rows if (r.get("letter") or {}).get("outcome") == "extracted"),
         "kev_updated": max((v.get("added") or "" for v in kev.values()), default=None),
         "coverage": coverage(rows),
         "health": {"run_at": health.get("run_at"), "counts": (health.get("health") or {}).get("counts", {}),

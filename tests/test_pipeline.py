@@ -375,3 +375,42 @@ def test_price_reaction_bases_on_filing_day_close():
     closes = {"2025-03-03": 10.0, "2025-03-04": 10.0, "2025-03-05": 9.0, "2025-03-06": 8.0}
     out = price_reaction({"ticker": "X", "filed": "2025-03-04", "closes": closes}, {})
     assert out["base_day"] == "2025-03-04" and out["returns"]["1"]["raw"] == -0.1
+
+
+def test_letter_sections_slices_narrative():
+    from letters import letter_sections
+    t = ("Dear Customer,\nWe write to inform you.\nWhat Happened?\nOn May 1, 2024 an unauthorized actor "
+         "accessed our network. <<Variable Text 2>>\nWhat Information Was Involved?\nYour name and SSN.\n"
+         "What We Are Doing\nWe reset passwords.\nFor More Information\nCall us.")
+    out = letter_sections(t)
+    assert out.startswith("What Happened?") and "Your name and SSN." in out
+    assert "reset passwords" not in out and "<<" not in out
+    assert letter_sections("Dear Member, something happened. No headings here.").startswith("Dear Member")
+
+
+def test_org_id_is_stable_across_spellings(tmp_path, monkeypatch):
+    import orgs
+    monkeypatch.setattr(orgs, "_aliases", {"american express travel related services": "american express"})
+    assert orgs.org_id("Google Inc.") == orgs.org_id("google") == orgs.org_id("Google, Inc")
+    assert orgs.org_id("Acme Corp on behalf of itself and its affiliates") == orgs.org_id("Acme Corp")
+    assert orgs.org_id("American Express Travel Related Services") == orgs.org_id("American Express")
+    assert orgs.org_id("Acme Corp") != orgs.org_id("Acme Hospital")
+
+
+def test_registry_folds_spellings_and_counts():
+    from orgs import registry
+    mk = lambda name, d, n=None: {"id": name + d, "org_name": name, "disclosed_date": d, "org_type": "technology",
+                                   "org_country": "US", "records_affected": n, "sources": [{"type": "press", "url": "u"}]}
+    out = registry([mk("Google Inc.", "2024-01-01", 10), mk("Google", "2025-01-01", 500), mk("Acme", "2023-01-01")])
+    g = next(o for o in out if o["name"] == "Google")
+    assert g["incidents"] == 2 and g["largest"] == 500 and g["aliases"] == ["Google Inc."] and g["first"] == "2024-01-01"
+    assert out[0]["name"] == "Google"
+
+
+def test_wants_letter_only_unread_unknown_california():
+    from letters import wants_letter
+    base = {"reviewed": False, "initial_access": "unknown", "sources": [{"type": "state_ag", "url": "https://oag.ca.gov/ecrime/databreach/reports/sb24-1"}]}
+    assert wants_letter(dict(base))
+    assert not wants_letter(dict(base, initial_access="phishing"))
+    assert not wants_letter(dict(base, letter={"url": None, "date": "2026-10-10", "outcome": "no_letter"}))
+    assert not wants_letter(dict(base, sources=[{"type": "state_ag", "url": "https://www.maine.gov/x.html"}]))

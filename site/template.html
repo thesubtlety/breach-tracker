@@ -77,6 +77,7 @@
 <div class="stats" id="stats"></div>
 <div class="week" id="week" hidden></div>
 
+<div class="week" id="orgview" hidden></div>
 <div class="charts">
   <div class="chart"><h3>Initial access, where stated</h3><div class="note" id="ia-note"></div><div class="bars" id="ia-bars"></div></div>
   <div class="chart"><h3>Who said so</h3><div class="note">Evidence level of the strongest source on each record in the current view.</div><div class="bars" id="ev-bars"></div></div>
@@ -87,6 +88,7 @@
   <div class="chart"><h3>Third parties behind incidents</h3><div class="note" id="tp-note"></div><div class="bars" id="tp-bars"></div></div>
   <div class="chart"><h3>Share price after an 8-K</h3><div class="note" id="px-note"></div><div id="px"></div></div>
   <div class="chart"><h3>Known-exploited CVEs</h3><div class="note" id="kev-note"></div><div id="kev"></div></div>
+  <div class="chart"><h3>Repeat organizations</h3><div class="note" id="orgs-note"></div><div id="orgs"></div></div>
 </div>
 
 <div class="filters" role="search">
@@ -137,6 +139,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const gl = (k, v) => esc((G[k] || {})[v] || "");
 let rows = [], view = [], sortKey = "disclosed_date", sortDir = -1, open = new Set(), loadingFull = true;
+let orgSel = "", ORGS = null, orgsLoading = null;
 
 function origin(r) {
   if (r.imported_from) return "imported";
@@ -155,6 +158,29 @@ function changedThisWeek(x) { return recentEvent(x) && (firstSeen(x) >= STATS.we
 function openRow(id) {
   open.clear(); open.add(id); render(); toHash();
   const el = document.querySelector(`tr.row[data-id="${id}"]`); if (el) el.scrollIntoView({ block: "center" });
+}
+function loadOrgs() {
+  if (ORGS) return Promise.resolve(ORGS);
+  orgsLoading = orgsLoading || fetch("orgs.json").then(r => r.json()).then(d => { ORGS = d; return d; }).catch(() => (ORGS = []));
+  return orgsLoading;
+}
+function selectOrg(id) { orgSel = id; open.clear(); render(); toHash(); const el = $("#orgview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
+function renderOrg() {
+  const el = $("#orgview");
+  if (!orgSel) { el.hidden = true; return; }
+  el.hidden = false;
+  loadOrgs().then(orgs => {
+    let o = orgs.find(o => o.id === orgSel);
+    if (!o) { const mine = rows.filter(x => x.org_id === orgSel); if (mine.length) { const x = mine[0]; o = { name: x.org_name, sector: x.org_type, country: x.org_country, incidents: mine.length, first: x.disclosed_date, last: x.disclosed_date, largest: x.records_affected, aliases: [], ransomware: x.ransomware === true ? 1 : 0 }; } }
+    if (!o) { el.innerHTML = `<h3>Organization</h3><div class="note">No record for this id. <a href="#" id="org-clear">Show all records</a></div>`; }
+    else {
+      const facts = [o.sector !== "unknown" ? o.sector : null, o.country, o.ticker ? `listed (${esc(o.ticker)})` : o.sec_filer ? "SEC filer" : null,
+        `${o.incidents} incident${o.incidents === 1 ? "" : "s"} on record, ${esc(o.first)}${o.last !== o.first ? ` to ${esc(o.last)}` : ""}`,
+        o.largest ? `largest count ${o.largest.toLocaleString()}` : null, o.ransomware ? `${o.ransomware} ransomware` : null].filter(Boolean);
+      el.innerHTML = `<h3>${esc(o.name)}</h3><div class="note">${facts.map(esc).join(" · ")}${o.aliases.length ? `<br><span class="muted">also recorded as ${o.aliases.map(esc).join("; ")}</span>` : ""}<br><a href="#" id="org-clear">Show all records</a></div>`;
+    }
+    $("#org-clear").addEventListener("click", e => { e.preventDefault(); orgSel = ""; render(); toHash(); });
+  });
 }
 function renderWeek() {
   const items = rows.filter(changedThisWeek).sort((a, b) => a.disclosed_date < b.disclosed_date ? 1 : -1);
@@ -241,6 +267,12 @@ function renderContextCharts(v) {
   $("#kev-note").textContent = kevRows.length ? `${kevRows.length} CVE mentions on ${v.filter(x => (x.derived || {}).kev).length} records; ${listed.length} are in CISA's Known Exploited Vulnerabilities catalog, ${before.length} of those were listed before the incident date (median lead ${median(before.map(k => k.days_listed_before_incident)) ?? "n/a"} days). The catalog began in late 2021, so older incidents show a listing long after the fact.` : "No records in view cite a CVE.";
   $("#kev").innerHTML = kevRows.length ? `<table class="mini"><tr><th>CVE</th><th>organization</th><th>in KEV since</th><th>days before incident</th></tr>${kevRows.slice(0, 14).map(k => `<tr><td><a href="#id=${esc(k.id)}" data-open="${esc(k.id)}">${esc(k.cve)}</a></td><td style="text-align:left">${esc(k.org)}</td><td>${esc(k.kev_added || "not listed")}</td><td>${k.days_listed_before_incident === null ? "" : k.days_listed_before_incident}</td></tr>`).join("")}</table>` : "";
   $("#kev").querySelectorAll("a[data-open]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openRow(a.dataset.open); }));
+  const byOrg = new Map();
+  for (const x of v) { if (!x.org_id) continue; const o = byOrg.get(x.org_id) || { id: x.org_id, name: x.org_name, n: 0, last: "" }; o.n++; if (x.disclosed_date > o.last) { o.last = x.disclosed_date; o.name = x.org_name; } byOrg.set(x.org_id, o); }
+  const repeat = [...byOrg.values()].filter(o => o.n > 1).sort((a, b) => b.n - a.n || (a.last < b.last ? 1 : -1));
+  $("#orgs-note").textContent = repeat.length ? `${repeat.length} organizations appear more than once in view. Click a name for its record.` : "No organization appears more than once in view.";
+  $("#orgs").innerHTML = repeat.length ? `<table class="mini"><tr><th>organization</th><th>incidents</th><th>latest</th></tr>${repeat.slice(0, 12).map(o => `<tr><td style="text-align:left"><a href="#org=${esc(o.id)}" data-org="${esc(o.id)}">${esc(o.name)}</a></td><td>${o.n}</td><td>${esc(o.last)}</td></tr>`).join("")}</table>` : "";
+  $("#orgs").querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectOrg(a.dataset.org); }));
 }
 function renderCharts(v) {
   renderContextCharts(v);
@@ -267,7 +299,7 @@ function filtered() {
     (!since || x.disclosed_date >= since) && (!o || origin(x) === o) && (!ia || x.initial_access === ia) &&
     (!ev || x.evidence_level === ev) && (!ot || x.org_type === ot) && (!cc || x.org_country === cc) &&
     (!known || x.initial_access !== "unknown") && (!cf || x.control_failure === cf) && (!ac || (x.actor || {}).variety === ac) &&
-    (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) && (!wk || changedThisWeek(x)) &&
+    (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) && (!wk || changedThisWeek(x)) && (!orgSel || x.org_id === orgSel) &&
     (!q || [x.org_name, x.root_cause, (x.actor || {}).name, (x.technology_involved || []).join(" "), (x.cve || []).join(" "), (x.third_party || {}).vendor, x.summary, x.id].join(" ").toLowerCase().includes(q)));
 }
 function actorLine(x) {
@@ -286,6 +318,7 @@ function detail(x) {
     ["summary", x.summary],
     ["known exploited", ((x.derived || {}).kev || []).length ? x.derived.kev.map(k => `${esc(k.cve)}: ${k.kev_added ? `in CISA KEV since ${esc(k.kev_added)}` + (k.days_listed_before_incident > 0 ? ` (${k.days_listed_before_incident} days before the incident)` : "") : "not in CISA KEV"}`).join("<br>") : null],
     ["share price", (x.derived || {}).price ? `${esc(x.derived.price.ticker)} from the close on ${esc(x.derived.price.base_day)}: ` + Object.entries(x.derived.price.returns).map(([h, r]) => `${HORIZON_LABEL[h]} ${(100 * r.raw).toFixed(1)}%${r.adj !== null ? ` (${(100 * r.adj).toFixed(1)}% vs market)` : ""}`).join(" · ") : null],
+    ["organization", `<a href="#org=${esc(x.org_id || "")}" data-org="${esc(x.org_id || "")}">${esc(x.org_name)}</a>${(() => { const o = ORGS && ORGS.find(o => o.id === x.org_id); return o && o.incidents > 1 ? ` · ${o.incidents} incidents on record, ${esc(o.first)} to ${esc(o.last)}` : ""; })()}`],
     ["quote", x.supporting_quote ? `<span class="quote">“${esc(x.supporting_quote)}”</span>` : null],
     ["root cause", x.root_cause],
     ["control failure", x.control_failure && x.control_failure !== "unknown" ? `<span title="${gl("control_failure", x.control_failure)}">${esc(x.control_failure)}</span>` : null],
@@ -318,14 +351,15 @@ function render() {
     const c = claimOf(x), o = origin(x), isOpen = open.has(x.id);
     return `<tr class="row" data-id="${esc(x.id)}" aria-expanded="${isOpen}">
     <td>${esc(x.disclosed_date)}</td>
-    <td>${esc(x.org_name)} <span class="tag" title="${gl("origin", o)}">${o}</span>${c ? ` <span class="tag claim" title="A ransomware group also claimed this on its leak site. Source: Ransomware.live">claimed</span>` : ""}<br><span class="small muted">${esc(x.org_type)} · ${esc(x.org_country || "")}${x.reviewed ? ' · <span class="rev">reviewed</span>' : ""}</span></td>
+    <td><a href="#org=${esc(x.org_id || "")}" data-org="${esc(x.org_id || "")}" title="all incidents at this organization">${esc(x.org_name)}</a> <span class="tag" title="${gl("origin", o)}">${o}</span>${c ? ` <span class="tag claim" title="A ransomware group also claimed this on its leak site. Source: Ransomware.live">claimed</span>` : ""}<br><span class="small muted">${esc(x.org_type)} · ${esc(x.org_country || "")}${x.reviewed ? ' · <span class="rev">reviewed</span>' : ""}</span></td>
     <td><span title="${gl("initial_access", x.initial_access)}">${esc(x.initial_access)}</span>${x.initial_access !== "unknown" && !x.supporting_quote ? ' <span class="unrev" title="no verbatim quote">no quote</span>' : ""}${x.control_failure && x.control_failure !== "unknown" ? `<br><span class="small muted" title="${gl("control_failure", x.control_failure)}">why: ${esc(x.control_failure)}</span>` : ""}${(x.cve || []).length ? "<br>" + x.cve.slice(0, 2).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : (x.technology_involved || []).length ? "<br>" + x.technology_involved.slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : ""}</td>
     <td class="hide-sm"><span title="${gl("evidence_level", x.evidence_level)}">${esc(x.evidence_level)}</span><br><span class="small muted" title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span></td>
     <td class="hide-sm">${esc(x.impact_type)}${x.ransomware === true ? ' <span class="tag">ransomware</span>' : ""}${(x.actor || {}).name ? `<br><span class="tag">${esc(x.actor.name)}</span>` : (x.actor || {}).variety && x.actor.variety !== "unknown" ? `<br><span class="tag">${esc(x.actor.variety)}</span>` : ""}</td>
     <td class="hide-sm">${x.records_affected != null ? x.records_affected.toLocaleString() : ""}</td>
     <td class="chev">${isOpen ? "▾" : "▸"}</td></tr>${isOpen ? `<tr class="detail"><td colspan="7">${detail(x)}</td></tr>` : ""}`;
   }).join("");
-  renderStats(view); renderCharts(view);
+  $("#t tbody").querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectOrg(a.dataset.org); }));
+  renderStats(view); renderCharts(view); renderOrg();
 }
 
 function fill(sel, values) { for (const v of values) { const o = document.createElement("option"); o.value = v; o.textContent = v; sel.appendChild(o); } }
@@ -340,6 +374,7 @@ function toHash() {
   for (const f of FIELDS) { const el = $("#" + f); const v = el.type === "checkbox" ? (el.checked ? "1" : "") : el.value; if (v) p.set(f, v); }
   if (sortKey !== "disclosed_date" || sortDir !== -1) p.set("sort", (sortDir < 0 ? "-" : "") + sortKey);
   const id = [...open][0]; if (id && open.size === 1) p.set("id", id);
+  if (orgSel) p.set("org", orgSel);
   history.replaceState(null, "", p.toString() ? "#" + p.toString() : location.pathname);
 }
 function fromHash() {
@@ -347,6 +382,7 @@ function fromHash() {
   for (const f of FIELDS) { const el = $("#" + f); if (!p.has(f)) continue; if (el.type === "checkbox") el.checked = p.get(f) === "1"; else el.value = p.get(f); }
   if (p.has("sort")) { const s = p.get("sort"); sortDir = s.startsWith("-") ? -1 : 1; sortKey = s.replace(/^-/, ""); }
   if (p.has("id")) open.add(p.get("id"));
+  if (p.has("org")) orgSel = p.get("org");
 }
 function downloadCsv() {
   const cols = ["id", "disclosed_date", "org_name", "org_type", "org_country", "initial_access", "entry_asset", "control_failure", "cve", "veris_action", "root_cause", "technology_involved", "third_party", "actor_name", "actor_variety", "actor_motive", "impact_type", "ransomware", "data_types", "records_affected", "evidence_level", "confidence", "reviewed", "summary", "source_url"];
@@ -384,7 +420,7 @@ fetch("recent.json").then(r => r.json()).then(d => {
   if (!hadOpenRow) scrollToOpen();
 }).catch(e => { loadingFull = false; render(); console.warn("full history not loaded", e); });
 for (const f of FIELDS) $("#" + f).addEventListener("input", () => { render(); toHash(); });
-$("#reset").addEventListener("click", () => { for (const f of FIELDS) { const el = $("#" + f); if (el.type === "checkbox") el.checked = false; else el.value = ""; } sortKey = "disclosed_date"; sortDir = -1; open.clear(); render(); toHash(); });
+$("#reset").addEventListener("click", () => { for (const f of FIELDS) { const el = $("#" + f); if (el.type === "checkbox") el.checked = false; else el.value = ""; } sortKey = "disclosed_date"; sortDir = -1; open.clear(); orgSel = ""; render(); toHash(); });
 $("#dl").addEventListener("click", downloadCsv);
 for (const th of document.querySelectorAll("th[data-k]")) th.addEventListener("click", () => { const k = th.dataset.k; sortDir = sortKey === k ? -sortDir : (k === "disclosed_date" || k === "records_affected" ? -1 : 1); sortKey = k; render(); toHash(); });
 $("#t tbody").addEventListener("click", e => {
