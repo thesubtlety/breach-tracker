@@ -314,3 +314,64 @@ def test_feed_lists_new_and_updated_but_not_imported():
     titles = [e.find("a:title", ns).text for e in entries]
     assert [t.split(":")[0] for t in titles] == ["Beta LLC", "Acme Inc"]
     assert [e.find("a:category", ns).get("term") for e in entries] == ["updated", "new"]
+
+
+def test_california_list_rows_become_state_ag_candidates():
+    from sources import parse_ca_list
+    html = """<table><thead><tr><th>Org</th><th>Date</th><th>Reported</th></tr></thead><tbody>
+    <tr><td><a href="/ecrime/databreach/reports/sb24-1">iRhythm Technologies Inc.</a></td><td>06/03/2026 , 06/08/2026</td><td>10/06/2026</td></tr>
+    <tr><td><a href="/ecrime/databreach/reports/sb24-2">Harman Fitness</a></td><td>n/a</td><td>10/06/2026</td></tr>
+    </tbody></table>"""
+    rows = parse_ca_list(html)
+    assert [r["org_name"] for r in rows] == ["iRhythm Technologies Inc.", "Harman Fitness"]
+    assert rows[0]["disclosed_date"] == "2026-10-06" and rows[0]["source_type"] == "state_ag"
+    assert rows[0]["source_url"] == "https://oag.ca.gov/ecrime/databreach/reports/sb24-1"
+    assert rows[0]["structured_hint"]["date_occurred"] == "06/03/2026"
+    rec = deterministic_record(dict(rows[0], all_sources=[{"url": rows[0]["source_url"], "type": "state_ag", "title": None}]), "2026-10-10")
+    assert rec["incident_date"] == "2026-06-03" and rec["evidence_level"] == "regulator_filing"
+
+
+def test_hibp_row_becomes_record_with_count_and_data_types():
+    from sources import hibp_data_types
+    assert hibp_data_types(["Email addresses", "Passwords", "Credit cards", "Health insurance information", "Avatars"]) == ["credentials", "financial", "medical", "other", "personal"]
+    c = {"org_name": "Example Forum", "disclosed_date": "2026-10-01", "source_type": "hibp", "source_url": "https://haveibeenpwned.com/Breach/Example",
+         "title": "HIBP", "text": "short", "org_country": "unknown", "evidence_level_hint": "press_report",
+         "structured_hint": {"breach_date": "2026-08-15", "pwn_count": 12345, "data_classes": ["Email addresses", "Passwords"], "verified": True, "description": "short"},
+         "all_sources": [{"url": "https://haveibeenpwned.com/Breach/Example", "type": "hibp", "title": None}]}
+    rec = deterministic_record(c, "2026-10-10")
+    assert rec and rec["records_affected"] == 12345 and rec["incident_date"] == "2026-08-15"
+    assert rec["data_types"] == ["credentials", "personal"] and rec["evidence_level"] == "press_report"
+
+
+def test_merge_fills_gaps_without_overriding():
+    store = [record("Acme Inc", "2026-09-01", initial_access="phishing", supporting_quote="q", org_type="unknown")]
+    merge_into_store(store, record("Acme Inc", "2026-09-03", records_affected=500, incident_date="2026-08-20", org_type="healthcare",
+                                   sources=[{"url": "https://hibp/x", "type": "hibp", "title": None, "fetched_at": None}]))
+    r = store[0]
+    assert r["initial_access"] == "phishing" and r["records_affected"] == 500 and r["incident_date"] == "2026-08-20" and r["org_type"] == "healthcare"
+    assert r["updated_at"] == "2026-09-03"
+
+
+def test_short_org_keeps_first_entity():
+    from sources import short_org
+    assert short_org("Premera Blue Cross, including Academe, Inc. (formerly LifeWise)") == "Premera Blue Cross"
+    assert short_org("TMX Finance Corporate Services, Inc., on behalf of itself") == "TMX Finance Corporate Services, Inc."
+    assert short_org("Bankers Life (BL) - BL is the marketing brand of X") == "Bankers Life (BL)"
+    assert short_org("Acme Corp") == "Acme Corp"
+    assert len(short_org("A" * 300)) == 200
+
+
+def test_hibp_facts_fill_only_keeps_stated_count():
+    from run import apply_hibp_facts
+    rec = {"records_affected": 500, "incident_date": None, "data_types": [], "impact_type": "unknown"}
+    apply_hibp_facts(rec, {"pwn_count": 9000, "breach_date": "2024-01-02", "data_classes": ["Email addresses"]}, fill_only=True)
+    assert rec["records_affected"] == 500 and rec["incident_date"] == "2024-01-02"
+    apply_hibp_facts(rec, {"pwn_count": 9000}, fill_only=False)
+    assert rec["records_affected"] == 9000
+
+
+def test_price_reaction_bases_on_filing_day_close():
+    from build_site import price_reaction
+    closes = {"2025-03-03": 10.0, "2025-03-04": 10.0, "2025-03-05": 9.0, "2025-03-06": 8.0}
+    out = price_reaction({"ticker": "X", "filed": "2025-03-04", "closes": closes}, {})
+    assert out["base_day"] == "2025-03-04" and out["returns"]["1"]["raw"] == -0.1

@@ -21,6 +21,7 @@ HEALTH_PATH = DATA_DIR / "source_health.json"
 SITE_URL = os.environ.get("SITE_URL", "https://thesubtlety.github.io/breach-tracker/").rstrip("/") + "/"
 RECENT_DAYS = 730
 FEED_DAYS = 30
+NEW_WINDOW_DAYS = 90  # a backfilled 2015 notice first seen today is not news
 
 # Shown as hover text and in the page glossary. Keep in step with prompts/extract.md.
 GLOSSARY = {
@@ -116,6 +117,10 @@ def first_seen(r: dict) -> str:
     return r.get("first_seen") or r["extracted_by"]["run_date"]
 
 
+def newsworthy(r: dict, window_start: str) -> bool:
+    return origin(r) != "imported" and r["disclosed_date"] >= window_start
+
+
 def coverage(rows: list[dict]) -> list[dict]:
     """What the dataset actually spans, per origin: readers should not mistake a young
     pipeline for the history of breaches."""
@@ -131,7 +136,8 @@ def coverage(rows: list[dict]) -> list[dict]:
 def feed(rows: list[dict], since: str, generated: str) -> str:
     """Atom feed of records first recorded or changed since `since`, newest change first.
     Imported dataset rows are left out: a bulk import is not news."""
-    items = [r for r in rows if origin(r) != "imported" and max(first_seen(r), r.get("updated_at") or "") >= since]
+    window = (date.fromisoformat(since) - timedelta(days=NEW_WINDOW_DAYS)).isoformat()
+    items = [r for r in rows if newsworthy(r, window) and max(first_seen(r), r.get("updated_at") or "") >= since]
     items.sort(key=lambda r: (max(first_seen(r), r.get("updated_at") or ""), r["disclosed_date"]), reverse=True)
     entries = []
     for r in items[:100]:
@@ -161,6 +167,62 @@ def feed(rows: list[dict], since: str, generated: str) -> str:
 """
 
 
+HORIZONS = (1, 5, 21, 63, 126, 250)  # trading days: next day, week, month, quarter, half year, year
+
+
+def price_reaction(series: dict, spy: dict) -> dict | None:
+    """Return vs the close on the filing day (8-Ks are mostly filed after the bell), or
+    the last close before it, at each horizon, raw and net of SPY."""
+    closes = series.get("closes") or {}
+    filed = series.get("filed")
+    if not closes or not filed:
+        return None
+    days = sorted(closes)
+    before = [d for d in days if d <= filed]
+    if not before:
+        return None
+    base_day = before[-1]
+    i0 = days.index(base_day)
+    base, spy_base = closes[base_day], spy.get(base_day)
+    out = {"ticker": series["ticker"], "base_day": base_day, "returns": {}}
+    for h in HORIZONS:
+        if i0 + h < len(days):
+            d = days[i0 + h]
+            raw = closes[d] / base - 1
+            adj = raw - (spy[d] / spy_base - 1) if spy_base and d in spy else None
+            out["returns"][str(h)] = {"day": d, "raw": round(raw, 4), "adj": round(adj, 4) if adj is not None else None}
+    return out if out["returns"] else None
+
+
+def kev_context(r: dict, kev: dict) -> list[dict]:
+    anchor = r.get("incident_date") or r["disclosed_date"]
+    out = []
+    for c in r.get("cve") or []:
+        k = kev.get(c.upper()) or {}
+        added = k.get("added")
+        lead = (date.fromisoformat(anchor) - date.fromisoformat(added)).days if added else None
+        out.append({"cve": c.upper(), "kev_added": added, "name": k.get("name"), "days_listed_before_incident": lead})
+    return out
+
+
+def with_context(rows: list[dict], kev: dict, prices: dict) -> list[dict]:
+    """Site rows carry a `derived` block the schema does not: KEV listing dates for the
+    record's CVEs and the filer's share-price reaction. The committed store never does."""
+    spy = prices.get("_SPY", {})
+    out = []
+    for r in rows:
+        d = {}
+        if r.get("cve"):
+            d["kev"] = kev_context(r, kev)
+        pr = prices.get(r["id"])
+        if pr and pr.get("closes"):
+            reaction = price_reaction(pr, spy)
+            if reaction:
+                d["price"] = reaction
+        out.append(dict(r, derived=d) if d else r)
+    return out
+
+
 def claim_only(r: dict) -> bool:
     """Only a leak-site post says this happened. Kept in the store so a later filing or
     article can confirm it, never published on its own: that would be re-serving
@@ -170,7 +232,10 @@ def claim_only(r: dict) -> bool:
 
 def main() -> int:
     all_rows = read_jsonl(INCIDENTS_PATH)
-    rows = [r for r in all_rows if not claim_only(r)]
+    ext = DATA_DIR / "external"
+    kev = json.loads((ext / "kev.json").read_text()) if (ext / "kev.json").exists() else {}
+    prices = json.loads((ext / "prices.json").read_text()) if (ext / "prices.json").exists() else {}
+    rows = with_context([r for r in all_rows if not claim_only(r)], kev, prices)
     withheld = len(all_rows) - len(rows)
     SITE_DIR.mkdir(exist_ok=True)
 
@@ -178,7 +243,8 @@ def main() -> int:
     (SITE_DIR / "incidents.json").write_text(json.dumps(rows, **compact))
     recent_cutoff = (date.today() - timedelta(days=RECENT_DAYS)).isoformat()
     week_ago = (date.today() - timedelta(days=7)).isoformat()
-    recent = [r for r in rows if r["disclosed_date"] >= recent_cutoff or (origin(r) != "imported" and first_seen(r) >= week_ago)]
+    window = (date.today() - timedelta(days=NEW_WINDOW_DAYS)).isoformat()
+    recent = [r for r in rows if r["disclosed_date"] >= recent_cutoff]
     (SITE_DIR / "recent.json").write_text(json.dumps(recent, **compact))
     (SITE_DIR / "feed.xml").write_text(feed(rows, (date.today() - timedelta(days=FEED_DAYS)).isoformat(), today()))
     with (SITE_DIR / "incidents.csv").open("w", newline="") as f:
@@ -202,9 +268,10 @@ def main() -> int:
         "withheld_claims": withheld,
         "generated": today(),
         "week_ago": week_ago,
-        "added_last_7_days": sum(1 for r in rows if origin(r) != "imported" and first_seen(r) >= week_ago),
-        "imported_last_7_days": sum(1 for r in rows if origin(r) == "imported" and first_seen(r) >= week_ago),
-        "updated_last_7_days": sum(1 for r in rows if (r.get("updated_at") or "") >= week_ago and first_seen(r) < week_ago),
+        "new_window": window,
+        "added_last_7_days": sum(1 for r in rows if newsworthy(r, window) and first_seen(r) >= week_ago),
+        "backfilled_last_7_days": sum(1 for r in rows if not newsworthy(r, window) and first_seen(r) >= week_ago),
+        "updated_last_7_days": sum(1 for r in rows if newsworthy(r, window) and (r.get("updated_at") or "") >= week_ago and first_seen(r) < week_ago),
         "reviewed": sum(1 for r in rows if r.get("reviewed")),
         "known_initial_access": sum(1 for r in rows if r["initial_access"] != "unknown"),
         "date_range": [min(r["disclosed_date"] for r in rows), max(r["disclosed_date"] for r in rows)] if rows else None,
@@ -216,6 +283,9 @@ def main() -> int:
         "known_control_failure": sum(1 for r in rows if r.get("control_failure", "unknown") != "unknown"),
         "third_party_involved": sum(1 for r in rows if (r.get("third_party") or {}).get("involved") is True),
         "ransomware": sum(1 for r in rows if r.get("ransomware") is True),
+        "with_price_reaction": sum(1 for r in rows if (r.get("derived") or {}).get("price")),
+        "with_kev": sum(1 for r in rows if (r.get("derived") or {}).get("kev")),
+        "kev_updated": max((v.get("added") or "" for v in kev.values()), default=None),
         "coverage": coverage(rows),
         "health": {"run_at": health.get("run_at"), "counts": (health.get("health") or {}).get("counts", {}),
                    "problems": (health.get("health") or {}).get("problems", []),

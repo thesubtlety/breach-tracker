@@ -29,7 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import CANDIDATES_PATH, read_jsonl, write_jsonl  # noqa: E402
-from sources import (EFTS, MAINE_DIR, _edgar_hit, _get, hhs, maine_ag,  # noqa: E402
+from sources import (EFTS, MAINE_DIR, _edgar_hit, _get, california_ag, hhs, hibp, maine_ag,  # noqa: E402
                      parse_maine_notice, rwl_candidate, rwl_get)
 
 log = logging.getLogger("backfill")
@@ -102,6 +102,7 @@ def main() -> int:
     ap.add_argument("--sources", default="sec_edgar,hhs,maine_ag")
     ap.add_argument("--maine-pages", type=int, default=400)
     ap.add_argument("--maine-zip", help="zip from fetch_maine.py; parsed offline instead of fetching")
+    ap.add_argument("--ca-pages", type=int, default=120, help="California AG list pages to walk (50 rows each)")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     start, end = date.fromisoformat(args.start), date.fromisoformat(args.end)
@@ -114,7 +115,11 @@ def main() -> int:
         new += hhs(start)
     if args.maine_zip:
         new += maine_from_zip(args.maine_zip, start)
-    elif "maine_ag" in wanted:
+    if "california_ag" in wanted:
+        new += california_ag(start, max_pages=args.ca_pages)
+    if "hibp" in wanted:
+        new += hibp(start)
+    if "maine_ag" in wanted:
         new += maine_ag(start, max_pages=args.maine_pages)
     if "ransomware_live" in wanted:
         new += ransomware_live_history(start, end)

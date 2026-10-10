@@ -40,6 +40,9 @@ for how models get compared before one is trusted.
 | News RSS (BleepingComputer, The Record, SecurityWeek, DataBreaches.net, Hackmageddon) | Free | RSS; article text fetched for extraction | The only place root cause and technology usually appear | Coverage of small orgs | Copyright: store one supporting sentence and the link, not the article |
 | Mastodon `#databreach` | Free | Public tag timeline on mastodon.social (infosec.exchange now requires login) | Early pointers, often to the same news | Signal-to-noise | Instance ToS |
 | VCDB (Verizon) | Free | GitHub, one JSON zip, CC BY-SA 4.0 | 10,047 incidents coded in VERIS (July 2026 file; has 2025 and 2026 entries). `import_vcdb.py` maps it | Representative sampling. 747 of the 749 VCDB records for 2023 are MOVEit victims coded by one analyst; use `--exclude-summary-regex MOVEit` or treat 2023 as one campaign | CC BY-SA (share-alike applies to the derived dataset) |
+| California AG | Free | `oag.ca.gov/privacy/databreach/list`, HTML table, 50 rows a page back to 2012 | Organization, breach date(s), report date for every notice sent to a Californian; ~5,300 so far. Reachable from outside the US | No description, so no mechanism; the sample notice PDF has one and is not read yet | Public record |
+| Have I Been Pwned breach list | Free, no key | `haveibeenpwned.com/api/v3/breaches` | 1,000+ loaded breaches: breach date, date added, record count, data classes, a description that often says how. Spam lists, stealer logs and fabricated sets skipped; the description goes through the model, the count and dates come from HIBP | Account-data breaches only; many are small forums; HIBP dates "added" can lag the breach by years | Attribution asked, given in the footer |
+| Texas AG | Free | `oag.my.site.com` Salesforce app | Entity, Texans affected, data types, since 2021 | Not reachable from this host (geofenced like Maine); untested | Public record |
 | UMD Cyber Events Database 2.0 | Free | cybereventsdatabase.org, CSV and JSON download | 16.7k events 2014–Mar 2026 coded by actor, motive, industry, effect | Root cause; weekly cadence | Academic citation requested |
 | EuRepoC | Free, but license is now CC-BY-NC 4.0 | Zenodo CSV/XLSX/JSON; daily email tracker | 60 variables, expert-coded, state-conflict focus | Commodity breaches; stable release lags (v1.3 covers through 2024) | Non-commercial |
 | UK ICO incident trends | Free | Quarterly CSV/XLSX | Sector, incident type (cyber vs non-cyber), data types, counts | Org names, narrative | Open Government Licence |
@@ -131,6 +134,12 @@ is one environment variable; nothing else changes.
 - `data_types`, `ransomware`, `discovered_date` — cheap VERIS attributes; regulators and
   VCDB supply most of them.
 - `reviewed` — human flag. Reviewed records are never overwritten by later runs.
+- Build-time context, not in the schema: for every CVE on a record, the date CISA listed it
+  as exploited (`data/external/kev.json`, via the KEV feed or NVD); for every 8-K filer with
+  a ticker, daily closes from a month before the filing to a year after
+  (`data/external/prices.json`, Nasdaq data API, Alpha Vantage for filings older than the
+  ~18 months Nasdaq keeps). `pipeline/external.py` refreshes both; the page shows the
+  market-adjusted return at six horizons and the KEV lead time.
 - `first_seen`, `updated_at` — the run that first stored the record, and the last run in
   which a later source changed it (new source, richer fields, attached claim). The site's
   "This week" panel and the `new or updated this week` filter are built from these.

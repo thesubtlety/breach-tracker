@@ -47,7 +47,8 @@ def _get(url: str, **kw) -> requests.Response | None:
         r.raise_for_status()
         return r
     except Exception as e:  # noqa: BLE001
-        log.warning("GET %s failed: %s", url, e)
+        # requests puts the full URL, query string included, in its messages; keys live there.
+        log.warning("GET %s failed: %s", url, re.sub(r"\?[^\s'\"]*", "?…", str(e)))
         return None
 
 
@@ -286,6 +287,119 @@ def parse_maine_notice(html: str, url: str) -> dict | None:
 
 
 # ---------------------------------------------------------------------------
+# 3b. California AG (oag.ca.gov/privacy/databreach/list). A Drupal table: organization,
+#     date(s) of breach, date reported; 50 rows a page, newest first, ~107 pages back
+#     to 2012. The detail page adds only the sample notice PDF. Reachable from
+#     outside the US.
+CA_LIST = "https://oag.ca.gov/privacy/databreach/list"
+
+
+_ORG_TAIL = re.compile(r"\s*(?:,\s*)?(?:including|on behalf of|\(formerly|d/b/a|dba)\b.*$|\s+-\s+.*$", re.I)
+
+
+def short_org(name: str) -> str:
+    """Filers sometimes list every affiliate in the name field; keep the first entity."""
+    cut = _ORG_TAIL.sub("", name).strip(" ,")
+    return (cut or name)[:200]
+
+
+def parse_ca_list(html: str) -> list[dict]:
+    soup = BeautifulSoup(html, "lxml")
+    out = []
+    for tr in soup.select("table tbody tr"):
+        tds = tr.find_all("td")
+        if len(tds) < 3:
+            continue
+        a = tds[0].find("a", href=True)
+        name = short_org(tds[0].get_text(" ", strip=True))
+        if not (a and name):
+            continue
+        breach_dates = [d.strip() for d in tds[1].get_text(" ", strip=True).split(",") if d.strip()]
+        reported = _iso(tds[2].get_text(" ", strip=True))
+        if not reported:
+            continue
+        out.append({
+            "org_name": name, "disclosed_date": reported, "source_type": "state_ag",
+            "source_url": requests.compat.urljoin(CA_LIST, a["href"]),
+            "title": "California AG data breach report", "text": None,
+            "structured_hint": {"date_occurred": breach_dates[0] if breach_dates else None,
+                                "date_occurred_all": breach_dates, "state": "CA"},
+            "evidence_level_hint": "regulator_filing", "org_country": "US",
+        })
+    return out
+
+
+def california_ag(since: date, max_pages: int = 3) -> list[dict]:
+    out: list[dict] = []
+    for page in range(max_pages):
+        r = _get(CA_LIST, params={"page": page} if page else None, headers={"User-Agent": BROWSER_UA})
+        if not r:  # the site throttles bursts; wait once, then give up for this run
+            time.sleep(20)
+            r = _get(CA_LIST, params={"page": page} if page else None, headers={"User-Agent": BROWSER_UA})
+        if not r:
+            log.warning("california_ag: page %d unavailable; stopping (re-run to continue)", page)
+            break
+        rows = parse_ca_list(r.text)
+        if not rows:
+            break
+        out += [c for c in rows if date.fromisoformat(c["disclosed_date"]) >= since]
+        if date.fromisoformat(rows[-1]["disclosed_date"]) < since:
+            break
+        time.sleep(2)
+    log.info("california_ag: %d candidates", len(out))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# 3c. Have I Been Pwned breach list (free, no key, attribution asked). One row per
+#     breach: name, domain, breach date, date added, count, data classes, a short
+#     description that often says how. Spam lists, stealer logs and fabricated sets
+#     are skipped; unverified breaches are kept but marked.
+HIBP_URL = "https://haveibeenpwned.com/api/v3/breaches"
+HIBP_DATA_CLASSES = {
+    "credentials": ("password", "auth token", "security question", "pin", "private key", "session"),
+    "financial": ("credit card", "bank", "payment", "purchase", "income", "credit status", "financial"),
+    "medical": ("health", "medical", "prescription", "disabilit", "mental"),
+    "personal": ("email", "name", "phone", "address", "date of birth", "gender", "ip address",
+                 "social security", "government", "passport", "driver", "biometric", "age"),
+}
+
+
+def hibp_data_types(classes: list[str]) -> list[str]:
+    out = set()
+    for c in classes or []:
+        cl = c.lower()
+        hit = next((k for k, needles in HIBP_DATA_CLASSES.items() if any(n in cl for n in needles)), None)
+        out.add(hit or "other")
+    return sorted(out)
+
+
+def hibp(since: date) -> list[dict]:
+    r = _get(HIBP_URL, headers={"User-Agent": "breach-tracker (github.com/thesubtlety/breach-tracker)"})
+    if not r:
+        log.warning("hibp: unavailable")
+        return []
+    out = []
+    for b in r.json():
+        if b.get("IsFabricated") or b.get("IsSpamList") or b.get("IsStealerLog") or b.get("IsMalware"):
+            continue
+        added = (b.get("AddedDate") or "")[:10]
+        if not added or date.fromisoformat(added) < since:
+            continue
+        desc = BeautifulSoup(b.get("Description") or "", "lxml").get_text(" ", strip=True)
+        out.append({
+            "org_name": b.get("Title") or b["Name"], "disclosed_date": added, "source_type": "hibp",
+            "source_url": f"https://haveibeenpwned.com/Breach/{b['Name']}",
+            "title": f"Have I Been Pwned: {b.get('Title') or b['Name']}", "text": desc or None,
+            "structured_hint": {"breach_date": b.get("BreachDate"), "pwn_count": b.get("PwnCount"),
+                                "data_classes": b.get("DataClasses") or [], "domain": b.get("Domain"),
+                                "verified": bool(b.get("IsVerified")), "description": desc},
+            "evidence_level_hint": "press_report", "org_country": "unknown",
+        })
+    log.info("hibp: %d candidates", len(out))
+    return out
+
+
 # 4. ransomware.live PRO API (free key from https://www.ransomware.live/my;
 #    500k requests/month). The unauthenticated v2 API no longer exists.
 #    Attribution required; non-commercial; do not re-serve their data as a feed.
@@ -439,6 +553,8 @@ ALL_SOURCES = {
     # and let the URL-keyed queue drop repeats.
     "hhs": lambda since, until: hhs(since - timedelta(days=45)),
     "maine_ag": lambda since, until: maine_ag(since),
+    "california_ag": lambda since, until: california_ag(since),
+    "hibp": lambda since, until: hibp(since),
     "ransomware_live": lambda since, until: ransomware_live(since),
     "rss": lambda since, until: rss(since),
     "mastodon": lambda since, until: mastodon(since),

@@ -92,6 +92,7 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
     hints = c.get("structured_hint") or {}
     h = hints.get(c["source_type"], hints) if c["source_type"] in hints else hints
     actor, third_party, data_types, entry, discovered, ransomware = default_actor(), default_third_party(), [], "unknown", None, None
+    incident, summary = None, None
     if c["source_type"] == "hhs_portal":
         ia, veris = HHS_BREACH_TYPE.get((h.get("breach_type") or "").split(",")[0].strip(), ("unknown", "unknown"))
         org_type = HHS_ENTITY_TYPE.get(h.get("covered_entity_type") or "", "healthcare")
@@ -117,8 +118,17 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
         data_types = sorted({v for k, v in MAINE_DATA_TYPES.items() if k in acquired})
         from sources import _iso
         discovered = _iso(h.get("date_discovered"))
+        incident = _iso(h.get("date_occurred"))
         if ia == "insider":
             actor = {"category": "internal", "variety": "unknown", "motive": "unknown", "name": None, "country": None}
+    elif c["source_type"] == "hibp":
+        from sources import hibp_data_types
+        ia, veris = ("unknown", "unknown")
+        org_type, tech = "unknown", []
+        records = h.get("pwn_count")
+        incident = (h.get("breach_date") or None)
+        data_types = hibp_data_types(h.get("data_classes"))
+        summary = (h.get("description") or "")[:280] or None
     elif c["source_type"] == "ransomware_leak_site":
         # An actor claim tells you the group and that extortion is under way. It does not
         # tell you how they got in. Record exactly that much.
@@ -136,7 +146,7 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
         "org_type": org_type,
         "org_country": c.get("org_country", "US"),
         "disclosed_date": c["disclosed_date"],
-        "incident_date": None,
+        "incident_date": incident,
         "discovered_date": discovered,
         "initial_access": ia,
         "initial_access_attack_id": None,
@@ -153,22 +163,42 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
         "ransomware": ransomware,
         "data_types": data_types,
         "records_affected": records,
-        "evidence_level": "actor_claimed" if is_claim else "regulator_filing",
-        "confidence": "medium",
+        "evidence_level": "actor_claimed" if is_claim else ("press_report" if c["source_type"] == "hibp" else "regulator_filing"),
+        "confidence": "medium" if c["source_type"] != "hibp" or h.get("verified") else "low",
         "supporting_quote": None,
-        "summary": None,
+        "summary": summary,
         "sources": [{"url": s["url"], "type": s["type"], "title": s.get("title"), "fetched_at": None}
                     for s in c.get("all_sources", [])],
         "extracted_by": {"model": "deterministic", "prompt_version": PROMPT_VERSION, "run_date": run_date},
         "reviewed": False,
-        "notes": ("leak-site claim via Ransomware.live (Source: Ransomware.live); unverified"
-                  if is_claim else "built from regulator checkboxes; no narrative available"),
+        "notes": ("leak-site claim via Ransomware.live (Source: Ransomware.live); unverified" if is_claim
+                  else "from the Have I Been Pwned breach list" + ("" if h.get("verified") else " (unverified by HIBP)") if c["source_type"] == "hibp"
+                  else "built from regulator checkboxes; no narrative available"),
     }
     errs = validate(rec)
     if errs:
         log.warning("deterministic record invalid for %s: %s", c["org_name"], errs[:2])
         return None
     return rec
+
+
+HIBP_PREAMBLE = ("Have I Been Pwned breach catalogue entry. The breach described below is the incident to "
+                 "record, however long ago it happened; it is not a retrospective.\n\n")
+
+
+def apply_hibp_facts(rec: dict, hint: dict, fill_only: bool = False) -> None:
+    """HIBP's count, breach date and data classes come from the loaded data itself, so
+    they outrank what the model read in the description. On a record another source
+    already states, they only fill gaps: a filer's figure beats an email count."""
+    from sources import hibp_data_types
+    if hint.get("pwn_count") and not (fill_only and rec.get("records_affected")):
+        rec["records_affected"] = hint["pwn_count"]
+    if hint.get("breach_date") and not (fill_only and rec.get("incident_date")):
+        rec["incident_date"] = hint["breach_date"]
+    if not rec.get("data_types"):
+        rec["data_types"] = hibp_data_types(hint.get("data_classes"))
+    if rec.get("impact_type") == "unknown":
+        rec["impact_type"] = "data_theft"
 
 
 def _days(a: str | None, b: str | None) -> int | None:
@@ -238,6 +268,27 @@ def settle_claims(store: list[dict], claims: list[dict]) -> list[dict]:
     return pending
 
 
+FILL_FIELDS = ("records_affected", "incident_date", "discovered_date", "summary", "credential_source")
+FILL_UNKNOWN = ("org_type", "org_country", "entry_asset")
+
+
+def fill_gaps(keep: dict, drop: dict) -> bool:
+    """Copy facts the kept record lacks from the one being folded in. Only empty slots
+    are filled; nothing the kept record states is overridden."""
+    changed = False
+    for k in FILL_FIELDS:
+        if keep.get(k) in (None, "") and drop.get(k) not in (None, ""):
+            keep[k] = drop[k]; changed = True
+    for k in FILL_UNKNOWN:
+        if keep.get(k, "unknown") == "unknown" and drop.get(k, "unknown") != "unknown":
+            keep[k] = drop[k]; changed = True
+    if not keep.get("data_types") and drop.get("data_types"):
+        keep["data_types"] = list(drop["data_types"]); changed = True
+    if keep.get("ransomware") is None and drop.get("ransomware") is not None:
+        keep["ransomware"] = drop["ransomware"]; changed = True
+    return changed
+
+
 CHANGE_FIELDS = ("initial_access", "control_failure", "records_affected", "actor", "third_party", "impact_type", "cve")
 
 
@@ -268,7 +319,8 @@ def merge_into_store(store: list[dict], new: dict) -> None:
     keep, drop = (new, old) if richness(new) >= richness(old) else (old, new)
     urls = {s["url"] for s in keep["sources"]}
     keep["sources"] += [s for s in drop["sources"] if s["url"] not in urls]
-    if {s["url"] for s in keep["sources"]} != before or any(keep.get(k) != drop.get(k) for k in CHANGE_FIELDS):
+    filled = fill_gaps(keep, drop)
+    if filled or {s["url"] for s in keep["sources"]} != before or any(keep.get(k) != drop.get(k) for k in CHANGE_FIELDS):
         keep["updated_at"] = stamp
     elif keep is new:
         keep["updated_at"] = old.get("updated_at")
@@ -353,7 +405,10 @@ def main() -> int:
                     claim_urls.add(c["source_url"])
                 done(c, "claim_pending")
             continue
-        if existing and c["source_type"] in ("hhs_portal", "state_ag"):
+        if existing and c["source_type"] in ("hhs_portal", "state_ag", "hibp"):
+            if c["source_type"] == "hibp" and not existing.get("reviewed"):
+                apply_hibp_facts(existing, c.get("structured_hint") or {}, fill_only=True)
+                existing["updated_at"] = run_date
             # Already have this incident from a richer source; just attach the link.
             existing["sources"].append({"url": c["source_url"], "type": c["source_type"],
                                         "title": c.get("title"), "fetched_at": None})
@@ -362,7 +417,8 @@ def main() -> int:
 
         # Regulator rows carry no narrative worth an LLM call; build them from their
         # checkboxes. Only 8-Ks, press and posts go to the model.
-        if c["source_type"] in ("hhs_portal", "state_ag"):
+        short_hibp = c["source_type"] == "hibp" and len(c.get("text") or "") < 200
+        if c["source_type"] in ("hhs_portal", "state_ag") or short_hibp:
             rec = deterministic_record(c, run_date)
             if rec:
                 merge_into_store(store, rec)
@@ -392,12 +448,19 @@ def main() -> int:
             done(c, "not_incident_8k")
             continue
 
+        if c["source_type"] == "hibp":
+            text = HIBP_PREAMBLE + text
         llm_calls += 1
         try:
             rec = extract_one(c, text, run_date)
         except Exception as e:  # noqa: BLE001
             log.exception("extract failed for %s; kept in queue", c["source_url"])
             continue
+        if c["source_type"] == "hibp":
+            # The catalogue entry is the incident; a model "skip" must not lose the row.
+            rec = rec or deterministic_record(c, run_date)
+            if rec:
+                apply_hibp_facts(rec, c.get("structured_hint") or {})
         if rec:
             merge_into_store(store, rec)
         done(c, "stored" if rec else "skipped")

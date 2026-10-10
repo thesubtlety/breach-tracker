@@ -1,0 +1,98 @@
+{
+"CVE-2012-0507": {
+"added": "2022-03-03",
+"name": "Oracle Java SE Runtime Environment (JRE) Arbitrary Code Execution Vulnerability",
+"nvd_published": "2012-06-07",
+"ransomware": null
+},
+"CVE-2012-4681": {
+"added": "2022-03-03",
+"name": "Oracle Java SE Runtime Environment (JRE) Arbitrary Code Execution Vulnerability",
+"nvd_published": "2012-08-28",
+"ransomware": null
+},
+"CVE-2012-4969": {
+"added": "2022-06-08",
+"name": "Microsoft Internet Explorer Use-After-Free Vulnerability",
+"nvd_published": "2012-09-18",
+"ransomware": null
+},
+"CVE-2012-5385": {
+"added": null,
+"name": null,
+"nvd_published": "2012-10-11",
+"ransomware": null
+},
+"CVE-2013-0632": {
+"added": "2022-03-03",
+"name": "Adobe ColdFusion Authentication Bypass Vulnerability",
+"nvd_published": "2013-01-17",
+"ransomware": null
+},
+"CVE-2013-2423": {
+"added": "2022-05-25",
+"name": "Oracle JRE Unspecified Vulnerability",
+"nvd_published": "2013-04-17",
+"ransomware": null
+},
+"CVE-2014-0160": {
+"added": "2022-05-04",
+"name": "OpenSSL Information Disclosure Vulnerability",
+"nvd_published": "2014-04-07",
+"ransomware": null
+},
+"CVE-2016-5195": {
+"added": "2022-03-03",
+"name": "Linux Kernel Race Condition Vulnerability",
+"nvd_published": "2016-11-10",
+"ransomware": null
+},
+"CVE-2016-6483": {
+"added": null,
+"name": null,
+"nvd_published": "2016-09-02",
+"ransomware": null
+},
+"CVE-2017-0144": {
+"added": "2022-02-10",
+"name": "Microsoft SMBv1 Remote Code Execution Vulnerability",
+"nvd_published": "2017-03-17",
+"ransomware": null
+},
+"CVE-2017-5638": {
+"added": "2021-11-03",
+"name": "Apache Struts Remote Code Execution Vulnerability",
+"nvd_published": "2017-03-11",
+"ransomware": null
+},
+"CVE-2019-19781": {
+"added": "2021-11-03",
+"name": "Citrix ADC, Gateway, and SD-WAN WANOP Appliance Code Execution Vulnerability",
+"nvd_published": "2019-12-27",
+"ransomware": null
+},
+"CVE-2021-27101": {
+"added": "2021-11-03",
+"name": "Accellion FTA SQL Injection Vulnerability",
+"nvd_published": "2021-02-16",
+"ransomware": null
+},
+"CVE-2021-27102": {
+"added": "2021-11-03",
+"name": "Accellion FTA OS Command Injection Vulnerability",
+"nvd_published": "2021-02-16",
+"ransomware": null
+},
+"CVE-2021-27103": {
+"added": "2021-11-03",
+"name": "Accellion FTA Server-Side Request Forgery (SSRF) Vulnerability",
+"nvd_published": "2021-02-16",
+"ransomware": null
+},
+"CVE-2021-27104": {
+"added": "2021-11-03",
+"name": "Accellion FTA OS Command Injection Vulnerability",
+"nvd_published": "2021-02-16",
+"ransomware": null
+}
+}

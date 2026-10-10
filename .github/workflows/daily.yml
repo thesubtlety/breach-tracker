@@ -27,6 +27,7 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       RANSOMWARE_LIVE_API_KEY: ${{ secrets.RANSOMWARE_LIVE_API_KEY }}
+      ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
       LIMIT: ${{ github.event.inputs.limit || '80' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -39,6 +40,7 @@ jobs:
       - run: python -m pytest -q tests
       - run: python pipeline/run.py --since-days 3 --limit "$LIMIT"
       - run: python pipeline/verify_sources.py --strict
+      - run: python pipeline/external.py
       - run: python pipeline/build_site.py
       - name: commit data
         run: |

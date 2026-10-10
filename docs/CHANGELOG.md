@@ -7,10 +7,23 @@ Every entry that changes how a field is populated gets a `schema_version` bump.
 
 ### 2026-10-10
 
+- New sources: California AG breach list (deterministic rows, incident date carried) and
+  the Have I Been Pwned breach list (`hibp` source type; description extracted by the
+  model, count and dates taken from HIBP; a model skip falls back to a plain row).
+  State AG rows now carry `incident_date` from the notice. California: 4,953 rows
+  from 2012 onward; filer names that list every affiliate are cut to the first entity.
+  HIBP: 1,009 rows (14 aggregate dumps skipped). Store 8,275 -> 13,716.
+- Merges fill empty fields (count, incident and discovery dates, summary, sector,
+  country, data types) from the record being folded in; stated values are never replaced.
+- `pipeline/external.py`: CISA KEV listing dates per CVE and 8-K filer share prices;
+  `build_site` joins them as a `derived` block on site rows only. Page gets four charts:
+  incident-to-disclosure lag by source, named third parties, share price after an 8-K,
+  known-exploited CVEs.
 - `first_seen` and `updated_at` on every record (optional in the schema; migrated with
   `pipeline/migrate.py`, first_seen = the original run date). `merge_into_store` stamps
   `updated_at` only when a merge actually changed the record. The site gets a "This week"
-  panel and a `new or updated this week` filter; imported dataset rows are excluded there.
+  panel and a `new or updated this week` filter; imported dataset rows and records
+  disclosed more than 90 days ago (backfills) are excluded there.
 - VCDB imported from 2010 onward (was 2022), MOVEit 2023 campaign excluded as before:
   7,432 records, incident-year dated. Store 961 -> 8,275.
 - One daily workflow (`daily.yml`) replaces daily-collect + weekly: collect, extract with

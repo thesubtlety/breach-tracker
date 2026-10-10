@@ -38,6 +38,9 @@
   .bars .trk { background:var(--soft); border-radius:3px; height:12px; overflow:hidden; }
   .bars .fill { height:100%; background:var(--bar); } .bars .fill.unk { background:var(--bar-unk); }
   .bars .n { font-variant-numeric:tabular-nums; color:var(--muted); min-width:3ch; text-align:right; }
+  .mini { width:100%; border-collapse:collapse; font-size:13px; } .mini th, .mini td { padding:3px 6px; border-bottom:1px solid var(--line); text-align:right; }
+  .mini th:first-child, .mini td:first-child { text-align:left; } .mini th { font-weight:600; position:static; }
+  .neg { color:var(--warn); } .pos { color:var(--ok); }
   .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0; }
   .filters label { font-size:13px; color:var(--muted); display:flex; gap:4px; align-items:center; }
   select, input[type=search] { padding:6px 8px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); font:inherit; font-size:14px; }
@@ -80,6 +83,10 @@
   <div class="chart"><h3>Why it worked, where stated</h3><div class="note" id="cf-note"></div><div class="bars" id="cf-bars"></div></div>
   <div class="chart"><h3>Who, where stated</h3><div class="note" id="ac-note"></div><div class="bars" id="ac-bars"></div></div>
   <div class="chart"><h3>Sector</h3><div class="note">Records in the current view by organization type.</div><div class="bars" id="ot-bars"></div></div>
+  <div class="chart"><h3>Incident to disclosure</h3><div class="note" id="lag-note"></div><div class="bars" id="lag-bars"></div></div>
+  <div class="chart"><h3>Third parties behind incidents</h3><div class="note" id="tp-note"></div><div class="bars" id="tp-bars"></div></div>
+  <div class="chart"><h3>Share price after an 8-K</h3><div class="note" id="px-note"></div><div id="px"></div></div>
+  <div class="chart"><h3>Known-exploited CVEs</h3><div class="note" id="kev-note"></div><div id="kev"></div></div>
 </div>
 
 <div class="filters" role="search">
@@ -117,7 +124,7 @@
 <details class="gloss" id="gloss"><summary>Glossary: what the values mean</summary></details>
 
 <footer>
-  <p>Sources: SEC EDGAR full-text search, the HHS OCR breach portal, Maine Attorney General breach notices, security news feeds, Mastodon #databreach, the VERIS Community Database (CC BY-SA 4.0), and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Claims are shown only as a tag on records that another source confirmed; a claim on its own is never published here.</p>
+  <p>Sources: SEC EDGAR full-text search, the HHS OCR breach portal, Maine and California Attorney General breach reports, the <a href="https://haveibeenpwned.com/">Have I Been Pwned</a> breach list, security news feeds, Mastodon #databreach, the VERIS Community Database (CC BY-SA 4.0), and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Context joined at build time: CISA's Known Exploited Vulnerabilities catalog (via NVD) and daily closing prices from Nasdaq's data API, with Alpha Vantage for older filings. Claims are shown only as a tag on records that another source confirmed; a claim on its own is never published here.</p>
   <p>Records marked <span class="unrev">unreviewed</span> were produced by a fixed mapping or a language model and have not been checked by a person. Every stated mechanism carries a verbatim quote from its source; if the quote is not in the source, confidence is low. The data cannot tell a second breach at the same organization from late coverage of the first; two records with one name may be either.</p>
   <p>Want an API, alerts, or a bulk export? <a href="https://github.com/thesubtlety/breach-tracker/issues/new?template=api-interest.yml">Say what you would use it for</a>; what gets built next follows the replies.</p>
   <p>Dataset: CC BY-SA 4.0. Corrections: open an issue with the record id. <a href="https://github.com/thesubtlety/breach-tracker/blob/master/docs/CHANGELOG.md">Changelog and corrections log</a>.</p>
@@ -142,20 +149,21 @@ function claimOf(r) {
 }
 
 function firstSeen(x) { return x.first_seen || (x.extracted_by || {}).run_date || ""; }
-function isNew(x) { return firstSeen(x) >= STATS.week_ago; }
-function changedThisWeek(x) { return isNew(x) || (x.updated_at || "") >= STATS.week_ago; }
+function recentEvent(x) { return origin(x) !== "imported" && x.disclosed_date >= STATS.new_window; }
+function isNew(x) { return recentEvent(x) && firstSeen(x) >= STATS.week_ago; }
+function changedThisWeek(x) { return recentEvent(x) && (firstSeen(x) >= STATS.week_ago || (x.updated_at || "") >= STATS.week_ago); }
 function openRow(id) {
   open.clear(); open.add(id); render(); toHash();
   const el = document.querySelector(`tr.row[data-id="${id}"]`); if (el) el.scrollIntoView({ block: "center" });
 }
 function renderWeek() {
-  const items = rows.filter(x => origin(x) !== "imported" && changedThisWeek(x)).sort((a, b) => a.disclosed_date < b.disclosed_date ? 1 : -1);
+  const items = rows.filter(changedThisWeek).sort((a, b) => a.disclosed_date < b.disclosed_date ? 1 : -1);
   const el = $("#week");
   if (!items.length) { el.hidden = true; return; }
   const LIMIT = 30, shown = items.slice(0, LIMIT);
   const nNew = items.filter(isNew).length, nUpd = items.length - nNew;
   el.hidden = false;
-  el.innerHTML = `<h3>This week</h3><div class="note">${nNew} records first recorded and ${nUpd} changed by a later source since ${esc(STATS.week_ago)}. Imported dataset rows are not listed${STATS.imported_last_7_days ? ` (${STATS.imported_last_7_days} added)` : ""}. Click a row to open it.</div>
+  el.innerHTML = `<h3>This week</h3><div class="note">${nNew} records first recorded and ${nUpd} changed by a later source since ${esc(STATS.week_ago)}. Imported datasets and backfilled older notices are not listed${STATS.backfilled_last_7_days ? ` (${STATS.backfilled_last_7_days} added)` : ""}. Click a row to open it.</div>
   <ul>${shown.map(x => `<li><a href="#id=${esc(x.id)}" data-open="${esc(x.id)}"><span class="d">${esc(x.disclosed_date)}</span>${esc(x.org_name)} <span class="muted">· ${esc(x.initial_access)}${x.ransomware === true ? " · ransomware" : ""}</span> <span class="tag ${isNew(x) ? "new" : "upd"}">${isNew(x) ? "new" : "updated"}</span></a></li>`).join("")}</ul>
   ${items.length > LIMIT ? `<div class="note" style="margin-top:6px"><a href="#wk=1" id="week-all">Show all ${items.length} in the table</a></div>` : ""}`;
   el.querySelectorAll("a[data-open]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openRow(a.dataset.open); }));
@@ -163,7 +171,7 @@ function renderWeek() {
 }
 function renderFresh() {
   const h = STATS.health || {}, counts = h.counts || {};
-  const bits = [`Updated ${STATS.generated}`, `${STATS.added_last_7_days} records added and ${STATS.updated_last_7_days} updated in the last 7 days${STATS.imported_last_7_days ? ` (plus ${STATS.imported_last_7_days} imported dataset rows)` : ""}`];
+  const bits = [`Updated ${STATS.generated}`, `${STATS.added_last_7_days} records added and ${STATS.updated_last_7_days} updated in the last 7 days${STATS.backfilled_last_7_days ? ` (plus ${STATS.backfilled_last_7_days} imported or backfilled older rows)` : ""}`];
   for (const c of STATS.coverage || []) bits.push(`${c.n} ${c.origin} records, ${c.from} to ${c.to}`);
   const src = Object.entries(counts).map(([k, v]) => v === null ? `${k}: off` : `${k}: ${v}`).join(", ");
   if (src) bits.push(`last source check: ${src}`);
@@ -191,7 +199,51 @@ function bars(el, counts, total, key, opts = {}) {
     <div class="n">${n}${opts.pct ? ` <span class="muted">${Math.round(100 * n / total)}%</span>` : ""}</div>`).join("");
 }
 function count(v, f) { const c = {}; for (const x of v) c[x[f]] = (c[x[f]] || 0) + 1; return Object.entries(c).sort((a, b) => b[1] - a[1]); }
+function median(a) { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+function dayDiff(a, b) { return Math.round((new Date(b) - new Date(a)) / 864e5); }
+function srcType(x) { const s = (x.sources || [])[0]; return s ? s.type : "other"; }
+function barsVal(el, items, fmt) {
+  const max = Math.max(1, ...items.map(i => Math.abs(i[1])));
+  el.innerHTML = items.map(([k, val, note]) => `
+    <div class="lbl" title="${esc(note || "")}">${esc(k)}</div>
+    <div class="trk"><div class="fill" style="width:${100 * Math.abs(val) / max}%"></div></div>
+    <div class="n">${fmt(val)}${note ? ` <span class="muted">${esc(note)}</span>` : ""}</div>`).join("");
+}
+const HORIZON_LABEL = { "1": "next day", "5": "1 week", "21": "1 month", "63": "3 months", "126": "6 months", "250": "1 year" };
+function renderContextCharts(v) {
+  // lag: incident -> disclosure, by the kind of source that disclosed it; imported rows have no disclosure date of their own
+  const lag = v.filter(x => origin(x) !== "imported" && x.incident_date && x.disclosed_date >= x.incident_date)
+               .map(x => ({ k: srcType(x), d: dayDiff(x.incident_date, x.disclosed_date) })).filter(x => x.d <= 3650);
+  const byK = {}; for (const x of lag) (byK[x.k] = byK[x.k] || []).push(x.d);
+  const lagItems = Object.entries(byK).filter(([, a]) => a.length >= 3).map(([k, a]) => [k, median(a), `n=${a.length}`]).sort((a, b) => b[1] - a[1]);
+  $("#lag-note").textContent = lag.length ? `Median days from the first incident date to public disclosure, for the ${lag.length} records that state both. Regulator rows count the report date as disclosure.` : "No records in view state an incident date.";
+  barsVal($("#lag-bars"), lagItems, d => `${Math.round(d)}d`);
+  // third parties
+  const tp = {}; let unnamed = 0;
+  for (const x of v) { const t = x.third_party || {}; if (t.involved === true) { if (t.vendor) tp[t.vendor] = (tp[t.vendor] || 0) + 1; else unnamed++; } }
+  const tpItems = Object.entries(tp).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  $("#tp-note").textContent = tpItems.length || unnamed ? `Named vendors on records where a third party was involved. ${unnamed} more such records name no vendor.` : "No third-party involvement in view.";
+  bars($("#tp-bars"), tpItems, v.length, "third_party");
+  // share price
+  const px = v.filter(x => (x.derived || {}).price);
+  const rowsH = Object.keys(HORIZON_LABEL).map(h => {
+    const r = px.map(x => x.derived.price.returns[h]).filter(Boolean);
+    const adj = r.map(x => x.adj).filter(x => x !== null), raw = r.map(x => x.raw);
+    return { h, n: r.length, adj: median(adj), raw: median(raw), neg: adj.length ? adj.filter(x => x < 0).length / adj.length : null };
+  }).filter(r => r.n >= 3);
+  $("#px-note").textContent = px.length ? `${px.length} filers in view with a listed ticker. Return from the close on the filing day (most 8-Ks land after the bell), median across filers; "vs market" subtracts SPY over the same days. The sample is small and a filer has other news in a year, so read it as context, not a measurement.` : "No 8-K filers with price data in view.";
+  const pct = x => x === null ? "" : `<span class="${x < 0 ? "neg" : "pos"}">${(100 * x).toFixed(1)}%</span>`;
+  $("#px").innerHTML = rowsH.length ? `<table class="mini"><tr><th>after</th><th>filers</th><th>median raw</th><th>median vs market</th><th>share down vs market</th></tr>${rowsH.map(r => `<tr><td>${HORIZON_LABEL[r.h]}</td><td>${r.n}</td><td>${pct(r.raw)}</td><td>${pct(r.adj)}</td><td>${r.neg === null ? "" : Math.round(100 * r.neg) + "%"}</td></tr>`).join("")}</table>` : "";
+  // KEV
+  const kevRows = v.flatMap(x => ((x.derived || {}).kev || []).map(k => ({ ...k, org: x.org_name, id: x.id })));
+  const listed = kevRows.filter(k => k.kev_added);
+  const before = listed.filter(k => k.days_listed_before_incident > 0);
+  $("#kev-note").textContent = kevRows.length ? `${kevRows.length} CVE mentions on ${v.filter(x => (x.derived || {}).kev).length} records; ${listed.length} are in CISA's Known Exploited Vulnerabilities catalog, ${before.length} of those were listed before the incident date (median lead ${median(before.map(k => k.days_listed_before_incident)) ?? "n/a"} days). The catalog began in late 2021, so older incidents show a listing long after the fact.` : "No records in view cite a CVE.";
+  $("#kev").innerHTML = kevRows.length ? `<table class="mini"><tr><th>CVE</th><th>organization</th><th>in KEV since</th><th>days before incident</th></tr>${kevRows.slice(0, 14).map(k => `<tr><td><a href="#id=${esc(k.id)}" data-open="${esc(k.id)}">${esc(k.cve)}</a></td><td style="text-align:left">${esc(k.org)}</td><td>${esc(k.kev_added || "not listed")}</td><td>${k.days_listed_before_incident === null ? "" : k.days_listed_before_incident}</td></tr>`).join("")}</table>` : "";
+  $("#kev").querySelectorAll("a[data-open]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openRow(a.dataset.open); }));
+}
 function renderCharts(v) {
+  renderContextCharts(v);
   const known = v.filter(x => x.initial_access !== "unknown");
   const unk = v.length - known.length;
   $("#ia-note").textContent = v.length ? `${known.length} of ${v.length} records in view say how. The other ${unk} are "unknown" and are not shown as a bar: counting them would make a filing that says nothing look like a cause.` : "";
@@ -215,7 +267,7 @@ function filtered() {
     (!since || x.disclosed_date >= since) && (!o || origin(x) === o) && (!ia || x.initial_access === ia) &&
     (!ev || x.evidence_level === ev) && (!ot || x.org_type === ot) && (!cc || x.org_country === cc) &&
     (!known || x.initial_access !== "unknown") && (!cf || x.control_failure === cf) && (!ac || (x.actor || {}).variety === ac) &&
-    (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) && (!wk || (changedThisWeek(x) && origin(x) !== "imported")) &&
+    (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) && (!wk || changedThisWeek(x)) &&
     (!q || [x.org_name, x.root_cause, (x.actor || {}).name, (x.technology_involved || []).join(" "), (x.cve || []).join(" "), (x.third_party || {}).vendor, x.summary, x.id].join(" ").toLowerCase().includes(q)));
 }
 function actorLine(x) {
@@ -232,6 +284,8 @@ function detail(x) {
   const c = claimOf(x);
   const dd = [
     ["summary", x.summary],
+    ["known exploited", ((x.derived || {}).kev || []).length ? x.derived.kev.map(k => `${esc(k.cve)}: ${k.kev_added ? `in CISA KEV since ${esc(k.kev_added)}` + (k.days_listed_before_incident > 0 ? ` (${k.days_listed_before_incident} days before the incident)` : "") : "not in CISA KEV"}`).join("<br>") : null],
+    ["share price", (x.derived || {}).price ? `${esc(x.derived.price.ticker)} from the close on ${esc(x.derived.price.base_day)}: ` + Object.entries(x.derived.price.returns).map(([h, r]) => `${HORIZON_LABEL[h]} ${(100 * r.raw).toFixed(1)}%${r.adj !== null ? ` (${(100 * r.adj).toFixed(1)}% vs market)` : ""}`).join(" · ") : null],
     ["quote", x.supporting_quote ? `<span class="quote">“${esc(x.supporting_quote)}”</span>` : null],
     ["root cause", x.root_cause],
     ["control failure", x.control_failure && x.control_failure !== "unknown" ? `<span title="${gl("control_failure", x.control_failure)}">${esc(x.control_failure)}</span>` : null],
