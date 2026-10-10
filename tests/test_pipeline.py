@@ -290,3 +290,12 @@ def test_find_record_with_index_matches_linear_scan():
     idx = org_index(store)
     for org, d in [("ACME, Inc.", "2026-01-20"), ("Beta", "2026-02-01"), ("Acme", "2026-06-15"), ("Nobody", "2026-01-10")]:
         assert find_record(store, org, d) is find_record(store, org, d, index=idx)
+
+
+def test_records_affected_accepts_scaled_figures():
+    from extract import number_in_text
+    assert number_in_text(14640000, "affecting approximately 14.64 million customer records")
+    assert number_in_text(1200000, "about 1.2M people")
+    assert number_in_text(12345, "About 12,345 people were affected.")
+    assert not number_in_text(14640000, "affecting 14 million customer records")
+    assert not number_in_text(5000, "no figure was given")

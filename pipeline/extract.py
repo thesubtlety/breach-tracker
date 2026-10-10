@@ -200,6 +200,22 @@ def _ws(s: str) -> str:
     return re.sub(r"\s+", " ", s or "").strip().lower()
 
 
+_SCALE = {"thousand": 1e3, "k": 1e3, "million": 1e6, "m": 1e6, "mn": 1e6, "billion": 1e9, "b": 1e9, "bn": 1e9}
+_SCALED = re.compile(r"(\d+(?:\.\d+)?)\s*(thousand|million|billion|k|mn|bn|m|b)\b", re.I)
+
+
+def number_in_text(n: int, text: str) -> bool:
+    """The count appears in the text, either as digits (commas and spaces ignored) or as a
+    scaled figure such as "14.64 million" or "1.2M"."""
+    if str(n) in re.sub(r"[,\s]", "", text):
+        return True
+    for num, unit in _SCALED.findall(text):
+        v = float(num) * _SCALE[unit.lower()]
+        if abs(v - n) <= max(1, 0.005 * n):
+            return True
+    return False
+
+
 def post_check(inc: dict, text: str) -> dict:
     """Enforce the honesty rules mechanically; the prompt alone isn't enough."""
     notes = []
@@ -212,11 +228,9 @@ def post_check(inc: dict, text: str) -> dict:
         inc["initial_access"] = "unknown"
         inc["initial_access_attack_id"] = None
         inc["confidence"] = "low"
-    if inc.get("records_affected") is not None:
-        n = str(inc["records_affected"])
-        if n not in re.sub(r"[,\s]", "", text):
-            notes.append("records_affected not found in source; cleared")
-            inc["records_affected"] = None
+    if inc.get("records_affected") is not None and not number_in_text(inc["records_affected"], text):
+        notes.append("records_affected not found in source; cleared")
+        inc["records_affected"] = None
     if inc.get("control_failure", "unknown") != "unknown" and not inc.get("supporting_quote"):
         notes.append("control_failure set without supporting_quote; reset to unknown")
         inc["control_failure"] = "unknown"
