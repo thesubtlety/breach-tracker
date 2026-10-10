@@ -25,7 +25,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from common import INCIDENTS_PATH, read_jsonl, today, write_jsonl  # noqa: E402
 from extract import extract_one  # noqa: E402
-from run import merge_into_store  # noqa: E402
+from run import CHECKBOX_NOTE, merge_into_store  # noqa: E402
 from sources import BROWSER_UA, _get  # noqa: E402
 
 log = logging.getLogger("letters")
@@ -47,7 +47,9 @@ LETTER_PREAMBLE = (
     "filed with the California Attorney General. Only the sections describing what happened and "
     "what information was involved are included. The letter is the incident; do not skip it as a "
     "retrospective. Letters rarely state how many people were affected, so leave records_affected "
-    "null unless a total is written. Dates in the letter are the incident and discovery dates.\n\n"
+    "null unless a total is written. incident_date is when the intrusion began or the data was "
+    "accessed; discovered_date is when the organization learned of it. A letter that gives one "
+    "date gives one of these, not both: leave the other null.\n\n"
 )
 
 
@@ -148,8 +150,14 @@ def read_letters(store: list[dict], limit: int, model: str | None, run_date: str
             continue
         new["evidence_level"] = "org_confirmed"
         new["id"] = rec["id"]
+        for k in ("records_affected", "technology_involved"):  # the list row's facts ride along, so the letter wins the merge
+            if not new.get(k) and rec.get(k):
+                new[k] = rec[k]
         merge_into_store(store, new)
         kept = next(r for r in store if r["id"] == rec["id"])
+        kept["evidence_level"] = "org_confirmed"
+        if kept is not new and kept.get("notes") == CHECKBOX_NOTE:
+            kept["notes"] = None
         kept["letter"] = {"url": pdf_url, "date": run_date, "outcome": "extracted"}
         counts["extracted"] += 1
     return counts

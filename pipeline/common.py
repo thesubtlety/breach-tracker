@@ -24,7 +24,7 @@ PROMPT_VERSION = "v4"
 MERGE_WINDOW_DAYS = 45
 
 # SEC and most public sites want a descriptive User-Agent with a contact.
-USER_AGENT = os.environ.get("EDGAR_USER_AGENT", "breach-tracker research contact@example.com")
+USER_AGENT = os.environ.get("EDGAR_USER_AGENT") or "breach-tracker research contact@example.com"
 
 _SUFFIXES = re.compile(
     r"\b(inc|incorporated|llc|l\.l\.c|ltd|limited|corp|corporation|co|company|plc|pllc|"

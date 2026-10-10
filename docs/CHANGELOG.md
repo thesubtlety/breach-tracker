@@ -29,6 +29,14 @@ Additive. `pipeline/migrate.py` restamps the store.
   (only the "what happened" and "what information was involved" sections, about a
   tenth of the letter) and merges the result; outcome kept on the record as `letter`.
   One letter per record, never re-read. Daily run reads 30 new ones.
+- QA pass before the first daily run: `org_id` and derived techniques are stamped on every
+  merge (merges that replaced the record had dropped `org_id`; a claim attached later did
+  not add T1486); a notification letter now outranks the list row it explains (evidence
+  `org_confirmed`, the row's count carried over); the Atom feed title was the last entry's;
+  an Actions variable left unset arrives as "" and no longer selects a provider named "";
+  the quote check reads the letter PDF for letter-sourced quotes; the price fetch stops
+  after three empty answers so a blocked API cannot eat the job's 30 minutes;
+  `attack_techniques` in both CSVs; free-text fields escaped in the page.
 - `org_id` on every record: hash of the normalized name after `data/org_aliases.json`
   (pipeline/orgs.py). The page gets an organization view (`#org=`), name links, and a
   repeat-organizations chart; `site/orgs.json` lists organizations with more than one

@@ -78,6 +78,13 @@ def _ws(s: str) -> str:
     return re.sub(r"\s+", " ", s or "").strip().lower()
 
 
+def letter_text(url: str) -> str | None:
+    from letters import pdf_text
+    from sources import BROWSER_UA
+    r = _get(url, headers={"User-Agent": BROWSER_UA}, timeout=60)
+    return pdf_text(r.content) if r else None
+
+
 def check_quotes(sample: int) -> dict:
     from fetch_text import fetch_text
 
@@ -86,8 +93,9 @@ def check_quotes(sample: int) -> dict:
     picked = random.sample(rows, min(sample, len(rows)))
     results = {"checked": 0, "confirmed": 0, "missing": [], "unfetchable": 0}
     for r in picked:
-        url = r["sources"][0]["url"]
-        text = fetch_text(url)
+        letter = r.get("letter") or {}
+        url = letter["url"] if letter.get("outcome") == "extracted" and letter.get("url") else r["sources"][0]["url"]
+        text = letter_text(url) if url.lower().endswith(".pdf") else fetch_text(url)
         if not text:
             results["unfetchable"] += 1
             continue

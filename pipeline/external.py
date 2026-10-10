@@ -165,8 +165,11 @@ def update_prices(rows: list[dict]) -> dict:
         if got:
             spy.update(got)
             prices["_SPY"] = spy
-    fetched, alpha_left = 0, 25 if os.environ.get("ALPHAVANTAGE_API_KEY") else 0
+    fetched, alpha_left, misses = 0, 25 if os.environ.get("ALPHAVANTAGE_API_KEY") else 0, 0
     for r, cik in filers:
+        if misses >= 3:
+            log.warning("prices: Nasdaq answered nothing three times in a row; leaving the rest for the next run")
+            break
         cur = prices.get(r["id"])
         filed = date.fromisoformat(r["disclosed_date"])
         fresh = cur and cur.get("closes") and max(cur["closes"]) >= (today - timedelta(days=4)).isoformat()
@@ -183,7 +186,9 @@ def update_prices(rows: list[dict]) -> dict:
         # Nasdaq is asked when the series never covered the filing, and again whenever an
         # unfinished series has gone stale, so the later horizons fill in over the year.
         if not (covers(cur, filed.isoformat()) and cur_tried_nasdaq(cur)) or not fresh:
-            closes.update(nasdaq_closes(sym, start, end))
+            got = nasdaq_closes(sym, start, end)
+            misses = 0 if got else misses + 1
+            closes.update(got)
             fetched += 1
             time.sleep(0.5)
         if (not closes or min(closes) > filed.isoformat()) and alpha_left:

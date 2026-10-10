@@ -101,7 +101,7 @@ GLOSSARY = {
 
 CSV_COLS = ["id", "org_id", "first_seen", "updated_at", "disclosed_date", "incident_date", "discovered_date", "org_name", "org_type", "org_country",
             "initial_access", "entry_asset", "control_failure", "credential_source", "cve", "veris_action",
-            "root_cause", "technology_involved", "third_party_involved", "third_party_archetype", "third_party_vendor",
+            "root_cause", "technology_involved", "attack_techniques", "third_party_involved", "third_party_archetype", "third_party_vendor",
             "actor_name", "actor_category", "actor_variety", "actor_motive", "actor_country",
             "impact_type", "ransomware", "data_types", "records_affected",
             "evidence_level", "confidence", "reviewed", "summary", "source_url"]
@@ -146,13 +146,13 @@ def feed(rows: list[dict], since: str, generated: str, title: str = "Breach Trac
     for r in items[:100]:
         changed = max(first_seen(r), r.get("updated_at") or "")
         kind = "updated" if (r.get("updated_at") or "") > first_seen(r) else "new"
-        title = f"{r['org_name']}: {r['initial_access'].replace('_', ' ')} ({r['evidence_level'].replace('_', ' ')})"
+        head = f"{r['org_name']}: {r['initial_access'].replace('_', ' ')} ({r['evidence_level'].replace('_', ' ')})"
         body = " ".join(filter(None, [r.get("summary"), f"Disclosed {r['disclosed_date']}.",
                                       f"{r['records_affected']:,} records." if r.get("records_affected") else None,
                                       f"Source: {r['sources'][0]['url']}" if r.get("sources") else None]))
         entries.append(f"""  <entry>
     <id>{SITE_URL}#id={r['id']}</id>
-    <title>{escape(title)}</title>
+    <title>{escape(head)}</title>
     <link href="{SITE_URL}#id={r['id']}"/>
     <updated>{changed}T00:00:00Z</updated>
     <category term="{kind}"/>
@@ -231,6 +231,13 @@ def with_context(rows: list[dict], kev: dict, prices: dict) -> list[dict]:
     return out
 
 
+def current_model(rows: list[dict], since: str) -> str | None:
+    """The model behind recent extractions, for the about block; the env can change."""
+    c = Counter(r["extracted_by"]["model"].split(":")[-1] for r in rows
+                if origin(r) == "extracted" and r["extracted_by"]["run_date"] >= since)
+    return c.most_common(1)[0][0] if c else None
+
+
 def claim_only(r: dict) -> bool:
     """Only a leak-site post says this happened. Kept in the store so a later filing or
     article can confirm it, never published on its own: that would be re-serving
@@ -275,7 +282,7 @@ def main() -> int:
         w.writeheader()
         for r in rows:
             flat = dict(r)
-            for k in ("technology_involved", "cve", "data_types"):
+            for k in ("technology_involved", "cve", "data_types", "attack_techniques"):
                 flat[k] = "; ".join(r.get(k) or [])
             tp, a = r.get("third_party") or {}, r.get("actor") or {}
             flat.update(third_party_involved=tp.get("involved"), third_party_archetype=tp.get("archetype"), third_party_vendor=tp.get("vendor"),
@@ -314,6 +321,7 @@ def main() -> int:
         "with_techniques": sum(1 for r in rows if r.get("attack_techniques")),
         "claims": json.loads((ext / "claim_stats.json").read_text()) if (ext / "claim_stats.json").exists() else None,
         "with_letter": sum(1 for r in rows if (r.get("letter") or {}).get("outcome") == "extracted"),
+        "current_model": current_model(rows, week_ago),
         "kev_updated": max((v.get("added") or "" for v in kev.values()), default=None),
         "coverage": coverage(rows),
         "health": {"run_at": health.get("run_at"), "counts": (health.get("health") or {}).get("counts", {}),

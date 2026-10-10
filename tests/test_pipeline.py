@@ -448,3 +448,55 @@ def test_claim_stats_counts_pending_and_confirmed():
     g = out["groups"][0]
     assert g["group"] == "qilin" and g["claims"] == 7 and g["confirmed"] == 1 and g["last_90_days"] == 7
     assert g["median_days_to_confirmation"] == 8 and g["sectors"] == [("healthcare", 1)]
+
+
+# --- QA review 2026-10-10 ----------------------------------------------------------------
+def test_merge_keeps_org_id_and_derived_techniques_whichever_side_wins():
+    from run import attach_claim
+    store = [record("Acme Inc", "2026-09-28", records_affected=10)]
+    merge_into_store(store, record("Acme Inc", "2026-09-29", initial_access="phishing", initial_access_attack_id="T1566",
+                                   supporting_quote="q", sources=[{"url": "https://y", "type": "press", "title": None, "fetched_at": None}]))
+    assert len(store) == 1 and store[0]["org_id"] and store[0]["attack_techniques"] == ["T1566"]
+    attach_claim(store[0], {"source_url": "https://leak/x", "disclosed_date": "2026-10-01", "title": "Leak-site claim by qilin",
+                            "structured_hint": {"group": "qilin"}})
+    assert store[0]["ransomware"] is True and store[0]["attack_techniques"] == ["T1486", "T1566"]
+    assert store[0]["sources"][-1]["date"] == "2026-10-01"
+
+
+def test_feed_title_is_the_feed_title_not_the_last_entry():
+    from build_site import feed
+    rows = [dict(record("Acme Inc", "2026-10-01"), first_seen="2026-10-01")]
+    xml = feed(rows, "2026-09-25", "2026-10-10", title="Breach Tracker: incidents behind X")
+    assert "<title>Breach Tracker: incidents behind X</title>" in xml and "<title>Acme Inc: unknown (press report)</title>" in xml
+
+
+def test_letter_record_wins_the_merge_and_is_org_confirmed(monkeypatch):
+    import letters
+    old = record("Acme Inc", "2026-09-01", evidence_level="regulator_filing", records_affected=5000, technology_involved=["Email"],
+                 notes=letters.CHECKBOX_NOTE, extracted_by={"model": "deterministic", "prompt_version": "v4", "run_date": "2026-09-01"},
+                 sources=[{"url": "https://oag.ca.gov/ecrime/databreach/reports/sb24-1", "type": "state_ag", "title": None, "fetched_at": None}])
+    store = [old]
+    monkeypatch.setattr(letters, "fetch_letter", lambda u: ("https://oag.ca.gov/system/files/x.pdf", "What happened. " * 30))
+    monkeypatch.setattr(letters, "extract_one", lambda c, text, run_date, model=None: dict(
+        record("Acme Inc", "2026-09-01", summary="A letter.", incident_date="2026-08-01", evidence_level="org_confirmed",
+               extracted_by={"model": "openai:m", "prompt_version": "v4", "run_date": run_date}), sources=c["all_sources"]))
+    monkeypatch.setattr(letters.time, "sleep", lambda s: None)
+    counts = letters.read_letters(store, 5, None, "2026-10-10")
+    r = store[0]
+    assert counts["extracted"] == 1 and r["letter"]["outcome"] == "extracted"
+    assert r["evidence_level"] == "org_confirmed" and r["extracted_by"]["model"] == "openai:m"
+    assert r["records_affected"] == 5000 and r["summary"] == "A letter." and r["notes"] is None and r["org_id"]
+    assert [s["url"] for s in r["sources"]][-1].endswith(".pdf")
+
+
+def test_empty_actions_vars_fall_back_to_defaults(monkeypatch):
+    import importlib
+    import common, extract
+    monkeypatch.setenv("LLM_PROVIDER", "")
+    monkeypatch.setenv("EDGAR_USER_AGENT", "")
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    try:
+        assert importlib.reload(extract).PROVIDER == "anthropic"
+        assert importlib.reload(common).USER_AGENT.startswith("breach-tracker")
+    finally:
+        monkeypatch.undo(); importlib.reload(extract); importlib.reload(common)

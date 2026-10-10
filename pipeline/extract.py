@@ -31,7 +31,7 @@ from common import PROMPT_PATH, PROMPT_VERSION, load_schema
 
 log = logging.getLogger("extract")
 
-PROVIDER = os.environ.get("LLM_PROVIDER", "anthropic")
+PROVIDER = os.environ.get("LLM_PROVIDER") or "anthropic"  # an unset Actions var arrives as ""
 MODEL = os.environ.get("LLM_MODEL") or {
     "anthropic": "claude-haiku-5-5",
     "openai": "gpt-5.4-nano",

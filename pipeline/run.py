@@ -19,6 +19,7 @@ from common import (CANDIDATES_PATH, CLAIMS_PATH, INCIDENTS_PATH, MERGE_WINDOW_D
                     url_key, validate, write_jsonl)
 from actors import default_actor, default_third_party, enrich_actor  # noqa: E402
 from orgs import org_id  # noqa: E402
+from extract import derived_techniques  # noqa: E402
 from dedupe import dedupe  # noqa: E402
 from fetch_text import fetch_text  # noqa: E402
 from sources import collect  # noqa: E402
@@ -52,6 +53,7 @@ MAINE_DATA_TYPES = {  # substrings of Maine's "Information Acquired" field -> da
     "medical": "medical", "health": "medical", "insurance": "medical",
     "password": "credentials", "username": "credentials", "account credentials": "credentials",
 }
+CHECKBOX_NOTE = "built from regulator checkboxes; no narrative available"
 HHS_ENTITY_TYPE = {
     "Healthcare Provider": "healthcare", "Health Plan": "healthcare",
     "Business Associate": "professional_services", "Healthcare Clearing House": "healthcare",
@@ -175,7 +177,7 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
         "reviewed": False,
         "notes": ("leak-site claim via Ransomware.live (Source: Ransomware.live); unverified" if is_claim
                   else "from the Have I Been Pwned breach list" + ("" if h.get("verified") else " (unverified by HIBP)") if c["source_type"] == "hibp"
-                  else "built from regulator checkboxes; no narrative available"),
+                  else CHECKBOX_NOTE),
     }
     errs = validate(rec)
     if errs:
@@ -253,7 +255,13 @@ def attach_claim(rec: dict, c: dict) -> None:
         rec["actor"] = enrich_actor(dict(rec.get("actor") or default_actor(), name=hint["group"]))
         changed = True
     if changed:
+        sync_techniques(rec)
         rec["updated_at"] = today()
+
+
+def sync_techniques(rec: dict) -> None:
+    """attack_techniques always includes what the record's own fields establish."""
+    rec["attack_techniques"] = sorted(set(rec.get("attack_techniques") or []) | derived_techniques(rec))[:12]
 
 
 def settle_claims(store: list[dict], claims: list[dict]) -> list[dict]:
@@ -301,9 +309,10 @@ def merge_into_store(store: list[dict], new: dict) -> None:
     old = next((r for r in store if r["id"] == new["id"]), None) \
         or find_record(store, new["org_name"], new["disclosed_date"], new.get("incident_date"))
     stamp = new["extracted_by"]["run_date"]
+    new["org_id"] = org_id(new["org_name"])
+    sync_techniques(new)
     if not old:
         new.setdefault("first_seen", stamp)
-        new.setdefault("org_id", org_id(new["org_name"]))
         store.append(new)
         return
     new["id"] = old["id"]
@@ -323,6 +332,8 @@ def merge_into_store(store: list[dict], new: dict) -> None:
     urls = {s["url"] for s in keep["sources"]}
     keep["sources"] += [s for s in drop["sources"] if s["url"] not in urls]
     filled = fill_gaps(keep, drop)
+    keep.setdefault("org_id", org_id(keep["org_name"]))
+    sync_techniques(keep)
     if filled or {s["url"] for s in keep["sources"]} != before or any(keep.get(k) != drop.get(k) for k in CHANGE_FIELDS):
         keep["updated_at"] = stamp
     elif keep is new:
