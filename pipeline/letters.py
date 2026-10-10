@@ -122,6 +122,9 @@ def read_letters(store: list[dict], limit: int, model: str | None, run_date: str
         pdf_url, text = fetch_letter(ca_source(rec))
         time.sleep(PACE_SECONDS)
         counts["read"] += 1
+        if save and counts["read"] % SAVE_EVERY == 0:
+            save()
+            log.info("letters: %s", counts)
         if not pdf_url:
             rec["letter"] = {"url": None, "date": run_date, "outcome": "no_letter"}
             counts["no_letter"] += 1
@@ -149,8 +152,6 @@ def read_letters(store: list[dict], limit: int, model: str | None, run_date: str
         kept = next(r for r in store if r["id"] == rec["id"])
         kept["letter"] = {"url": pdf_url, "date": run_date, "outcome": "extracted"}
         counts["extracted"] += 1
-        if save and counts["read"] % SAVE_EVERY == 0:
-            save()
     return counts
 
 
