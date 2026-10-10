@@ -157,6 +157,9 @@ const G = STATS.glossary || {};
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const gl = (k, v) => esc((G[k] || {})[v] || "");
+const ID_OK = /^[A-Za-z0-9_.:-]{1,80}$/;
+const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
+const getJson = u => fetch(u).then(r => { if (!r.ok) throw new Error(`${u} (${r.status})`); return r.json(); });
 let rows = [], view = [], sortKey = "disclosed_date", sortDir = -1, open = new Set(), loadingFull = true;
 let orgSel = "", ORGS = null, orgsLoading = null, vendorSel = "", VENDORS = null, vendorsLoading = null, cveSel = "";
 const TECH_NAME = { T1566: "phishing", T1598: "phishing for information", T1078: "valid accounts", T1190: "exploit public-facing app", T1133: "external remote services", T1021: "remote services", "T1021.001": "remote desktop", T1195: "supply chain compromise", T1199: "trusted relationship", T1110: "brute force", T1621: "MFA fatigue", T1114: "email collection", T1213: "data from repositories", T1530: "data from cloud storage", T1041: "exfiltration over C2", T1567: "exfiltration to web service", T1486: "data encrypted for impact", T1485: "data destruction", T1489: "service stop", T1491: "defacement", T1657: "financial theft", T1552: "unsecured credentials" };
@@ -186,7 +189,7 @@ function loadOrgs() {
   orgsLoading = orgsLoading || fetch("orgs.json").then(r => r.json()).then(d => { ORGS = d; return d; }).catch(() => (ORGS = []));
   return orgsLoading;
 }
-function selectOrg(id) { orgSel = id; open.clear(); render(); toHash(); const el = $("#orgview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
+function selectOrg(id) { orgSel = id; vendorSel = ""; cveSel = ""; open.clear(); render(); toHash(); const el = $("#orgview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
 function renderOrg() {
   const el = $("#orgview");
   if (!orgSel) { el.hidden = true; return; }
@@ -242,9 +245,10 @@ function renderCve() {
   const dated = mine.filter(x => x.incident_date).map(x => x.incident_date).sort();
   const firstUse = dated[0] || mine.map(x => x.disclosed_date).sort()[0];
   const lead = k.kev_added && firstUse ? dayDiff(k.kev_added, firstUse) : null;
+  if (!mine.length) { el.innerHTML = `<h3>${esc(cveSel)}</h3><div class="note">No loaded record cites this CVE${loadingFull ? " yet; the full history is still loading" : ""}. <a href="#" id="cve-clear">Show all records</a></div>`; $("#cve-clear").addEventListener("click", e => { e.preventDefault(); cveSel = ""; render(); toHash(); }); return; }
   const facts = [k.product ? `product: ${k.product}` : null, k.name || null,
     `${mine.length} record${mine.length === 1 ? "" : "s"} cite it${firstUse ? `, earliest incident ${firstUse}` : ""}`,
-    k.kev_added ? `in CISA KEV since ${k.kev_added}${lead !== null ? (lead >= 0 ? ` (${lead} days before the earliest incident here)` : ` (${-lead} days after the earliest incident here)`) : ""}` : "not in CISA KEV",
+    k.kev_added ? `in CISA KEV since ${k.kev_added}${lead !== null ? (lead >= 0 ? ` (${lead} days before the earliest incident here)` : ` (${-lead} days after the earliest incident here)`) : ""}` : STATS.kev_loaded ? "not in CISA KEV" : "KEV status not available in this build",
     `sectors: ${count(mine, "org_type").slice(0, 3).map(([s, n]) => `${s} (${n})`).join(", ")}`].filter(Boolean);
   el.innerHTML = `<h3>${esc(cveSel)}</h3><div class="note">${facts.map(esc).join(" · ")} · <a href="https://nvd.nist.gov/vuln/detail/${esc(cveSel)}" rel="noopener">NVD</a><br><a href="#" id="cve-clear">Show all records</a></div>`;
   $("#cve-clear").addEventListener("click", e => { e.preventDefault(); cveSel = ""; render(); toHash(); });
@@ -434,15 +438,15 @@ function detail(x) {
     ["credential source", x.credential_source && x.credential_source !== "unknown" ? esc(x.credential_source) : null],
     ["technology", (x.technology_involved || []).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") || null],
     ["third party", (x.third_party || {}).involved === true ? `${x.third_party.vendor ? `<a href="#vendor=${esc((x.derived || {}).vendor_id || "")}" data-vendor="${esc((x.derived || {}).vendor_id || "")}" title="every incident behind this vendor">${esc(x.third_party.vendor)}</a>` : "yes"}${x.third_party.archetype ? ` <span class="tag" title="${gl("third_party", x.third_party.archetype)}">${esc(x.third_party.archetype)}</span>` : ""}` : (x.third_party || {}).involved === false ? "no" : null],
-    ["ATT&CK", (x.attack_techniques || []).length ? x.attack_techniques.map(t => `<a href="${attackUrl(t)}" rel="noopener" title="${esc(techLabel(t))}">${esc(t)}</a> <span class="muted small">${esc(TECH_NAME[t] || TECH_NAME[t.split(".")[0]] || "")}</span>`).join(" · ") : x.initial_access_attack_id], ["VERIS action", esc(x.veris_action)],
+    ["ATT&CK", (x.attack_techniques || []).length ? x.attack_techniques.map(t => `<a href="${attackUrl(t)}" rel="noopener" title="${esc(techLabel(t))}">${esc(t)}</a> <span class="muted small">${esc(TECH_NAME[t] || TECH_NAME[t.split(".")[0]] || "")}</span>`).join(" · ") : esc(x.initial_access_attack_id)], ["VERIS action", esc(x.veris_action)],
     ["impact", `${esc(x.impact_type)}${x.ransomware === true ? " · ransomware" : x.ransomware === false ? " · no ransomware" : ""}`],
-    ["data types", (x.data_types || []).join(", ") || null],
+    ["data types", esc((x.data_types || []).join(", ")) || null],
     ["records affected", x.records_affected != null ? x.records_affected.toLocaleString() : null],
     ["actor", actorLine(x)], ["incident date", esc(x.incident_date)], ["discovered", esc(x.discovered_date)],
-    ["leak-site claim", c ? `<a href="${esc(c.url)}" rel="noopener">${esc(c.group || "claim")}</a> <span class="muted">Source: Ransomware.live</span>` : null],
+    ["leak-site claim", c ? `<a href="${safeUrl(c.url)}" rel="noopener">${esc(c.group || "claim")}</a> <span class="muted">Source: Ransomware.live</span>` : null],
     ["confidence", x.confidence ? `<span title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span>` : null],
     ["origin", `<span title="${gl("origin", origin(x))}">${origin(x)}</span>${x.imported_from ? ` (${esc(x.imported_from.dataset)} ${esc(x.imported_from.record_id)}, ${esc(x.imported_from.license || "")})` : ""} · ${esc(x.extracted_by.model)} · prompt ${esc(x.extracted_by.prompt_version)} · run ${esc(x.extracted_by.run_date)} · first seen ${esc(firstSeen(x))}${x.updated_at ? ` · updated ${esc(x.updated_at)}` : ""}`],
-    ["sources", (x.sources || []).map(s => `<a href="${esc(s.url)}" rel="noopener">${esc(s.type)}</a>${s.title ? ` <span class="muted">${esc(s.title)}</span>` : ""}`).join("<br>")],
+    ["sources", (x.sources || []).map(s => `<a href="${safeUrl(s.url)}" rel="noopener">${esc(s.type)}</a>${s.title ? ` <span class="muted">${esc(s.title)}</span>` : ""}`).join("<br>")],
     ["notes", esc(x.notes)],
     ["record", `<a href="#id=${esc(x.id)}" class="small">${esc(x.id)}</a> · ${x.reviewed ? '<span class="rev">reviewed</span>' : '<span class="unrev">unreviewed</span>'}`],
   ].filter(([, v]) => v != null && v !== "");
@@ -493,15 +497,15 @@ function fromHash() {
   const p = new URLSearchParams(location.hash.slice(1));
   for (const f of FIELDS) { const el = $("#" + f); if (!p.has(f)) continue; if (el.type === "checkbox") el.checked = p.get(f) === "1"; else el.value = p.get(f); }
   if (p.has("sort")) { const s = p.get("sort"); sortDir = s.startsWith("-") ? -1 : 1; sortKey = s.replace(/^-/, ""); }
-  if (p.has("id")) open.add(p.get("id"));
-  if (p.has("org")) orgSel = p.get("org");
-  if (p.has("vendor")) vendorSel = p.get("vendor");
-  if (p.has("cve")) cveSel = p.get("cve").toUpperCase();
+  if (p.has("id") && ID_OK.test(p.get("id"))) open.add(p.get("id"));
+  if (p.has("org") && ID_OK.test(p.get("org"))) orgSel = p.get("org");
+  if (p.has("vendor") && ID_OK.test(p.get("vendor"))) vendorSel = p.get("vendor");
+  if (p.has("cve") && ID_OK.test(p.get("cve"))) cveSel = p.get("cve").toUpperCase();
 }
 function downloadCsv() {
   const cols = ["id", "disclosed_date", "org_name", "org_type", "org_country", "initial_access", "entry_asset", "control_failure", "cve", "veris_action", "root_cause", "technology_involved", "attack_techniques", "third_party", "actor_name", "actor_variety", "actor_motive", "impact_type", "ransomware", "data_types", "records_affected", "evidence_level", "confidence", "reviewed", "summary", "source_url"];
   const cell = v => { v = Array.isArray(v) ? v.join("; ") : v ?? ""; v = String(v); return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
-  const get = (x, c) => c === "source_url" ? (x.sources || [{}])[0].url : c === "third_party" ? ((x.third_party || {}).involved === true ? (x.third_party.archetype || "yes") : "") : c.startsWith("actor_") ? (x.actor || {})[c.slice(6)] : x[c];
+  const get = (x, c) => c === "source_url" ? ((x.sources || [])[0] || {}).url : c === "third_party" ? ((x.third_party || {}).involved === true ? (x.third_party.archetype || "yes") : "") : c.startsWith("actor_") ? (x.actor || {})[c.slice(6)] : x[c];
   const lines = [cols.join(",")].concat(view.map(x => cols.map(c => cell(get(x, c))).join(",")));
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
@@ -516,12 +520,12 @@ function fillTech() {
 function fillCountries() {
   const sel = $("#cc"), cur = sel.value;
   sel.innerHTML = '<option value="">any</option>';
-  fill(sel, [...new Set(rows.map(x => x.org_country).filter(Boolean))].sort());
+  fill(sel, (STATS.by_org_country || []).map(c => c[0]).filter(Boolean).sort());
   sel.value = cur;
 }
 function scrollToOpen() { if (open.size) { const el = document.querySelector(`tr.row[data-id="${[...open][0]}"]`); if (el) el.scrollIntoView({ block: "center" }); } }
 // Two loads: the last two years render at once, then the full file replaces it in place.
-fetch("recent.json").then(r => r.json()).then(d => {
+getJson("recent.json").then(d => {
   rows = d;
   renderFresh(); renderWeek(); glossary();
   fill($("#ia"), STATS.by_initial_access.map(c => c[0]));
@@ -532,15 +536,16 @@ fetch("recent.json").then(r => r.json()).then(d => {
   fill($("#cf"), STATS.by_control_failure.map(c => c[0]).filter(k => k !== "unknown"));
   fill($("#ac"), STATS.by_actor_variety.map(c => c[0]).filter(k => k !== "unknown"));
   fromHash(); render(); scrollToOpen();
-  return fetch("incidents.json").then(r => r.json());
+  loadOrgs().then(() => { if (open.size) render(); });
+  return getJson("incidents.json");
 }).then(d => {
   const hadOpenRow = open.size && document.querySelector(`tr.row[data-id="${[...open][0]}"]`);
   rows = d; loadingFull = false;
-  fillCountries(); renderWeek(); render();
+  renderWeek(); render();
   if (!hadOpenRow) scrollToOpen();
-}).catch(e => { loadingFull = false; render(); console.warn("full history not loaded", e); });
+}).catch(e => { loadingFull = false; render(); $("#count").textContent += ` · could not load ${e.message}; showing only what loaded`; console.warn("load failed", e); });
 for (const f of FIELDS) $("#" + f).addEventListener("input", () => { render(); toHash(); });
-$("#about-link").addEventListener("click", () => { $("#about").open = true; });
+$("#about-link").addEventListener("click", e => { e.preventDefault(); const a = $("#about"); a.open = true; if (a.scrollIntoView) a.scrollIntoView({ block: "start" }); });
 if (STATS.current_model) $("#about-model").textContent = ` (currently ${STATS.current_model})`;
 $("#reset").addEventListener("click", () => { for (const f of FIELDS) { const el = $("#" + f); if (el.type === "checkbox") el.checked = false; else el.value = ""; } sortKey = "disclosed_date"; sortDir = -1; open.clear(); orgSel = ""; vendorSel = ""; cveSel = ""; render(); toHash(); });
 $("#dl").addEventListener("click", downloadCsv);

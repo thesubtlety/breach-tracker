@@ -36,7 +36,10 @@ Additive. `pipeline/migrate.py` restamps the store.
   an Actions variable left unset arrives as "" and no longer selects a provider named "";
   the quote check reads the letter PDF for letter-sourced quotes; the price fetch stops
   after three empty answers so a blocked API cannot eat the job's 30 minutes;
-  `attack_techniques` in both CSVs; free-text fields escaped in the page.
+  `attack_techniques` in both CSVs. Page: a malformed `#id=` no longer aborts the full
+  load, a failed fetch is said in the count line, country deep links survive the two-stage
+  load, an organization link replaces an open vendor or CVE view, free-text fields escaped,
+  source links limited to http(s).
 - `org_id` on every record: hash of the normalized name after `data/org_aliases.json`
   (pipeline/orgs.py). The page gets an organization view (`#org=`), name links, and a
   repeat-organizations chart; `site/orgs.json` lists organizations with more than one

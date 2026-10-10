@@ -220,7 +220,7 @@ def with_context(rows: list[dict], kev: dict, prices: dict) -> list[dict]:
         vendor = (r.get("third_party") or {}).get("vendor")
         if vendor:
             d["vendor_id"] = org_id(vendor)
-        if r.get("cve"):
+        if r.get("cve") and kev:
             d["kev"] = kev_context(r, kev)
         pr = prices.get(r["id"])
         if pr and pr.get("closes"):
@@ -242,7 +242,7 @@ def claim_only(r: dict) -> bool:
     """Only a leak-site post says this happened. Kept in the store so a later filing or
     article can confirm it, never published on its own: that would be re-serving
     Ransomware.live's victim list, which their terms forbid."""
-    return all(s["type"] == "ransomware_leak_site" for s in r.get("sources", []))
+    return bool(r.get("sources")) and all(s["type"] == "ransomware_leak_site" for s in r["sources"])
 
 
 def main() -> int:
@@ -307,6 +307,8 @@ def main() -> int:
         "date_range": [min(r["disclosed_date"] for r in rows), max(r["disclosed_date"] for r in rows)] if rows else None,
         "by_initial_access": Counter(r["initial_access"] for r in rows).most_common(),
         "by_org_type": Counter(r["org_type"] for r in rows).most_common(),
+        "by_org_country": Counter(r.get("org_country") or "unknown" for r in rows).most_common(),
+        "kev_loaded": bool(kev),
         "by_evidence": Counter(r["evidence_level"] for r in rows).most_common(),
         "by_control_failure": Counter(r.get("control_failure", "unknown") for r in rows).most_common(),
         "by_actor_variety": Counter((r.get("actor") or {}).get("variety", "unknown") for r in rows).most_common(),
