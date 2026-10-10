@@ -28,8 +28,8 @@
     },
     "schema_version": {
       "type": "string",
-      "default": "1.1",
-      "description": "1.1 added actor, third_party, cve, entry_asset, control_failure, credential_source, data_types, discovered_date, ransomware. Bump the minor on additive enum changes, the major on anything that breaks comparability. Log every change in docs/CHANGELOG.md."
+      "default": "1.2",
+      "description": "1.2 added attack_techniques, org_id, letter, sources[].date. 1.1 added actor, third_party, cve, entry_asset, control_failure, credential_source, data_types, discovered_date, ransomware. Bump the minor on additive enum changes, the major on anything that breaks comparability. Log every change in docs/CHANGELOG.md."
     },
     "org_name": {
       "type": "string",
@@ -185,6 +185,13 @@
       ],
       "maxLength": 300,
       "description": "One plain sentence on the underlying weakness, only if the source states or clearly implies it (e.g. 'Long-lived OAuth token for a third-party integration was not rotated after a prior compromise'). Null if the source doesn't say."
+    },
+    "attack_techniques": {
+      "type": "array",
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"},
+      "description": "Every ATT&CK technique the text states (initial access, collection, exfiltration, impact). Kept only when the text carries the behaviour's words (extract.TECHNIQUE_TRIGGERS); initial_access_attack_id and ransomware=true are added deterministically."
     },
     "technology_involved": {
       "type": "array",
@@ -413,6 +420,11 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "date": {
+            "type": ["string", "null"],
+            "format": "date",
+            "description": "Date this source appeared, when known (a leak-site claim's post date)."
           }
         }
       }

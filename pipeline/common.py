@@ -18,7 +18,7 @@ INCIDENTS_PATH = DATA_DIR / "incidents.jsonl"
 CANDIDATES_PATH = DATA_DIR / "candidates.jsonl"   # the queue: collected, not yet processed
 PROCESSED_PATH = DATA_DIR / "processed.jsonl"     # every URL the run has handled, with its outcome
 CLAIMS_PATH = DATA_DIR / "claims.jsonl"           # leak-site claims with no confirming source; gitignored, never published
-PROMPT_VERSION = "v3"
+PROMPT_VERSION = "v4"
 # A new source for the same org within this many days of a record's disclosed_date joins
 # that record instead of creating a new one. See run.find_record for the rule.
 MERGE_WINDOW_DAYS = 45

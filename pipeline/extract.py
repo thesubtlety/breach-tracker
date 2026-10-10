@@ -216,6 +216,47 @@ def number_in_text(n: int, text: str) -> bool:
     return False
 
 
+TECHNIQUE_TRIGGERS = {
+    "T1566": r"phish", "T1598": r"phish|pretext|social.engineer|impersonat",
+    "T1078": r"credential|password|log-?in|logged in|account|vpn|token",
+    "T1190": r"vulnerab|exploit|unpatched|flaw|zero.day|cve-",
+    "T1133": r"vpn|remote.access|citrix|external remote|gateway",
+    "T1021": r"rdp|remote desktop", "T1195": r"supply.chain|software update|vendor|supplier|third.party",
+    "T1199": r"vendor|contractor|partner|third.party|trusted", "T1110": r"brute|password.spray|credential.stuffing",
+    "T1621": r"mfa|multi.?factor|push notification|authentication request",
+    "T1114": r"e-?mail|mailbox|inbox", "T1213": r"file.share|sharepoint|confluence|repositor|network share|document management",
+    "T1530": r"cloud storage|bucket|\bs3\b|blob|onedrive|google drive|dropbox|snowflake",
+    "T1041": r"exfiltrat|copied|download|removed|stole|stolen|acquired|obtained|taken|transferred",
+    "T1567": r"exfiltrat|upload|mega|cloud|transferred",
+    "T1486": r"encrypt|ransomware", "T1485": r"destroy|wiped|deleted|destruction",
+    "T1489": r"disrupt|shut.?down|outage|unavailable|offline|took .* offline",
+    "T1491": r"deface", "T1657": r"wire|fraud|payment|invoice|diverted|transfer of funds|financial theft",
+    "T1552": r"token|api key|secret|credential|hard.?coded",
+}
+
+
+def derived_techniques(inc: dict) -> set[str]:
+    """Techniques other fields already establish."""
+    out = set()
+    if inc.get("initial_access_attack_id"):
+        out.add(inc["initial_access_attack_id"])
+    if inc.get("ransomware") is True:
+        out.add("T1486")
+    return out
+
+
+def guard_techniques(ids: list[str] | None, text: str, inc: dict) -> list[str]:
+    """Keep a model-stated technique only when the text carries the behaviour's words."""
+    low = text.lower()
+    kept = set()
+    for t in ids or []:
+        t = t.upper()
+        pat = TECHNIQUE_TRIGGERS.get(t.split(".")[0])
+        if pat and re.search(pat, low):
+            kept.add(t)
+    return sorted(kept | derived_techniques(inc))[:12]
+
+
 def post_check(inc: dict, text: str) -> dict:
     """Enforce the honesty rules mechanically; the prompt alone isn't enough."""
     notes = []
@@ -253,6 +294,11 @@ def post_check(inc: dict, text: str) -> dict:
     inc.setdefault("data_types", [])
     inc.setdefault("ransomware", None)
     inc.setdefault("discovered_date", None)
+    stated = inc.get("attack_techniques") or []
+    inc["attack_techniques"] = guard_techniques(stated, text, inc)
+    dropped = sorted(set(t.upper() for t in stated) - set(inc["attack_techniques"]))
+    if dropped:
+        notes.append("attack_techniques without supporting words dropped: " + ", ".join(dropped))
     inc["notes"] = "; ".join(notes) or None
     return inc
 
@@ -286,7 +332,7 @@ def extract_one(c: dict, text: str, run_date: str, provider: str | None = None,
     if c.get("evidence_level_hint") == "actor_claimed":
         inc["evidence_level"] = "actor_claimed"
     inc["id"] = make_id(inc["org_name"], inc["disclosed_date"])
-    inc["schema_version"] = "1.1"
+    inc["schema_version"] = "1.2"
     inc["sources"] = [{"url": s["url"], "type": s["type"], "title": s.get("title"), "fetched_at": None}
                       for s in c.get("all_sources", [{"url": c["source_url"], "type": c["source_type"]}])]
     inc["extracted_by"] = {"model": f"{provider}:{model}", "prompt_version": PROMPT_VERSION,

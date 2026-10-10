@@ -142,7 +142,8 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
     is_claim = c["source_type"] == "ransomware_leak_site"
     rec = {
         "id": make_id(c["org_name"], c["disclosed_date"]),
-        "schema_version": "1.1",
+        "schema_version": "1.2",
+        "attack_techniques": [],
         "org_name": c["org_name"],
         "org_type": org_type,
         "org_country": c.get("org_country", "US"),
@@ -242,7 +243,7 @@ def attach_claim(rec: dict, c: dict) -> None:
     changed = False
     if c["source_url"] not in {s["url"] for s in rec["sources"]}:
         rec["sources"].append({"url": c["source_url"], "type": "ransomware_leak_site",
-                               "title": c.get("title"), "fetched_at": None})
+                               "title": c.get("title"), "fetched_at": None, "date": c["disclosed_date"]})
         changed = True
     hint = (c.get("structured_hint") or {}).get("ransomware_leak_site") or c.get("structured_hint") or {}
     if rec.get("ransomware") is None:

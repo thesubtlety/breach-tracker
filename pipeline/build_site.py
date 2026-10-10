@@ -16,12 +16,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import DATA_DIR, INCIDENTS_PATH, SITE_DIR, read_jsonl, today  # noqa: E402
-from orgs import org_id, registry  # noqa: E402
+from orgs import org_id, registry, vendor_registry  # noqa: E402
 
 HEALTH_PATH = DATA_DIR / "source_health.json"
 SITE_URL = os.environ.get("SITE_URL", "https://thesubtlety.github.io/breach-tracker/").rstrip("/") + "/"
 RECENT_DAYS = 730
 FEED_DAYS = 30
+VENDOR_FEED_MIN = 3  # a feed per vendor named this often
 NEW_WINDOW_DAYS = 90  # a backfilled 2015 notice first seen today is not news
 
 # Shown as hover text and in the page glossary. Keep in step with prompts/extract.md.
@@ -134,10 +135,11 @@ def coverage(rows: list[dict]) -> list[dict]:
     return out
 
 
-def feed(rows: list[dict], since: str, generated: str) -> str:
+def feed(rows: list[dict], since: str, generated: str, title: str = "Breach Tracker: new and updated records",
+         path: str = "feed.xml", window_days: int = NEW_WINDOW_DAYS) -> str:
     """Atom feed of records first recorded or changed since `since`, newest change first.
     Imported dataset rows are left out: a bulk import is not news."""
-    window = (date.fromisoformat(since) - timedelta(days=NEW_WINDOW_DAYS)).isoformat()
+    window = (date.fromisoformat(since) - timedelta(days=window_days)).isoformat()
     items = [r for r in rows if newsworthy(r, window) and max(first_seen(r), r.get("updated_at") or "") >= since]
     items.sort(key=lambda r: (max(first_seen(r), r.get("updated_at") or ""), r["disclosed_date"]), reverse=True)
     entries = []
@@ -158,10 +160,10 @@ def feed(rows: list[dict], since: str, generated: str) -> str:
   </entry>""")
     return f"""<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Breach Tracker: new and updated records</title>
-  <id>{SITE_URL}feed.xml</id>
+  <title>{escape(title)}</title>
+  <id>{SITE_URL}{path}</id>
   <link href="{SITE_URL}"/>
-  <link rel="self" href="{SITE_URL}feed.xml"/>
+  <link rel="self" href="{SITE_URL}{path}"/>
   <updated>{generated}T00:00:00Z</updated>
 {chr(10).join(entries)}
 </feed>
@@ -202,7 +204,8 @@ def kev_context(r: dict, kev: dict) -> list[dict]:
         k = kev.get(c.upper()) or {}
         added = k.get("added")
         lead = (date.fromisoformat(anchor) - date.fromisoformat(added)).days if added else None
-        out.append({"cve": c.upper(), "kev_added": added, "name": k.get("name"), "days_listed_before_incident": lead})
+        out.append({"cve": c.upper(), "kev_added": added, "name": k.get("name"), "days_listed_before_incident": lead,
+                    "product": " ".join(filter(None, [k.get("vendor"), k.get("product")])) or None})
     return out
 
 
@@ -214,6 +217,9 @@ def with_context(rows: list[dict], kev: dict, prices: dict) -> list[dict]:
     for r in rows:
         r.setdefault("org_id", org_id(r["org_name"]))
         d = {}
+        vendor = (r.get("third_party") or {}).get("vendor")
+        if vendor:
+            d["vendor_id"] = org_id(vendor)
         if r.get("cve"):
             d["kev"] = kev_context(r, kev)
         pr = prices.get(r["id"])
@@ -246,6 +252,18 @@ def main() -> int:
     # Only organizations with something to say beyond the one row; the page builds the rest from rows.
     orgs = [o for o in registry(rows, prices) if o["incidents"] > 1 or o["ticker"] or o["sec_filer"]]
     (SITE_DIR / "orgs.json").write_text(json.dumps(orgs, **compact))
+    vendors = vendor_registry(rows)
+    (SITE_DIR / "vendors.json").write_text(json.dumps(vendors, **compact))
+    feeds = SITE_DIR / "feeds"
+    feeds.mkdir(exist_ok=True)
+    for f in feeds.glob("vendor-*.xml"):
+        f.unlink()
+    year_ago = (date.today() - timedelta(days=365)).isoformat()
+    for v in vendors:
+        if v["incidents"] >= VENDOR_FEED_MIN:
+            mine = [r for r in rows if (r.get("derived") or {}).get("vendor_id") == v["id"]]
+            (feeds / f"vendor-{v['id']}.xml").write_text(
+                feed(mine, year_ago, today(), f"Breach Tracker: incidents behind {v['name']}", f"feeds/vendor-{v['id']}.xml", 3650))
     recent_cutoff = (date.today() - timedelta(days=RECENT_DAYS)).isoformat()
     week_ago = (date.today() - timedelta(days=7)).isoformat()
     window = (date.today() - timedelta(days=NEW_WINDOW_DAYS)).isoformat()
@@ -291,6 +309,10 @@ def main() -> int:
         "with_price_reaction": sum(1 for r in rows if (r.get("derived") or {}).get("price")),
         "with_kev": sum(1 for r in rows if (r.get("derived") or {}).get("kev")),
         "organizations": len({r["org_id"] for r in rows}),
+        "vendors": len(vendors),
+        "vendor_feed_min": VENDOR_FEED_MIN,
+        "with_techniques": sum(1 for r in rows if r.get("attack_techniques")),
+        "claims": json.loads((ext / "claim_stats.json").read_text()) if (ext / "claim_stats.json").exists() else None,
         "with_letter": sum(1 for r in rows if (r.get("letter") or {}).get("outcome") == "extracted"),
         "kev_updated": max((v.get("added") or "" for v in kev.values()), default=None),
         "coverage": coverage(rows),

@@ -48,13 +48,25 @@ def _save(path: Path, obj: dict) -> None:
 
 
 # --- KEV ---------------------------------------------------------------------------
+def cpe_product(v: dict) -> tuple[str | None, str | None]:
+    """Vendor and product of the first CPE in an NVD record (cpe:2.3:a:vendor:product:...)."""
+    for cfg in v.get("configurations") or []:
+        for node in cfg.get("nodes") or []:
+            for m in node.get("cpeMatch") or []:
+                parts = (m.get("criteria") or "").split(":")
+                if len(parts) > 5 and parts[1] == "2.3":
+                    return parts[3].replace("_", " "), parts[4].replace("_", " ")
+    return None, None
+
+
 def update_kev(rows: list[dict]) -> dict:
     kev = _load(KEV_PATH)
     wanted = sorted({c.upper() for r in rows for c in (r.get("cve") or [])})
     today = date.today().isoformat()
     stale = (date.today() - timedelta(days=KEV_RECHECK_DAYS)).isoformat()
     # An unlisted CVE can be listed later, so unlisted entries are asked again periodically.
-    missing = [c for c in wanted if c not in kev or (not kev[c].get("added") and (kev[c].get("checked") or "") < stale)]
+    missing = [c for c in wanted if c not in kev or (not kev[c].get("added") and (kev[c].get("checked") or "") < stale)
+               or "product" not in kev[c]]
     if not missing:
         return kev
     r = _get(KEV_FEED, headers={"User-Agent": BROWSER_UA})
@@ -67,9 +79,10 @@ def update_kev(rows: list[dict]) -> dict:
             kev.setdefault(c, {"added": None})
             kev[c]["checked"] = today
         log.info("kev: feed loaded, %d of %d wanted CVEs listed", sum(1 for c in wanted if kev[c].get("added")), len(wanted))
-    else:
-        log.info("kev: feed unavailable; asking NVD for %d CVEs", len(missing))
-        for i, c in enumerate(missing):
+    need_nvd = [c for c in missing if "product" not in kev.get(c, {})]
+    if need_nvd:
+        log.info("kev: asking NVD for %d CVEs", len(need_nvd))
+        for i, c in enumerate(need_nvd):
             if i:
                 time.sleep(6)
             n = _get(NVD_API, params={"cveId": c}, headers={"User-Agent": BROWSER_UA})
@@ -77,9 +90,10 @@ def update_kev(rows: list[dict]) -> dict:
                 continue
             vulns = n.json().get("vulnerabilities") or []
             v = vulns[0]["cve"] if vulns else {}
-            kev[c] = {"added": v.get("cisaExploitAdd"), "name": v.get("cisaVulnerabilityName"),
-                      "ransomware": None, "nvd_published": (v.get("published") or "")[:10] or None,
-                      "checked": today}
+            vendor, product = cpe_product(v)
+            kev[c] = {"added": v.get("cisaExploitAdd") or kev.get(c, {}).get("added"), "name": v.get("cisaVulnerabilityName"),
+                      "ransomware": kev.get(c, {}).get("ransomware"), "nvd_published": (v.get("published") or "")[:10] or None,
+                      "vendor": vendor, "product": product, "checked": today}
     _save(KEV_PATH, kev)
     return kev
 

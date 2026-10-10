@@ -78,6 +78,17 @@ Rules:
 6g. ransomware: true if ransomware was deployed or extortion demanded; false only if the
    text says it was not; null otherwise. discovered_date: when the organization
    discovered it, if stated.
+6h. attack_techniques: the ATT&CK technique ids for every behaviour the text describes,
+   not only the entry: T1566 phishing, T1598 phishing for information, T1078 valid
+   accounts, T1190 exploit public-facing application, T1133 external remote services,
+   T1021.001 remote desktop, T1195 supply chain compromise, T1199 trusted relationship,
+   T1110 brute force or password spraying, T1621 MFA fatigue, T1114 email collection,
+   T1213 data from information repositories (file shares, SharePoint), T1530 data from
+   cloud storage, T1041 or T1567 exfiltration, T1486 data encrypted for impact, T1485 data
+   destruction, T1489 service stop or outage, T1491 defacement, T1657 financial theft
+   (wire fraud, diverted payments), T1552 unsecured credentials (tokens, keys). Only when
+   the text describes the behaviour; never infer from the sector, the outcome or the actor.
+   Empty list if none.
 7. org_type: pick the closest bucket from the enum. A hospital system is healthcare; a
    benefits administrator serving hospitals is professional_services unless it is itself a
    covered entity; a SaaS vendor is technology_saas; a school district is education.

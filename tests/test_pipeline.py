@@ -414,3 +414,37 @@ def test_wants_letter_only_unread_unknown_california():
     assert not wants_letter(dict(base, initial_access="phishing"))
     assert not wants_letter(dict(base, letter={"url": None, "date": "2026-10-10", "outcome": "no_letter"}))
     assert not wants_letter(dict(base, sources=[{"type": "state_ag", "url": "https://www.maine.gov/x.html"}]))
+
+
+def test_technique_guard_needs_words_in_text():
+    from extract import guard_techniques
+    text = "A phishing email led to ransomware that encrypted files; data was exfiltrated."
+    assert guard_techniques(["T1566", "T1486", "T1041", "T1491"], text, {}) == ["T1041", "T1486", "T1566"]
+    assert guard_techniques(["T1190"], "unauthorized access to our network", {"ransomware": True}) == ["T1486"]
+    assert guard_techniques(["t1566.001"], text, {"initial_access_attack_id": "T1078"}) == ["T1078", "T1566.001"]
+
+
+def test_cpe_product_reads_first_cpe():
+    from external import cpe_product
+    v = {"configurations": [{"nodes": [{"cpeMatch": [{"criteria": "cpe:2.3:a:progress:moveit_transfer:2023.0.0:*:*:*:*:*:*:*"}]}]}]}
+    assert cpe_product(v) == ("progress", "moveit transfer")
+    assert cpe_product({}) == (None, None)
+
+
+def test_vendor_registry_shares_org_ids():
+    from orgs import org_id, vendor_registry
+    mk = lambda org, vendor, d: {"id": org + d, "org_name": org, "org_id": org_id(org), "disclosed_date": d, "org_type": "healthcare",
+                                 "third_party": {"involved": True, "vendor": vendor, "archetype": "service_provider"}, "sources": []}
+    out = vendor_registry([mk("Hospital A", "AMCA", "2019-06-01"), mk("Hospital B", "AMCA Inc.", "2019-06-03"), mk("AMCA", None, "2019-06-05")])
+    assert len(out) == 1 and out[0]["incidents"] == 2 and out[0]["is_org"] is True and out[0]["id"] == org_id("AMCA")
+
+
+def test_claim_stats_counts_pending_and_confirmed():
+    from claim_stats import compute
+    claims = [{"org_name": f"V{i}", "disclosed_date": "2026-09-20", "org_country": "US", "structured_hint": {"group": "Qilin"}} for i in range(6)]
+    rec = {"org_name": "Hosp", "org_type": "healthcare", "disclosed_date": "2026-09-01", "first_seen": "2026-09-10", "actor": {"name": "qilin"},
+           "sources": [{"type": "sec_8k", "url": "u"}, {"type": "ransomware_leak_site", "url": "c", "title": "Leak-site claim by qilin", "date": "2026-09-02"}]}
+    out = compute(claims, [rec], asof="2026-10-10")
+    g = out["groups"][0]
+    assert g["group"] == "qilin" and g["claims"] == 7 and g["confirmed"] == 1 and g["last_90_days"] == 7
+    assert g["median_days_to_confirmation"] == 8 and g["sectors"] == [("healthcare", 1)]

@@ -163,6 +163,7 @@ run.main          -> regulator/leak rows: deterministic record from checkboxes (
                      8-K / press / posts: fetch text -> extract.extract_one -> validate
                   -> merge into data/incidents.jsonl (upsert by id, union sources)
                   -> processed candidates leave the queue; --limit leftovers stay
+claim_stats.py    -> per-group leak-site claim aggregates (manual; claims stay private)
 letters.py        -> California notices: read the notification letter PDF (two sections),
                      extract, merge; outcome kept on the record so each letter is read once
 orgs.py           -> org_id per record (name hash + data/org_aliases.json); site/orgs.json

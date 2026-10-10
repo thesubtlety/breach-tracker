@@ -5,8 +5,26 @@ Every entry that changes how a field is populated gets a `schema_version` bump.
 
 ## Unreleased
 
-### 2026-10-10
+### 2026-10-10 — schema 1.2
 
+Additive. `pipeline/migrate.py` restamps the store.
+
+- `attack_techniques`: every ATT&CK technique the text states (prompt v4, rule 6h), kept
+  only when the text carries the behaviour's words (`extract.TECHNIQUE_TRIGGERS`); the
+  initial-access id and ransomware encryption (T1486) are added from the record's own
+  fields, so regulator and imported rows carry them too. Technique filter and chart.
+- `sources[].date`: when a leak-site claim was posted. `pipeline/claim_stats.py` writes
+  per-group aggregates (claims, confirmed, rate, 90-day activity, sectors, days to
+  confirmation) to `data/external/claim_stats.json`; the claims themselves stay private.
+  The page shows the table; "confirmed" means a source this tracker reads joined the record.
+- Vendors as entities: `orgs.vendor_registry` keys third parties like organizations, so a
+  vendor that is also a victim shares its id. `#vendor=` view, `site/vendors.json`, and an
+  Atom feed per vendor named on 3+ records (`site/feeds/vendor-<id>.xml`).
+- CVE view (`#cve=`): product from the NVD CPE, KEV date, days from listing to the earliest
+  incident citing it, and the list of CVEs cited in breaches but absent from KEV.
+- Charts: technology named, dwell (intrusion to discovery) and time to notify (discovery
+  to disclosure) by sector; full-text search over supporting quotes with a quotes-only
+  toggle. "About the data" block with the method, the guard rules and the eval numbers.
 - `pipeline/letters.py` reads the notification letter behind a California AG notice
   (only the "what happened" and "what information was involved" sections, about a
   tenth of the letter) and merges the result; outcome kept on the record as `letter`.

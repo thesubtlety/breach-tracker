@@ -11,3 +11,5 @@ data/claims.jsonl
 site/recent.json
 site/feed.xml
 site/orgs.json
+site/vendors.json
+site/feeds/

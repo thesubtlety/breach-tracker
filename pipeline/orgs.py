@@ -72,3 +72,25 @@ def registry(rows: list[dict], prices: dict | None = None) -> list[dict]:
         })
     out.sort(key=lambda o: (-o["incidents"], o["name"]))
     return out
+
+
+def vendor_registry(rows: list[dict]) -> list[dict]:
+    """One entry per named third party, keyed like organizations so a vendor that is
+    also a victim in the store shares its id."""
+    org_ids = {r.get("org_id") for r in rows}
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for r in rows:
+        v = (r.get("third_party") or {}).get("vendor")
+        if v:
+            groups[org_id(v)].append(r)
+    out = []
+    for vid, recs in groups.items():
+        names = Counter((r["third_party"]["vendor"]) for r in recs)
+        sectors = Counter(r["org_type"] for r in recs if r.get("org_type") not in (None, "unknown"))
+        dates = sorted(r["disclosed_date"] for r in recs)
+        out.append({"id": vid, "name": display_name(names), "aliases": sorted(n for n in names if n != display_name(names)),
+                    "incidents": len(recs), "first": dates[0], "last": dates[-1],
+                    "sectors": sectors.most_common(3), "is_org": vid in org_ids,
+                    "archetypes": Counter(r["third_party"].get("archetype") or "unknown" for r in recs).most_common(2)})
+    out.sort(key=lambda o: (-o["incidents"], o["name"]))
+    return out
