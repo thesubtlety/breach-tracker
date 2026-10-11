@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Breach Tracker</title>
-<link rel="alternate" type="application/atom+xml" title="Breach Tracker: new and updated records" href="feed.xml">
-<meta name="description" content="Publicly reported organizational breaches, classified by how the attacker got in, only where a source actually said.">
+<title>Breach Vectors: how organizations get breached</title>
+<link rel="alternate" type="application/atom+xml" title="Breach Vectors: new and updated records" href="feed.xml">
+<link rel="canonical" href="https://thesubtlety.github.io/breach-tracker/">
+<meta name="description" content="How organizations actually get breached: publicly reported breaches classified by initial access vector, vendor, CVE and ATT&CK technique, with the source quoted. Search any organization or vendor.">
 <style>
   :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --line:#e3e3e3; --soft:#f5f5f5; --accent:#2b5bd7; --warn:#b36b00; --ok:#1f7a3a;
           --bar:#2b5bd7; --bar-unk:#c8c8c8; --claim:#8a3ffc; }
@@ -71,7 +72,7 @@
 </style>
 </head>
 <body>
-<h1>Breach Tracker</h1>
+<h1>Breach Vectors</h1>
 <p class="lead">How organizations actually get breached, counted only from what a public source said. This is a sample that grows weekly, not a census: the coverage line below says what each part of it spans. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="feed.xml" title="Atom feed of records new or changed in the last 30 days; any feed reader or a free feed-to-email service will deliver it">feed</a> · <a href="#about" id="about-link">about the data</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
 <div class="fresh" id="fresh"></div>
 <div class="stats" id="stats"></div>
@@ -116,6 +117,7 @@
   <button id="reset" type="button">reset</button>
   <button id="dl" type="button" title="CSV of the rows currently shown">download view as CSV</button>
 </div>
+<div class="week" id="entities" hidden></div>
 <div class="count" id="count"></div>
 
 <div class="wrap"><table id="t">
@@ -202,7 +204,7 @@ function renderOrg() {
       const facts = [o.sector !== "unknown" ? o.sector : null, o.country, o.ticker ? `listed (${esc(o.ticker)})` : o.sec_filer ? "SEC filer" : null,
         `${o.incidents} incident${o.incidents === 1 ? "" : "s"} on record, ${esc(o.first)}${o.last !== o.first ? ` to ${esc(o.last)}` : ""}`,
         o.largest ? `largest count ${o.largest.toLocaleString()}` : null, o.ransomware ? `${o.ransomware} ransomware` : null].filter(Boolean);
-      el.innerHTML = `<h3>${esc(o.name)}</h3><div class="note">${facts.map(esc).join(" · ")}${o.aliases.length ? `<br><span class="muted">also recorded as ${o.aliases.map(esc).join("; ")}</span>` : ""}<br><a href="#" id="org-clear">Show all records</a></div>`;
+      el.innerHTML = `<h3>${esc(o.name)}</h3><div class="note">${facts.map(esc).join(" · ")}${o.aliases.length ? `<br><span class="muted">also recorded as ${o.aliases.map(esc).join("; ")}</span>` : ""}<br><a href="org/${esc(orgSel)}/">Page for this organization</a> · <a href="#" id="org-clear">Show all records</a></div>`;
     }
     $("#org-clear").addEventListener("click", e => { e.preventDefault(); orgSel = ""; render(); toHash(); });
   });
@@ -230,7 +232,8 @@ function renderVendor() {
       o.sectors.length ? `victims mostly ${o.sectors.map(([s, n]) => `${s} (${n})`).join(", ")}` : null,
       o.archetypes.length && o.archetypes[0][0] !== "unknown" ? `role: ${o.archetypes.map(([a]) => a).join(", ")}` : null].filter(Boolean) : [];
     const links = [o && o.is_org ? `<a href="#org=${esc(o.id)}" data-org="${esc(o.id)}">its own incidents as a victim</a>` : null,
-      o && o.incidents >= (STATS.vendor_feed_min || 3) ? `<a href="feeds/vendor-${esc(o.id)}.xml">Atom feed for this vendor</a>` : null].filter(Boolean);
+      o && o.incidents >= (STATS.vendor_feed_min || 3) ? `<a href="feeds/vendor-${esc(o.id)}.xml">Atom feed for this vendor</a>` : null,
+      `<a href="vendor/${esc(vendorSel)}/">Page for this vendor</a>`].filter(Boolean);
     el.innerHTML = `<h3>Behind: ${esc(name)}</h3><div class="note">${facts.map(esc).join(" · ") || "Named as the third party on the records below."}${o && o.aliases.length ? `<br><span class="muted">also named as ${o.aliases.map(esc).join("; ")}</span>` : ""}${links.length ? `<br>${links.join(" · ")}` : ""}<br><a href="#" id="vendor-clear">Show all records</a></div>`;
     $("#vendor-clear").addEventListener("click", e => { e.preventDefault(); vendorSel = ""; render(); toHash(); });
     el.querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); vendorSel = ""; selectOrg(a.dataset.org); }));
@@ -453,8 +456,27 @@ function detail(x) {
   ].filter(([, v]) => v != null && v !== "");
   return `<div class="detail"><dl>${dd.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div>`;
 }
+function renderEntities() {
+  const el = $("#entities"), q = $("#q").value.trim().toLowerCase();
+  if (!q || q.length < 2 || $("#qq").checked || orgSel || vendorSel) { el.hidden = true; return; }
+  const orgs = new Map(), vendors = new Map();
+  for (const x of rows) {
+    if (x.org_id && x.org_name.toLowerCase().includes(q)) { const o = orgs.get(x.org_id) || { name: x.org_name, n: 0 }; o.n++; orgs.set(x.org_id, o); }
+    for (const d of (x.derived || {}).vendors || []) if (d.name.toLowerCase().includes(q)) { const v = vendors.get(d.id) || { name: d.name, n: 0 }; v.n++; vendors.set(d.id, v); }
+  }
+  const top = m => [...m.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 8);
+  const li = (kind, [id, o]) => `<li><a href="${kind}/${esc(id)}/">${esc(o.name)}</a> <span class="d">${o.n} record${o.n === 1 ? "" : "s"}</span> <a href="#${kind}=${esc(id)}" data-${kind}="${esc(id)}" class="small">filter</a></li>`;
+  const os = top(orgs), vs = top(vendors);
+  if (!os.length && !vs.length) { el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = `<h3>Organizations and vendors matching “${esc($("#q").value.trim())}”</h3><div class="note">Each has its own page; "filter" narrows the table below instead.</div>` +
+    (os.length ? `<ul>${os.map(e => li("org", e)).join("")}</ul>` : "") + (vs.length ? `<div class="note" style="margin-top:6px">Vendors</div><ul>${vs.map(e => li("vendor", e)).join("")}</ul>` : "");
+  el.querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectOrg(a.dataset.org); }));
+  el.querySelectorAll("a[data-vendor]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectVendor(a.dataset.vendor); }));
+}
 function render() {
   view = filtered();
+  renderEntities();
   const k = sortKey;
   view.sort((a, b) => ((a[k] ?? "") > (b[k] ?? "") ? 1 : (a[k] ?? "") < (b[k] ?? "") ? -1 : 0) * sortDir);
   for (const th of document.querySelectorAll("th[data-k]")) th.setAttribute("aria-sort", th.dataset.k === k ? (sortDir > 0 ? "ascending" : "descending") : "none");
@@ -510,7 +532,7 @@ function downloadCsv() {
   const lines = [cols.join(",")].concat(view.map(x => cols.map(c => cell(get(x, c))).join(",")));
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
-  a.download = `breach-tracker-${STATS.generated}.csv`; a.click();
+  a.download = `breach-vectors-${STATS.generated}.csv`; a.click();
 }
 
 function fillTech() {

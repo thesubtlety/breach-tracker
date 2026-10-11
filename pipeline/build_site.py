@@ -17,6 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import DATA_DIR, INCIDENTS_PATH, SITE_DIR, read_jsonl, today  # noqa: E402
 from orgs import org_id, registry, vendor_id, vendor_names, vendor_registry  # noqa: E402
+from pages import SITE_NAME, robots, sitemap, write_pages  # noqa: E402
 
 HEALTH_PATH = DATA_DIR / "source_health.json"
 SITE_URL = os.environ.get("SITE_URL", "https://thesubtlety.github.io/breach-tracker/").rstrip("/") + "/"
@@ -135,7 +136,7 @@ def coverage(rows: list[dict]) -> list[dict]:
     return out
 
 
-def feed(rows: list[dict], since: str, generated: str, title: str = "Breach Tracker: new and updated records",
+def feed(rows: list[dict], since: str, generated: str, title: str = f"{SITE_NAME}: new and updated records",
          path: str = "feed.xml", window_days: int = NEW_WINDOW_DAYS) -> str:
     """Atom feed of records first recorded or changed since `since`, newest change first.
     Imported dataset rows are left out: a bulk import is not news."""
@@ -258,10 +259,16 @@ def main() -> int:
     compact = dict(ensure_ascii=False, separators=(",", ":"))
     (SITE_DIR / "incidents.json").write_text(json.dumps(rows, **compact))
     # Only organizations with something to say beyond the one row; the page builds the rest from rows.
-    orgs = [o for o in registry(rows, prices) if o["incidents"] > 1 or o["ticker"] or o["sec_filer"]]
+    all_orgs = registry(rows, prices)
+    orgs = [o for o in all_orgs if o["incidents"] > 1 or o["ticker"] or o["sec_filer"]]
     (SITE_DIR / "orgs.json").write_text(json.dumps(orgs, **compact))
     vendors = vendor_registry(rows)
+    for v in vendors:
+        v["feed"] = v["incidents"] >= VENDOR_FEED_MIN
     (SITE_DIR / "vendors.json").write_text(json.dumps(vendors, **compact))
+    urls = write_pages(rows, all_orgs, vendors, SITE_DIR, SITE_URL)
+    (SITE_DIR / "sitemap.xml").write_text(sitemap(urls, SITE_URL, today()))
+    (SITE_DIR / "robots.txt").write_text(robots(SITE_URL))
     feeds = SITE_DIR / "feeds"
     feeds.mkdir(exist_ok=True)
     for f in feeds.glob("vendor-*.xml"):
@@ -271,7 +278,7 @@ def main() -> int:
         if v["incidents"] >= VENDOR_FEED_MIN:
             mine = [r for r in rows if any(x["id"] == v["id"] for x in (r.get("derived") or {}).get("vendors", []))]
             (feeds / f"vendor-{v['id']}.xml").write_text(
-                feed(mine, year_ago, today(), f"Breach Tracker: incidents behind {v['name']}", f"feeds/vendor-{v['id']}.xml", 3650))
+                feed(mine, year_ago, today(), f"{SITE_NAME}: incidents behind {v['name']}", f"feeds/vendor-{v['id']}.xml", 3650))
     recent_cutoff = (date.today() - timedelta(days=RECENT_DAYS)).isoformat()
     week_ago = (date.today() - timedelta(days=7)).isoformat()
     window = (date.today() - timedelta(days=NEW_WINDOW_DAYS)).isoformat()
@@ -334,7 +341,7 @@ def main() -> int:
     }
     html = TEMPLATE.read_text().replace("/*__STATS__*/{}", json.dumps(stats, ensure_ascii=False))
     (SITE_DIR / "index.html").write_text(html)
-    print(f"site: {len(rows)} incidents ({len(recent)} in first load, {withheld} claim-only withheld) -> {SITE_DIR}")
+    print(f"site: {len(rows)} incidents ({len(recent)} in first load, {withheld} claim-only withheld), {len(urls)} entity pages -> {SITE_DIR}")
     return 0
 
 

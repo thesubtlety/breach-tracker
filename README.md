@@ -1,4 +1,4 @@
-# breach-tracker
+# Breach Vectors
 
 A daily, mostly-automatic list of publicly reported organizational breaches with a small
 set of classifications: organization type, how the attacker got in, root cause when stated,
@@ -171,6 +171,7 @@ vendor_aliases.py -> data/vendor_aliases.json: the company behind each new third
                      (one model call for the unseen names; none when there are none)
 verify_sources    -> data/source_health.json (zero-twice canary, link rot, quote re-check)
 build_site        -> site/index.html + incidents.json + recent.json + orgs.json + feed.xml + csv
+pages.py          -> site/org/<id>/ and site/vendor/<id>/ static pages, sitemap.xml, robots.txt
 ```
 
 Deterministic path matters: HHS "Theft" → `lost_or_stolen_device`, Maine "Insider

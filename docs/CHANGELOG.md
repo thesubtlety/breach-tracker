@@ -17,6 +17,10 @@ Additive. `pipeline/migrate.py` restamps the store.
   per-group aggregates (claims, confirmed, rate, 90-day activity, sectors, days to
   confirmation) to `data/external/claim_stats.json`; the claims themselves stay private.
   The page shows the table; "confirmed" means a source this tracker reads joined the record.
+- Site named Breach Vectors (2026-10-11). Static page per organization and per vendor
+  (`site/org/<id>/`, `site/vendor/<id>/`) with every record, quote and source, plus
+  sitemap.xml and robots.txt; the app lists matching organizations and vendors above
+  the table as you search. Record ids and the JSON, CSV and feed URLs are unchanged.
 - Vendor names normalized (2026-10-11): `orgs.vendor_names` splits lists ("Citrix and Fortra"),
   cuts "aka" tails and parentheticals, and drops descriptions ("third-party contractor");
   `data/vendor_aliases.json` maps products and short names to the company (MOVEit ->

@@ -549,3 +549,33 @@ def test_empty_actions_vars_fall_back_to_defaults(monkeypatch):
         assert importlib.reload(common).USER_AGENT.startswith("breach-tracker")
     finally:
         monkeypatch.undo(); importlib.reload(extract); importlib.reload(common)
+
+
+def test_entity_pages_titles_links_and_sitemap(tmp_path):
+    from pages import org_page, robots, sitemap, vendor_page, write_pages
+    org = {"id": "ab12", "name": "Acme <Health>", "aliases": ["Acme Health Inc"], "sector": "healthcare", "country": "US",
+           "incidents": 2, "first": "2025-01-01", "last": "2026-02-02", "largest": 1200, "ticker": None, "ransomware": 1}
+    vendor = {"id": "cd34", "name": "Progress Software", "aliases": ["MOVEit"], "incidents": 1, "first": "2026-02-02", "last": "2026-02-02",
+              "archetypes": [["vendor_product", 1]], "is_org": False, "feed": False}
+    base = {"org_id": "ab12", "org_name": "Acme <Health>", "initial_access": "unknown", "evidence_level": "regulator_filing", "confidence": "high",
+            "impact_type": "data_theft", "sources": [{"url": "https://example.org/a", "type": "state_ag", "title": "Notice <1>"}], "first_seen": "2026-02-03"}
+    r1 = dict(base, id="r1", disclosed_date="2025-01-01", records_affected=1200)
+    r2 = dict(base, id="r2", disclosed_date="2026-02-02", initial_access="exploit_public_facing_app", summary="Via MOVEit.",
+              supporting_quote="exploited a vulnerability in MOVEit", cve=["CVE-2023-34362"], attack_techniques=["T1190"],
+              third_party={"involved": True, "vendor": "MOVEit", "archetype": "vendor_product"}, derived={"vendors": [{"id": "cd34", "name": "Progress Software"}]},
+              updated_at="2026-03-01")
+    html = org_page(org, [r1, r2], "https://x.test/")
+    assert "<title>Acme &lt;Health&gt; data breaches: how they got in | Breach Vectors</title>" in html
+    assert '<link rel="canonical" href="https://x.test/org/ab12/">' in html
+    assert html.index("<h2>2026-02-02") < html.index("<h2>2025-01-01"), "newest first"
+    assert 'href="../../vendor/cd34/"' in html and "exploited a vulnerability" in html and "Notice &lt;1&gt;" in html and "<Health>" not in html
+    vh = vendor_page(vendor, [r2], "https://x.test/")
+    assert "<title>Progress Software: 1 breach at its customers | Breach Vectors</title>" in vh and 'href="../../org/ab12/"' in vh
+    urls = write_pages([r1, r2], [org], [vendor], tmp_path, "https://x.test/")
+    assert (tmp_path / "org/ab12/index.html").exists() and (tmp_path / "vendor/cd34/index.html").exists()
+    assert urls == [("org/ab12/", "2026-03-01"), ("vendor/cd34/", "2026-03-01")]
+    sm = sitemap(urls, "https://x.test/", "2026-10-11")
+    assert "<loc>https://x.test/org/ab12/</loc><lastmod>2026-03-01</lastmod>" in sm and "<loc>https://x.test/</loc>" in sm
+    assert robots("https://x.test/").endswith("Sitemap: https://x.test/sitemap.xml\n")
+    write_pages([r1], [org], [], tmp_path, "https://x.test/")
+    assert not (tmp_path / "vendor").exists() and (tmp_path / "org/ab12/index.html").exists(), "rebuilt from scratch"
