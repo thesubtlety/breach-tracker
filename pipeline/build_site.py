@@ -16,7 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import DATA_DIR, INCIDENTS_PATH, SITE_DIR, read_jsonl, today  # noqa: E402
-from orgs import org_id, registry, vendor_registry  # noqa: E402
+from orgs import org_id, registry, vendor_id, vendor_names, vendor_registry  # noqa: E402
 
 HEALTH_PATH = DATA_DIR / "source_health.json"
 SITE_URL = os.environ.get("SITE_URL", "https://thesubtlety.github.io/breach-tracker/").rstrip("/") + "/"
@@ -213,13 +213,14 @@ def with_context(rows: list[dict], kev: dict, prices: dict) -> list[dict]:
     """Site rows carry a `derived` block the schema does not: KEV listing dates for the
     record's CVEs and the filer's share-price reaction. The committed store never does."""
     spy = prices.get("_SPY", {})
+    vendor_name = {v["id"]: v["name"] for v in vendor_registry(rows)}
     out = []
     for r in rows:
         r.setdefault("org_id", org_id(r["org_name"]))
         d = {}
-        vendor = (r.get("third_party") or {}).get("vendor")
-        if vendor:
-            d["vendor_id"] = org_id(vendor)
+        names = vendor_names((r.get("third_party") or {}).get("vendor"))
+        if names:
+            d["vendors"] = [{"id": vendor_id(n), "name": vendor_name.get(vendor_id(n), n)} for n in names]
         if r.get("cve") and kev:
             d["kev"] = kev_context(r, kev)
         pr = prices.get(r["id"])
@@ -268,7 +269,7 @@ def main() -> int:
     year_ago = (date.today() - timedelta(days=365)).isoformat()
     for v in vendors:
         if v["incidents"] >= VENDOR_FEED_MIN:
-            mine = [r for r in rows if (r.get("derived") or {}).get("vendor_id") == v["id"]]
+            mine = [r for r in rows if any(x["id"] == v["id"] for x in (r.get("derived") or {}).get("vendors", []))]
             (feeds / f"vendor-{v['id']}.xml").write_text(
                 feed(mine, year_ago, today(), f"Breach Tracker: incidents behind {v['name']}", f"feeds/vendor-{v['id']}.xml", 3650))
     recent_cutoff = (date.today() - timedelta(days=RECENT_DAYS)).isoformat()

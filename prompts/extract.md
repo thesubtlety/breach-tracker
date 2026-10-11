@@ -66,7 +66,9 @@ Rules:
    backdoor in a vendor product running in the victim's environment),
    vendor_hosted_data (the vendor held the victim's data and was breached, or the
    victim's account on the vendor platform was abused), vendor_connection (the vendor's
-   access, credentials or tokens into the victim were used). vendor = its name.
+   access, credentials or tokens into the victim were used). vendor = the company's
+   name as the text gives it, not its product ("Progress Software", not "MOVEit");
+   null when the text only describes it ("a vendor", "a contractor").
    involved=null if the text doesn't say; false only if the text says it was not.
    When a third party is involved, initial_access is still the mechanism if the text
    states one (an unpatched system at a contractor is exploit_public_facing_app; a

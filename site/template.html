@@ -224,7 +224,8 @@ function renderVendor() {
   el.hidden = false;
   loadVendors().then(vendors => {
     const o = vendors.find(o => o.id === vendorSel);
-    const name = o ? o.name : ((rows.find(x => (x.derived || {}).vendor_id === vendorSel) || {}).third_party || {}).vendor || "vendor";
+    const hit = rows.flatMap(x => (x.derived || {}).vendors || []).find(d => d.id === vendorSel);
+    const name = o ? o.name : hit ? hit.name : "vendor";
     const facts = o ? [`${o.incidents} incident${o.incidents === 1 ? "" : "s"} attributed to it, ${esc(o.first)}${o.last !== o.first ? ` to ${esc(o.last)}` : ""}`,
       o.sectors.length ? `victims mostly ${o.sectors.map(([s, n]) => `${s} (${n})`).join(", ")}` : null,
       o.archetypes.length && o.archetypes[0][0] !== "unknown" ? `role: ${o.archetypes.map(([a]) => a).join(", ")}` : null].filter(Boolean) : [];
@@ -317,11 +318,11 @@ function renderContextCharts(v) {
   barsVal($("#lag-bars"), lagItems, d => `${Math.round(d)}d`);
   // third parties
   const tp = {}; let unnamed = 0;
-  for (const x of v) { const t = x.third_party || {}; if (t.involved === true) { if (t.vendor) tp[t.vendor] = (tp[t.vendor] || 0) + 1; else unnamed++; } }
-  const tpItems = Object.entries(tp).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  for (const x of v) { const t = x.third_party || {}; if (t.involved === true) { const vs = (x.derived || {}).vendors || []; if (vs.length) for (const d of vs) tp[d.id] = { name: d.name, n: ((tp[d.id] || {}).n || 0) + 1 }; else unnamed++; } }
+  const tpItems = Object.values(tp).sort((a, b) => b.n - a.n).slice(0, 12).map(o => [o.name, o.n]);
   $("#tp-note").textContent = tpItems.length || unnamed ? `Named vendors on records where a third party was involved. ${unnamed} more such records name no vendor.` : "No third-party involvement in view.";
   bars($("#tp-bars"), tpItems, v.length, "third_party");
-  const vidOf = {}; for (const x of v) if ((x.third_party || {}).vendor && (x.derived || {}).vendor_id) vidOf[x.third_party.vendor] = x.derived.vendor_id;
+  const vidOf = {}; for (const [id, o] of Object.entries(tp)) vidOf[o.name] = id;
   $("#tp-bars").querySelectorAll(".lbl").forEach(l => { const id = vidOf[l.textContent]; if (id) { l.innerHTML = `<a href="#vendor=${esc(id)}" data-vendor="${esc(id)}">${esc(l.textContent)}</a>`; l.querySelector("a").addEventListener("click", e => { e.preventDefault(); selectVendor(id); }); } });
   // share price
   const px = v.filter(x => (x.derived || {}).price);
@@ -408,7 +409,7 @@ function filtered() {
     (!ev || x.evidence_level === ev) && (!ot || x.org_type === ot) && (!cc || x.org_country === cc) &&
     (!known || x.initial_access !== "unknown") && (!cf || x.control_failure === cf) && (!ac || (x.actor || {}).variety === ac) &&
     (!tp || (x.third_party || {}).involved === true) && (!rw || x.ransomware === true) && (!wk || changedThisWeek(x)) && (!orgSel || x.org_id === orgSel) &&
-    (!vendorSel || (x.derived || {}).vendor_id === vendorSel) && (!cveSel || (x.cve || []).some(c => c.toUpperCase() === cveSel)) &&
+    (!vendorSel || ((x.derived || {}).vendors || []).some(d => d.id === vendorSel)) && (!cveSel || (x.cve || []).some(c => c.toUpperCase() === cveSel)) &&
     (!tech || (x.attack_techniques || []).some(t => t === tech || t.startsWith(tech + "."))) &&
     (!q || (qq ? (x.supporting_quote || "").toLowerCase().includes(q)
              : [x.org_name, x.root_cause, (x.actor || {}).name, (x.technology_involved || []).join(" "), (x.cve || []).join(" "), (x.third_party || {}).vendor, x.summary, x.supporting_quote, x.id].join(" ").toLowerCase().includes(q))));
@@ -437,7 +438,7 @@ function detail(x) {
     ["CVE", (x.cve || []).map(c => `<a href="#cve=${esc(c)}" data-cve="${esc(c)}">${esc(c)}</a> <a class="small" href="https://nvd.nist.gov/vuln/detail/${esc(c)}" rel="noopener">NVD</a>`).join(", ") || null],
     ["credential source", x.credential_source && x.credential_source !== "unknown" ? esc(x.credential_source) : null],
     ["technology", (x.technology_involved || []).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") || null],
-    ["third party", (x.third_party || {}).involved === true ? `${x.third_party.vendor ? `<a href="#vendor=${esc((x.derived || {}).vendor_id || "")}" data-vendor="${esc((x.derived || {}).vendor_id || "")}" title="every incident behind this vendor">${esc(x.third_party.vendor)}</a>` : "yes"}${x.third_party.archetype ? ` <span class="tag" title="${gl("third_party", x.third_party.archetype)}">${esc(x.third_party.archetype)}</span>` : ""}` : (x.third_party || {}).involved === false ? "no" : null],
+    ["third party", (x.third_party || {}).involved === true ? `${((x.derived || {}).vendors || []).length ? x.derived.vendors.map(d => `<a href="#vendor=${esc(d.id)}" data-vendor="${esc(d.id)}" title="every incident behind this vendor${d.name !== x.third_party.vendor ? `; named here as ${esc(x.third_party.vendor)}` : ""}">${esc(d.name)}</a>`).join(", ") : x.third_party.vendor ? esc(x.third_party.vendor) : "yes"}${x.third_party.archetype ? ` <span class="tag" title="${gl("third_party", x.third_party.archetype)}">${esc(x.third_party.archetype)}</span>` : ""}` : (x.third_party || {}).involved === false ? "no" : null],
     ["ATT&CK", (x.attack_techniques || []).length ? x.attack_techniques.map(t => `<a href="${attackUrl(t)}" rel="noopener" title="${esc(techLabel(t))}">${esc(t)}</a> <span class="muted small">${esc(TECH_NAME[t] || TECH_NAME[t.split(".")[0]] || "")}</span>`).join(" · ") : esc(x.initial_access_attack_id)], ["VERIS action", esc(x.veris_action)],
     ["impact", `${esc(x.impact_type)}${x.ransomware === true ? " · ransomware" : x.ransomware === false ? " · no ransomware" : ""}`],
     ["data types", esc((x.data_types || []).join(", ")) || null],

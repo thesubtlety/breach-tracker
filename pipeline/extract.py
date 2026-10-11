@@ -27,6 +27,7 @@ import time
 import requests
 
 from actors import default_actor, default_third_party, enrich_actor
+from orgs import vendor_names
 from common import PROMPT_PATH, PROMPT_VERSION, load_schema
 
 log = logging.getLogger("extract")
@@ -287,6 +288,9 @@ def post_check(inc: dict, text: str) -> dict:
         actor["name"] = None
     inc["actor"] = enrich_actor(actor)
     inc["third_party"] = dict(default_third_party(), **(inc.get("third_party") or {}))
+    if inc["third_party"].get("vendor") and not vendor_names(inc["third_party"]["vendor"]):
+        notes.append(f"vendor {inc['third_party']['vendor']!r} is a description, not a name; cleared")
+        inc["third_party"]["vendor"] = None
     if inc.get("initial_access") != "stolen_or_valid_credentials":
         inc["credential_source"] = None
     inc.setdefault("control_failure", "unknown")

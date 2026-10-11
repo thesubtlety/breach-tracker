@@ -431,12 +431,44 @@ def test_cpe_product_reads_first_cpe():
     assert cpe_product({}) == (None, None)
 
 
+def test_vendor_names_split_lists_and_drop_descriptions():
+    from orgs import vendor_names
+    assert vendor_names("Snowflake, Mixpanel, and Salesforce") == ["Snowflake", "Mixpanel", "Salesforce"]
+    assert vendor_names("Citrix and Fortra") == ["Citrix", "Fortra"]
+    assert vendor_names("Google, Meta, TikTok, and other third parties") == ["Google", "Meta", "TikTok"]
+    assert vendor_names("DanubeNet, Inc. aka Driving School Solutions") == ["DanubeNet, Inc"]
+    assert vendor_names("Invisalign (AlignTech)") == ["Invisalign"]
+    assert vendor_names("Evolve Bank & Trust") == ["Evolve Bank & Trust"]
+    for junk in ("third-party contractor", "customer support provider", "new janitorial service", "Meta contractor", None, ""):
+        assert vendor_names(junk) == [], junk
+
+
+def test_vendor_id_joins_products_and_spellings_to_the_company():
+    from orgs import org_id, vendor_id
+    assert vendor_id("MOVEit") == vendor_id("Progress Software Corporation") == vendor_id("Progress") == org_id("Progress Software")
+    assert vendor_id("GoAnywhere") == vendor_id("Fortra, LLC")
+    assert vendor_id("PBI") == vendor_id("Pension Benefits Information, LLC") == vendor_id("PBI Research Services")
+    assert vendor_id("Snowflake") != vendor_id("Salesforce")
+
+
+def test_post_check_clears_vendor_descriptions(monkeypatch):
+    import extract
+    inc = {"org_name": "X", "disclosed_date": "2026-01-01", "initial_access": "unknown", "summary": "s", "cve": [],
+           "third_party": {"involved": True, "archetype": "vendor_hosted_data", "vendor": "a third-party contractor"}}
+    out = extract.post_check(inc, "text of the source") if hasattr(extract, "post_check") else None
+    assert out is not None, "post_check entry point moved"
+    assert out["third_party"]["vendor"] is None and any("description" in n for n in (out.get("notes") or "").split(";"))
+
+
 def test_vendor_registry_shares_org_ids():
     from orgs import org_id, vendor_registry
     mk = lambda org, vendor, d: {"id": org + d, "org_name": org, "org_id": org_id(org), "disclosed_date": d, "org_type": "healthcare",
                                  "third_party": {"involved": True, "vendor": vendor, "archetype": "service_provider"}, "sources": []}
-    out = vendor_registry([mk("Hospital A", "AMCA", "2019-06-01"), mk("Hospital B", "AMCA Inc.", "2019-06-03"), mk("AMCA", None, "2019-06-05")])
-    assert len(out) == 1 and out[0]["incidents"] == 2 and out[0]["is_org"] is True and out[0]["id"] == org_id("AMCA")
+    out = vendor_registry([mk("Hospital A", "AMCA", "2019-06-01"), mk("Hospital B", "AMCA Inc.", "2019-06-03"), mk("AMCA", None, "2019-06-05"),
+                           mk("Hospital C", "AMCA and MOVEit", "2023-06-05"), mk("Hospital D", "third-party vendor", "2023-06-06")])
+    by = {o["name"]: o for o in out}
+    assert set(by) == {"AMCA", "MOVEit"} and by["AMCA"]["incidents"] == 3 and by["AMCA"]["is_org"] is True and by["AMCA"]["id"] == org_id("AMCA")
+    assert by["MOVEit"]["id"] == org_id("Progress Software")
 
 
 def test_claim_stats_counts_pending_and_confirmed():
