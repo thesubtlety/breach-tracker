@@ -62,6 +62,9 @@ KEY_ENV = {
 PIPELINE_FIELDS = {"id", "sources", "extracted_by", "reviewed", "notes"}
 
 usage_totals = {"input": 0, "output": 0, "calls": 0}
+# What the model is asked to return; the incident extraction is the default task.
+INCIDENT_TASK = {"name": "record_incident", "description": "Record the extracted incident or skip.",
+                 "instruction": "Return a JSON object with keys skip, reason, incident matching this JSON Schema:"}
 
 
 def _load_prompt() -> tuple[str, str]:
@@ -108,7 +111,7 @@ def _user_message(c: dict, text: str) -> str:
 # ---------------------------------------------------------------------------
 # Provider calls
 # ---------------------------------------------------------------------------
-def _call_anthropic(system: str, user: str, schema: dict, model: str) -> dict:
+def _call_anthropic(system: str, user: str, schema: dict, model: str, task: dict = INCIDENT_TASK) -> dict:
     r = requests.post(
         "https://api.anthropic.com/v1/messages",
         headers={
@@ -121,10 +124,8 @@ def _call_anthropic(system: str, user: str, schema: dict, model: str) -> dict:
             "max_tokens": 1200,
             # Cache the fixed system prompt; it's identical across every call in a run.
             "system": [{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
-            "tools": [{"name": "record_incident",
-                       "description": "Record the extracted incident or skip.",
-                       "input_schema": schema}],
-            "tool_choice": {"type": "tool", "name": "record_incident"},
+            "tools": [{"name": task["name"], "description": task["description"], "input_schema": schema}],
+            "tool_choice": {"type": "tool", "name": task["name"]},
             "messages": [{"role": "user", "content": user}],
         },
         timeout=120,
@@ -141,13 +142,13 @@ def _call_anthropic(system: str, user: str, schema: dict, model: str) -> dict:
     raise ValueError("no tool_use block in response")
 
 
-def _call_openai_compat(system: str, user: str, schema: dict, provider: str, model: str) -> dict:
+def _call_openai_compat(system: str, user: str, schema: dict, provider: str, model: str,
+                        task: dict = INCIDENT_TASK) -> dict:
     base = os.environ.get("LLM_BASE_URL", BASE_URLS[provider])
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": system + "\n\nReturn a JSON object with keys skip, reason, incident "
-                                                   "matching this JSON Schema:\n" + json.dumps(schema)},
+            {"role": "system", "content": system + "\n\n" + task["instruction"] + "\n" + json.dumps(schema)},
             {"role": "user", "content": user},
         ],
     }
@@ -155,7 +156,7 @@ def _call_openai_compat(system: str, user: str, schema: dict, provider: str, mod
         payload["temperature"] = float(os.environ["LLM_TEMPERATURE"])
     if os.environ.get("LLM_JSON_SCHEMA_MODE") == "1":
         payload["response_format"] = {"type": "json_schema",
-                                      "json_schema": {"name": "incident_wrapper", "schema": schema}}
+                                      "json_schema": {"name": task["name"], "schema": schema}}
     else:
         payload["response_format"] = {"type": "json_object"}
     r = requests.post(f"{base}/chat/completions",
@@ -173,7 +174,7 @@ def _call_openai_compat(system: str, user: str, schema: dict, provider: str, mod
 
 
 def call_llm(system: str, user: str, schema: dict, provider: str | None = None,
-             model: str | None = None) -> dict:
+             model: str | None = None, task: dict = INCIDENT_TASK) -> dict:
     """Provider/model default to the env-configured ones; the eval harness passes
     them explicitly so one process can score several models."""
     provider, model = provider or PROVIDER, model or MODEL
@@ -181,8 +182,8 @@ def call_llm(system: str, user: str, schema: dict, provider: str | None = None,
     for attempt in range(3):
         try:
             if provider == "anthropic":
-                return _call_anthropic(system, user, schema, model)
-            return _call_openai_compat(system, user, schema, provider, model)
+                return _call_anthropic(system, user, schema, model, task)
+            return _call_openai_compat(system, user, schema, provider, model, task)
         except (requests.HTTPError, requests.ConnectionError, json.JSONDecodeError, ValueError) as e:
             resp = getattr(e, "response", None)
             if resp is not None and 400 <= resp.status_code < 500 and resp.status_code != 429:

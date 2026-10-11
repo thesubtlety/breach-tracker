@@ -167,6 +167,8 @@ claim_stats.py    -> per-group leak-site claim aggregates (manual; claims stay p
 letters.py        -> California notices: read the notification letter PDF (two sections),
                      extract, merge; outcome kept on the record so each letter is read once
 orgs.py           -> org_id per record (name hash + data/org_aliases.json); site/orgs.json
+vendor_aliases.py -> data/vendor_aliases.json: the company behind each new third-party name
+                     (one model call for the unseen names; none when there are none)
 verify_sources    -> data/source_health.json (zero-twice canary, link rot, quote re-check)
 build_site        -> site/index.html + incidents.json + recent.json + orgs.json + feed.xml + csv
 ```

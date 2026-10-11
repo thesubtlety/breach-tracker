@@ -20,7 +20,9 @@ Additive. `pipeline/migrate.py` restamps the store.
 - Vendor names normalized (2026-10-11): `orgs.vendor_names` splits lists ("Citrix and Fortra"),
   cuts "aka" tails and parentheticals, and drops descriptions ("third-party contractor");
   `data/vendor_aliases.json` maps products and short names to the company (MOVEit ->
-  Progress Software). Site rows carry `derived.vendors` [{id, name}] instead of `vendor_id`.
+  Progress Software); `pipeline/vendor_aliases.py` generates it, asking the model only
+  about names it has not seen, and the daily run commits it. Site rows carry
+  `derived.vendors` [{id, name}] instead of `vendor_id`.
   The extractor clears a vendor that is only a description. Stored strings are unchanged.
 - Vendors as entities: `orgs.vendor_registry` keys third parties like organizations, so a
   vendor that is also a victim shares its id. `#vendor=` view, `site/vendors.json`, and an

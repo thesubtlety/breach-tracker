@@ -460,6 +460,23 @@ def test_post_check_clears_vendor_descriptions(monkeypatch):
     assert out["third_party"]["vendor"] is None and any("description" in n for n in (out.get("notes") or "").split(";"))
 
 
+def test_vendor_alias_generator_sends_only_unseen_names_and_fails_closed():
+    import vendor_aliases as va
+    rows = [{"third_party": {"involved": True, "vendor": v}} for v in ("MOVEit", "Progress Software Corp.", "Cencora", "Cencora", "Nobody Inc")]
+    assert va.unresolved(rows, {"cencora": "cencora"}) == ["MOVEit", "Nobody Inc", "Progress Software Corp"]
+    calls = []
+
+    def fake(system, user, schema, task=None):
+        calls.append(json.loads(user)["names"])
+        return {"vendors": [{"name": "MOVEit", "company": "Progress Software", "sure": True},
+                            {"name": "Nobody Inc", "company": "Somebody", "sure": False},
+                            {"name": "Progress Software Corp", "company": "a vendor", "sure": True},
+                            {"name": "Not Asked", "company": "Mallory", "sure": True}]}
+    out = va.resolve(["MOVEit", "Nobody Inc", "Progress Software Corp"], {"cencora": "cencora"}, call=fake)
+    assert calls == [["MOVEit", "Nobody Inc", "Progress Software Corp"]]
+    assert out == {"moveit": "progress software", "nobody": "nobody", "progress software": "progress software"}
+
+
 def test_vendor_registry_shares_org_ids():
     from orgs import org_id, vendor_registry
     mk = lambda org, vendor, d: {"id": org + d, "org_name": org, "org_id": org_id(org), "disclosed_date": d, "org_type": "healthcare",
