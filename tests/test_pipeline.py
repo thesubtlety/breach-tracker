@@ -1,6 +1,7 @@
 """Correctness tests for the parts that silently produce bad data if they regress.
 Run: .venv/bin/python -m pytest -q"""
 import json
+from datetime import date
 import sys
 from pathlib import Path
 
@@ -314,6 +315,21 @@ def test_feed_lists_new_and_updated_but_not_imported():
     titles = [e.find("a:title", ns).text for e in entries]
     assert [t.split(":")[0] for t in titles] == ["Beta LLC", "Acme Inc"]
     assert [e.find("a:category", ns).get("term") for e in entries] == ["updated", "new"]
+
+
+def test_texas_rows_become_state_ag_candidates():
+    from sources import texas_candidates
+    rows = [{"Name": "BR-0005405", "Business_Name__c": "JM Bozeman Enterprises, including affiliates", "Type_of_Entity__c": "Healthcare \u2013 Medical Provider",
+             "Published_at_AG_website_Date__c": 1791763200000, "Breach_Discovered_Date__c": 1783296000000, "Start_Breach_Date__c": None,
+             "Types_of_Personal_Information_Involved__c": "Name of individual;Social Security Number Information;Medical Information",
+             "Number_of_Texans_affected_by_the_breach__c": 602, "Total_Number_of_Individuals_Affected__c": 3211, "State_withTer__c": "Arkansas"},
+            {"Name": "BR-0000001", "Business_Name__c": "Old Co", "Published_at_AG_website_Date__c": 1700000000000}]
+    out = texas_candidates(rows, date(2026, 1, 1))
+    assert [c["org_name"] for c in out] == ["JM Bozeman Enterprises"]
+    assert out[0]["disclosed_date"] == "2026-10-12" and out[0]["source_url"].endswith("#BR-0005405")
+    rec = deterministic_record(dict(out[0], all_sources=[{"url": out[0]["source_url"], "type": "state_ag", "title": None}]), "2026-10-12")
+    assert rec["org_type"] == "healthcare" and rec["records_affected"] == 3211
+    assert rec["discovered_date"] == "2026-07-06" and rec["data_types"] == ["medical", "personal"]
 
 
 def test_california_list_rows_become_state_ag_candidates():

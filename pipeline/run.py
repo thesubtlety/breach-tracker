@@ -114,7 +114,8 @@ def deterministic_record(c: dict, run_date: str) -> dict | None:
             if k.lower() in (h.get("breach_description") or "").lower():
                 ia, veris = v
                 break
-        org_type = MAINE_ORG_TYPE.get(h.get("org_type_raw") or "", "unknown")
+        from sources import TX_ORG_TYPE
+        org_type = {**MAINE_ORG_TYPE, **TX_ORG_TYPE}.get(h.get("org_type_raw") or "", "unknown")
         records = _int(h.get("persons_affected"))
         tech = []
         acquired = (h.get("information_acquired") or "").lower()

@@ -22,9 +22,10 @@ import csv
 import io
 import logging
 import os
+import json
 import re
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -284,6 +285,73 @@ def parse_maine_notice(html: str, url: str) -> dict | None:
         "evidence_level_hint": "regulator_filing",
         "org_country": "US",
     }
+
+
+# ---------------------------------------------------------------------------
+# 3a. Texas AG (oag.my.site.com, a Salesforce site). The page loads its rows with one
+#     Visualforce remoting call that returns about 18 months of filings. Reachable
+#     from outside the US (checked October 2026). No letters, no per-row page.
+TX_PAGE = "https://oag.my.site.com/datasecuritybreachreport/apex/DataSecurityReportsPage"
+TX_REMOTE = "https://oag.my.site.com/datasecuritybreachreport/apexremote"
+TX_ORG_TYPE = {
+    "Healthcare": "healthcare", "Financial Services": "financial", "Insurance Services": "financial",
+    "Educational Institution": "education", "Governmental Entity": "government",
+    "Business": "retail_ecommerce", "Nonprofit Organization": "nonprofit", "Other": "other",
+}
+
+
+def _epoch_day(ms) -> str | None:
+    return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).date().isoformat() if ms else None
+
+
+def texas_candidates(rows: list[dict], since: date | None = None) -> list[dict]:
+    out = []
+    for r in rows:
+        name = short_org(r.get("Business_Name__c") or "")
+        published = _epoch_day(r.get("Published_at_AG_website_Date__c"))
+        if not name or not published or (since and published < since.isoformat()):
+            continue
+        kind = (r.get("Type_of_Entity__c") or "").split("\u2013")[0].split("-")[0].strip()
+        out.append({
+            "org_name": name, "disclosed_date": published, "source_type": "state_ag",
+            "source_url": f"{TX_PAGE}#{r.get('Name')}",
+            "title": "Texas AG data security breach report", "text": None,
+            "structured_hint": {
+                "org_type_raw": kind,
+                "persons_affected": r.get("Total_Number_of_Individuals_Affected__c") or r.get("Number_of_Texans_affected_by_the_breach__c"),
+                "date_occurred": _epoch_day(r.get("Start_Breach_Date__c")),
+                "date_discovered": _epoch_day(r.get("Breach_Discovered_Date__c")),
+                "information_acquired": r.get("Types_of_Personal_Information_Involved__c"),
+                "state": r.get("State_withTer__c"),
+            },
+            "evidence_level_hint": "regulator_filing", "org_country": "US",
+        })
+    return out
+
+
+def texas_ag(since: date) -> list[dict]:
+    """Fetch the page for its one-time remoting tokens, then call the data method."""
+    page = _get(TX_PAGE, headers={"User-Agent": BROWSER_UA})
+    m = re.search(r"RemotingProviderImpl\((\{)", page.text) if page else None
+    if not m:
+        log.warning("texas_ag: page unavailable or changed (status %s)", page.status_code if page else None)
+        return []
+    cfg = json.JSONDecoder().raw_decode(page.text[m.start(1):])[0]
+    method = cfg["actions"]["DataSecurityReports"]["ms"][0]
+    body = {"action": "DataSecurityReports", "method": "getDatareports", "data": [True], "type": "rpc", "tid": 2,
+            "ctx": {"csrf": method["csrf"], "vid": cfg["vf"]["vid"], "ns": "", "ver": method["ver"],
+                    "authorization": method["authorization"]}}
+    try:
+        r = requests.post(TX_REMOTE, json=body, timeout=120,
+                          headers={"User-Agent": BROWSER_UA, "Referer": TX_PAGE})
+        r.raise_for_status()
+        rows = r.json()[0]["result"]
+    except Exception as e:  # noqa: BLE001
+        log.warning("texas_ag: remoting call failed: %s", e)
+        return []
+    out = texas_candidates(rows, since)
+    log.info("texas_ag: %d candidates of %d rows", len(out), len(rows))
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -554,6 +622,7 @@ ALL_SOURCES = {
     "hhs": lambda since, until: hhs(since - timedelta(days=45)),
     "maine_ag": lambda since, until: maine_ag(since),
     "california_ag": lambda since, until: california_ag(since),
+    "texas_ag": lambda since, until: texas_ag(since),
     "hibp": lambda since, until: hibp(since),
     "ransomware_live": lambda since, until: ransomware_live(since),
     "rss": lambda since, until: rss(since),

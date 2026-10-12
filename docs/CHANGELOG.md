@@ -9,6 +9,8 @@ Every entry that changes how a field is populated gets a `schema_version` bump.
 
 Additive. `pipeline/migrate.py` restamps the store.
 
+- Texas AG added as a source (`texas_ag`): the portal is reachable from here after all. Deterministic records with entity type, counts, data types and dates; backfilled the portal's ~18-month window.
+- App shows a thin progress bar while records load.
 - `attack_techniques`: every ATT&CK technique the text states (prompt v4, rule 6h), kept
   only when the text carries the behaviour's words (`extract.TECHNIQUE_TRIGGERS`); the
   initial-access id and ransomware encryption (T1486) are added from the record's own
