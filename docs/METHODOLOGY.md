@@ -49,4 +49,4 @@ US healthcare and the states with public breach lists are over-represented; most
 
 ## The daily run checks its own sources
 
-`data/source_health.json` records candidate counts per source, link rot on a sample, and whether sampled quotes are still present in their sources. Accepted risks are in `docs/RISKS.md`.
+`data/source_health.json` records candidate counts per source, link rot on a sample, and whether sampled quotes are still present in their sources. Known limitations are in `docs/RISKS.md`.

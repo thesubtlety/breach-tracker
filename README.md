@@ -99,8 +99,7 @@ the public logs), the LLM key, `RANSOMWARE_LIVE_API_KEY` and optionally
 - Imported records have no disclosure date of their own, so time series on the site
   exclude them.
 
-`docs/RISKS.md` lists known risks and their status. Corrections are welcome as issues
-with the record id.
+Corrections are welcome as issues with the record id.
 
 ## License
 

@@ -8,7 +8,7 @@ conservatively: where VERIS says "Unknown" we say "unknown". Nothing is re-extra
     python pipeline/import_vcdb.py --file vcdb_1-of-1.json --since-year 2022
 
 Share-alike: a public dataset that includes these records must be published under a
-compatible license. See docs/RISKS.md Y8.
+compatible license. See LICENSE.
 """
 from __future__ import annotations
 
