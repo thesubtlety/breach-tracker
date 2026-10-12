@@ -11,6 +11,7 @@ Additive. `pipeline/migrate.py` restamps the store.
 
 - Texas AG added as a source (`texas_ag`): the portal is reachable from here after all. Deterministic records with entity type, counts, data types and dates; backfilled the portal's ~18-month window.
 - App shows a thin progress bar while records load.
+- App: table paginated at 100 rows, filters condensed, organization names link to their pages, active selection shown on the count line with a clear link, wide tables span the chart grid, prose shortened. Workflow passes secrets only to the steps that use them, and source verification no longer blocks the deploy. Maine's public database is offline (see RISKS S12).
 - `attack_techniques`: every ATT&CK technique the text states (prompt v4, rule 6h), kept
   only when the text carries the behaviour's words (`extract.TECHNIQUE_TRIGGERS`); the
   initial-access id and ransomware encryption (T1486) are added from the record's own

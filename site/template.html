@@ -30,8 +30,9 @@
   .stats { display:flex; gap:12px; flex-wrap:wrap; margin:12px 0 16px; }
   .stat { border:1px solid var(--line); border-radius:6px; padding:8px 12px; min-width:130px; }
   .stat b { display:block; font-size:20px; font-weight:600; } .stat span { font-size:13px; color:var(--muted); }
-  .charts { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px; margin-bottom:8px; }
-  .chart { border:1px solid var(--line); border-radius:6px; padding:10px 12px; }
+  .charts { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px; margin-bottom:8px; align-items:start; }
+  .chart { border:1px solid var(--line); border-radius:6px; padding:10px 12px; min-width:0; overflow-x:auto; }
+  @media (min-width: 700px) { .chart.wide { grid-column:span 2; } .chart.full { grid-column:1 / -1; } }
   .chart h3 { font-size:14px; margin:0 0 6px; font-weight:600; }
   .chart .note { font-size:12px; color:var(--muted); margin-bottom:6px; }
   .bars { display:grid; grid-template-columns:minmax(120px, 42%) 1fr auto; gap:3px 8px; align-items:center; font-size:13px; }
@@ -42,11 +43,13 @@
   .mini { width:100%; border-collapse:collapse; font-size:13px; } .mini th, .mini td { padding:3px 6px; border-bottom:1px solid var(--line); text-align:right; }
   .mini th:first-child, .mini td:first-child { text-align:left; } .mini th { font-weight:600; position:static; }
   .neg { color:var(--warn); } .pos { color:var(--ok); }
-  .filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0; }
-  .filters label { font-size:13px; color:var(--muted); display:flex; gap:4px; align-items:center; }
-  select, input[type=search] { padding:6px 8px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); font:inherit; font-size:14px; }
-  input[type=search] { min-width:200px; }
-  button { padding:6px 10px; border:1px solid var(--line); border-radius:4px; background:var(--soft); color:var(--fg); font:inherit; font-size:13px; cursor:pointer; }
+  .filters { display:flex; gap:5px; flex-wrap:wrap; align-items:center; margin:8px 0; }
+  .filters label { font-size:12px; color:var(--muted); display:flex; gap:3px; align-items:center; white-space:nowrap; }
+  select, input[type=search] { padding:3px 5px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); font:inherit; font-size:12px; max-width:150px; }
+  input[type=search] { min-width:220px; max-width:none; }
+  button { padding:3px 8px; border:1px solid var(--line); border-radius:4px; background:var(--soft); color:var(--fg); font:inherit; font-size:12px; cursor:pointer; }
+  .pager { display:flex; gap:6px; flex-wrap:wrap; align-items:center; font-size:13px; color:var(--muted); margin:10px 0; }
+  .pager a { padding:2px 7px; border:1px solid var(--line); border-radius:4px; text-decoration:none; } .pager a.cur { background:var(--soft); color:var(--fg); font-weight:600; }
   .count { font-size:13px; color:var(--muted); margin:4px 0 8px; }
   #loading { position:fixed; top:0; left:0; width:100%; height:2px; z-index:10; background:linear-gradient(90deg, transparent, var(--bar), transparent) 0 0/40% 100% no-repeat; animation:sweep 1.4s linear infinite; }
   @keyframes sweep { from { background-position:-40% 0; } to { background-position:140% 0; } }
@@ -77,8 +80,7 @@
 <body>
 <div id="loading" role="progressbar" aria-label="loading records"></div>
 <h1>Breach Vectors</h1>
-<p class="lead">How organizations actually get breached, counted only from what a public source said. This is a sample that grows weekly, not a census: the coverage line below says what each part of it spans. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="feed.xml" title="Atom feed of records new or changed in the last 30 days; any feed reader or a free feed-to-email service will deliver it">feed</a> · <a href="#about" id="about-link">about the data</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
-<div class="fresh" id="fresh"></div>
+<p class="lead">Public reports of data breaches, classified by how the attacker got in. Each record names its source and quotes it. Regulator filings say who and how many; SEC filings, news and notification letters sometimes say how. Most sources say nothing about the mechanism, so “unknown” is the most common value. <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="feed.xml" title="Atom feed of records new or changed in the last 30 days; any feed reader or a free feed-to-email service will deliver it">feed</a> · <a href="#about" id="about-link">about the data</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
 <div class="stats" id="stats"></div>
 <div class="week" id="week" hidden></div>
 
@@ -87,39 +89,39 @@
 <div class="week" id="cveview" hidden></div>
 <div class="charts">
   <div class="chart"><h3>Initial access, where stated</h3><div class="note" id="ia-note"></div><div class="bars" id="ia-bars"></div></div>
-  <div class="chart"><h3>Who said so</h3><div class="note">Evidence level of the strongest source on each record in the current view.</div><div class="bars" id="ev-bars"></div></div>
-  <div class="chart"><h3>Why it worked, where stated</h3><div class="note" id="cf-note"></div><div class="bars" id="cf-bars"></div></div>
-  <div class="chart"><h3>Who, where stated</h3><div class="note" id="ac-note"></div><div class="bars" id="ac-bars"></div></div>
+  <div class="chart"><h3>Evidence level</h3><div class="note">Strongest source on each record in view.</div><div class="bars" id="ev-bars"></div></div>
+  <div class="chart"><h3>Control failure, where stated</h3><div class="note" id="cf-note"></div><div class="bars" id="cf-bars"></div></div>
+  <div class="chart"><h3>Actor, where stated</h3><div class="note" id="ac-note"></div><div class="bars" id="ac-bars"></div></div>
   <div class="chart"><h3>Sector</h3><div class="note">Records in the current view by organization type.</div><div class="bars" id="ot-bars"></div></div>
   <div class="chart"><h3>Incident to disclosure</h3><div class="note" id="lag-note"></div><div class="bars" id="lag-bars"></div></div>
   <div class="chart"><h3>Third parties behind incidents</h3><div class="note" id="tp-note"></div><div class="bars" id="tp-bars"></div></div>
-  <div class="chart"><h3>Share price after an 8-K</h3><div class="note" id="px-note"></div><div id="px"></div></div>
-  <div class="chart"><h3>Known-exploited CVEs</h3><div class="note" id="kev-note"></div><div id="kev"></div></div>
+  <div class="chart wide"><h3>Share price after an 8-K</h3><div class="note" id="px-note"></div><div id="px"></div></div>
+  <div class="chart full"><h3>Known-exploited CVEs</h3><div class="note" id="kev-note"></div><div id="kev"></div></div>
   <div class="chart"><h3>Repeat organizations</h3><div class="note" id="orgs-note"></div><div id="orgs"></div></div>
   <div class="chart"><h3>Techniques, where stated</h3><div class="note" id="tech-note"></div><div class="bars" id="tech-bars"></div></div>
   <div class="chart"><h3>Technology named</h3><div class="note" id="tn-note"></div><div class="bars" id="tn-bars"></div></div>
-  <div class="chart"><h3>Dwell and time to notify</h3><div class="note" id="dw-note"></div><div id="dw"></div></div>
-  <div class="chart"><h3>Ransomware claims vs confirmations</h3><div class="note" id="cl-note"></div><div id="cl"></div></div>
+  <div class="chart wide"><h3>Dwell and time to notify</h3><div class="note" id="dw-note"></div><div id="dw"></div></div>
+  <div class="chart full"><h3>Ransomware claims vs confirmations</h3><div class="note" id="cl-note"></div><div id="cl"></div></div>
 </div>
 
 <div class="filters" role="search">
   <input id="q" type="search" placeholder="search organization, technology, actor, summary, quote" aria-label="Search">
-  <label>period <select id="period"><option value="">all</option><option value="30">last 30 days</option><option value="90">last 90 days</option><option value="365">last year</option></select></label>
-  <label>origin <select id="origin"><option value="">any</option><option value="regulator">regulator</option><option value="extracted">extracted</option><option value="imported">imported</option></select></label>
-  <label>initial access <select id="ia"><option value="">any</option></select></label>
-  <label>evidence <select id="ev"><option value="">any</option></select></label>
-  <label>sector <select id="ot"><option value="">any</option></select></label>
-  <label>country <select id="cc"><option value="">any</option></select></label>
-  <label>control failure <select id="cf"><option value="">any</option></select></label>
-  <label>actor <select id="ac"><option value="">any</option></select></label>
-  <label>technique <select id="tech"><option value="">any</option></select></label>
-  <label><input type="checkbox" id="known"> stated mechanism only</label>
-  <label><input type="checkbox" id="qq" title="Match the search only against the verbatim quote that supports each record's mechanism"> search quotes only</label>
-  <label><input type="checkbox" id="tp"> third party involved</label>
+  <select id="period" aria-label="period"><option value="">any period</option><option value="30">last 30 days</option><option value="90">last 90 days</option><option value="365">last year</option></select>
+  <select id="origin" aria-label="origin"><option value="">any origin</option><option value="regulator">regulator</option><option value="extracted">extracted</option><option value="imported">imported</option></select>
+  <select id="ia" aria-label="initial access"><option value="">any initial access</option></select>
+  <select id="ev" aria-label="evidence"><option value="">any evidence</option></select>
+  <select id="ot" aria-label="sector"><option value="">any sector</option></select>
+  <select id="cc" aria-label="country"><option value="">any country</option></select>
+  <select id="cf" aria-label="control failure"><option value="">any control failure</option></select>
+  <select id="ac" aria-label="actor"><option value="">any actor</option></select>
+  <select id="tech" aria-label="technique"><option value="">any technique</option></select>
+  <label><input type="checkbox" id="known"> stated mechanism</label>
+  <label><input type="checkbox" id="qq" title="Match the search only against the verbatim quote that supports each record's mechanism"> quotes only</label>
+  <label><input type="checkbox" id="tp"> third party</label>
   <label><input type="checkbox" id="rw"> ransomware</label>
-  <label><input type="checkbox" id="wk" title="First recorded, or changed by a later source, in the 7 days before this build. Imported dataset rows excluded."> new or updated this week</label>
+  <label><input type="checkbox" id="wk" title="First recorded, or changed by a later source, in the 7 days before this build. Imported dataset rows excluded."> this week</label>
   <button id="reset" type="button">reset</button>
-  <button id="dl" type="button" title="CSV of the rows currently shown">download view as CSV</button>
+  <button id="dl" type="button" title="CSV of the rows currently shown">CSV</button>
 </div>
 <div class="week" id="entities" hidden></div>
 <div class="count" id="count">loading records…</div>
@@ -136,24 +138,26 @@
   </tr></thead>
   <tbody></tbody>
 </table></div>
+<div class="pager" id="pager"></div>
 
 <details class="gloss" id="about"><summary>About the data: how records are made, and how much to trust them</summary>
-<p><strong>Three kinds of record.</strong> <em>Regulator</em> rows come from HHS, state attorney-general lists and the HIBP catalogue by fixed mapping, no model involved: they say who, when and how many, and almost never how. <em>Extracted</em> rows come from an 8-K, a news article, a notification letter or a catalogue description read by a language model<span id="about-model"></span> that fills a fixed schema. <em>Imported</em> rows come from VCDB, re-coded from its VERIS fields. Every row shows its origin tag and its sources.</p>
-<p><strong>What the model may and may not do.</strong> It may set a mechanism only with a verbatim quote, and the pipeline checks the quote is in the text; a quote that is not found drops the confidence, a mechanism without one is reset to unknown. A count is kept only if the figure appears in the text. A CVE, an actor name or an ATT&amp;CK technique is kept only if the text carries it. Leak-site claims never become records on their own; they wait privately until a filing or article confirms the incident. "unknown" is the default and the most common value, because most sources say nothing about how.</p>
-<p><strong>How good is the model.</strong> A 20-document eval with human-checked labels (October 2026; small, so read the gaps, not the decimals):</p>
+<div class="fresh" id="fresh"></div>
+<p><strong>Three kinds of record.</strong> <em>Regulator</em> rows come from HHS, state attorney general lists and the HIBP catalogue through a fixed mapping, with no model involved. They give who, when and how many, and rarely how. <em>Extracted</em> rows come from an 8-K, a news article, a notification letter or a catalogue description that a language model<span id="about-model"></span> reads into a fixed schema. <em>Imported</em> rows come from VCDB, recoded from its VERIS fields. Every row shows its origin and its sources.</p>
+<p><strong>Limits on the model.</strong> It may set a mechanism only with a verbatim quote, and the pipeline checks that the quote appears in the text. A quote that is not found lowers the confidence. A mechanism without a quote is reset to unknown. A count, CVE, actor name or ATT&amp;CK technique is kept only if the text contains it. Leak-site claims never become records on their own; they wait until a filing or article confirms the incident.</p>
+<p><strong>Model accuracy.</strong> A 20-document eval with human-checked labels, October 2026. The set is small, so read the gaps rather than the decimals.</p>
 <table class="mini"><tr><th>model</th><th>initial access</th><th>sector</th><th>evidence level</th><th>count</th><th>quote found in text</th><th>skips right</th></tr>
 <tr><td>gpt-6-luna (used)</td><td>95%</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td><td>93%</td></tr>
 <tr><td>gpt-5.4-mini</td><td>90%</td><td>95%</td><td>95%</td><td>95%</td><td>75%</td><td>90%</td></tr>
 <tr><td>gpt-5.4-nano</td><td>75%</td><td>85%</td><td>80%</td><td>95%</td><td>100%</td><td>82%</td></tr></table>
-<p>The model's own "unknown" rate on that set was 33% against 15% for the human labels: it is more cautious than a person, which is the direction we want. On eight California notification letters, gpt-5.4-mini needed repair rounds on five and named a forensic firm as the breached vendor; gpt-6-luna needed none and agreed with it on every date. Full tables and the labelled documents are in the repository under <code>eval/</code>.</p>
-<p><strong>Known gaps.</strong> Coverage follows the sources, so US healthcare and California filers are over-represented and most of the world is missing. Regulator rows carry no mechanism until their letter is read. Organization identity is a name match plus a short alias list, so a subsidiary can appear separately from its parent. Share-price and KEV context is computed at build time from public APIs and is context, not causation. Records are unreviewed unless marked; corrections are logged in <code>docs/CHANGELOG.md</code> and anyone can open an issue.</p>
+<p>The model answered "unknown" on 33% of that set against 15% for the human labels, so it is more cautious than a person. On eight California notification letters, gpt-5.4-mini needed repair rounds on five and named a forensic firm as the breached vendor; gpt-6-luna needed none and matched it on every date. The full tables and the labelled documents are in the repository under <code>eval/</code>.</p>
+<p><strong>Known gaps.</strong> Coverage follows the sources, so US healthcare and filers in California, Texas and Maine are over-represented and most of the world is missing. Regulator rows carry no mechanism until their letter is read. Organization identity is a name match plus a short alias list, so a subsidiary can appear separately from its parent. Share-price and KEV context is computed at build time from public APIs; it is context, not causation. Records are unreviewed unless marked. Corrections are logged in <code>docs/CHANGELOG.md</code>, and anyone can open an issue.</p>
 </details>
 <details class="gloss" id="gloss"><summary>Glossary: what the values mean</summary></details>
 
 <footer>
-  <p>Sources: SEC EDGAR full-text search, the HHS OCR breach portal, Maine and California Attorney General breach reports, the <a href="https://haveibeenpwned.com/">Have I Been Pwned</a> breach list, security news feeds, Mastodon #databreach, the VERIS Community Database (CC BY-SA 4.0), and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Context joined at build time: CISA's Known Exploited Vulnerabilities catalog (via NVD) and daily closing prices from Nasdaq's data API, with Alpha Vantage for older filings. Claims are shown only as a tag on records that another source confirmed; a claim on its own is never published here.</p>
-  <p>Records marked <span class="unrev">unreviewed</span> were produced by a fixed mapping or a language model and have not been checked by a person. Every stated mechanism carries a verbatim quote from its source; if the quote is not in the source, confidence is low. The data cannot tell a second breach at the same organization from late coverage of the first; two records with one name may be either.</p>
-  <p>Want an API, alerts, or a bulk export? <a href="https://github.com/thesubtlety/breach-tracker/issues/new?template=api-interest.yml">Say what you would use it for</a>; what gets built next follows the replies.</p>
+  <p>Sources: SEC EDGAR full-text search, the HHS OCR breach portal, the California, Texas and Maine Attorney General breach lists, the <a href="https://haveibeenpwned.com/">Have I Been Pwned</a> breach list, security news feeds, Mastodon #databreach, the VERIS Community Database (CC BY-SA 4.0), and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Context joined at build time: CISA's Known Exploited Vulnerabilities catalog (via NVD) and daily closing prices from Nasdaq's data API, with Alpha Vantage for older filings. Claims are shown only as a tag on records that another source confirmed; a claim on its own is never published here.</p>
+  <p>Records marked <span class="unrev">unreviewed</span> were produced by a fixed mapping or a language model and have not been checked by a person. Every stated mechanism carries a verbatim quote from its source. If the quote is not in the source, confidence is low. The data cannot tell a second breach at the same organization from late coverage of the first, so two records with one name may be either.</p>
+  <p>Want an API, alerts or a bulk export? <a href="https://github.com/thesubtlety/breach-tracker/issues/new?template=api-interest.yml">Open an issue saying what you would use it for</a>.</p>
   <p>Dataset: CC BY-SA 4.0. Corrections: open an issue with the record id. <a href="https://github.com/thesubtlety/breach-tracker/blob/master/docs/CHANGELOG.md">Changelog and corrections log</a>.</p>
 </footer>
 
@@ -167,6 +171,7 @@ const ID_OK = /^[A-Za-z0-9_.:-]{1,80}$/;
 const safeUrl = u => /^https?:\/\//i.test(u || "") ? esc(u) : "#";
 const getJson = u => fetch(u).then(r => { if (!r.ok) throw new Error(`${u} (${r.status})`); return r.json(); });
 let rows = [], view = [], sortKey = "disclosed_date", sortDir = -1, open = new Set(), loadingFull = true;
+const PAGE = 100; let page = 0, showOpen = false;
 let orgSel = "", ORGS = null, orgsLoading = null, vendorSel = "", VENDORS = null, vendorsLoading = null, cveSel = "";
 const TECH_NAME = { T1566: "phishing", T1598: "phishing for information", T1078: "valid accounts", T1190: "exploit public-facing app", T1133: "external remote services", T1021: "remote services", "T1021.001": "remote desktop", T1195: "supply chain compromise", T1199: "trusted relationship", T1110: "brute force", T1621: "MFA fatigue", T1114: "email collection", T1213: "data from repositories", T1530: "data from cloud storage", T1041: "exfiltration over C2", T1567: "exfiltration to web service", T1486: "data encrypted for impact", T1485: "data destruction", T1489: "service stop", T1491: "defacement", T1657: "financial theft", T1552: "unsecured credentials" };
 const techLabel = t => `${t} ${TECH_NAME[t] || TECH_NAME[t.split(".")[0]] || ""}`.trim();
@@ -187,7 +192,7 @@ function recentEvent(x) { return origin(x) !== "imported" && x.disclosed_date >=
 function isNew(x) { return recentEvent(x) && firstSeen(x) >= STATS.week_ago; }
 function changedThisWeek(x) { return recentEvent(x) && (firstSeen(x) >= STATS.week_ago || (x.updated_at || "") >= STATS.week_ago); }
 function openRow(id) {
-  open.clear(); open.add(id); render(); toHash();
+  open.clear(); open.add(id); showOpen = true; render(); toHash();
   const el = document.querySelector(`tr.row[data-id="${id}"]`); if (el) el.scrollIntoView({ block: "center" });
 }
 function loadOrgs() {
@@ -195,7 +200,7 @@ function loadOrgs() {
   orgsLoading = orgsLoading || fetch("orgs.json").then(r => r.json()).then(d => { ORGS = d; return d; }).catch(() => (ORGS = []));
   return orgsLoading;
 }
-function selectOrg(id) { orgSel = id; vendorSel = ""; cveSel = ""; open.clear(); render(); toHash(); const el = $("#orgview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
+function selectOrg(id) { orgSel = id; vendorSel = ""; cveSel = ""; open.clear(); page = 0; render(); toHash(); const el = $("#orgview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
 function renderOrg() {
   const el = $("#orgview");
   if (!orgSel) { el.hidden = true; return; }
@@ -203,12 +208,12 @@ function renderOrg() {
   loadOrgs().then(orgs => {
     let o = orgs.find(o => o.id === orgSel);
     if (!o) { const mine = rows.filter(x => x.org_id === orgSel); if (mine.length) { const x = mine[0]; o = { name: x.org_name, sector: x.org_type, country: x.org_country, incidents: mine.length, first: x.disclosed_date, last: x.disclosed_date, largest: x.records_affected, aliases: [], ransomware: x.ransomware === true ? 1 : 0 }; } }
-    if (!o) { el.innerHTML = `<h3>Organization</h3><div class="note">No record for this id. <a href="#" id="org-clear">Show all records</a></div>`; }
+    if (!o) { el.innerHTML = `<h3>Organization</h3><div class="note">No record for this id. <a href="#" id="org-clear">Clear selection</a></div>`; }
     else {
       const facts = [o.sector !== "unknown" ? o.sector : null, o.country, o.ticker ? `listed (${esc(o.ticker)})` : o.sec_filer ? "SEC filer" : null,
         `${o.incidents} incident${o.incidents === 1 ? "" : "s"} on record, ${esc(o.first)}${o.last !== o.first ? ` to ${esc(o.last)}` : ""}`,
         o.largest ? `largest count ${o.largest.toLocaleString()}` : null, o.ransomware ? `${o.ransomware} ransomware` : null].filter(Boolean);
-      el.innerHTML = `<h3>${esc(o.name)}</h3><div class="note">${facts.map(esc).join(" · ")}${o.aliases.length ? `<br><span class="muted">also recorded as ${o.aliases.map(esc).join("; ")}</span>` : ""}<br><a href="org/${esc(orgSel)}/">Page for this organization</a> · <a href="#" id="org-clear">Show all records</a></div>`;
+      el.innerHTML = `<h3>${esc(o.name)}</h3><div class="note">${facts.map(esc).join(" · ")}${o.aliases.length ? `<br><span class="muted">also recorded as ${o.aliases.map(esc).join("; ")}</span>` : ""}<br><a href="org/${esc(orgSel)}/">Page for this organization</a> · <a href="#" id="org-clear">Clear selection</a></div>`;
     }
     $("#org-clear").addEventListener("click", e => { e.preventDefault(); orgSel = ""; render(); toHash(); });
   });
@@ -223,7 +228,7 @@ function loadVendors() {
   vendorsLoading = vendorsLoading || fetch("vendors.json").then(r => r.json()).then(d => { VENDORS = d; return d; }).catch(() => (VENDORS = []));
   return vendorsLoading;
 }
-function selectVendor(id) { if (!id) return; vendorSel = id; orgSel = ""; cveSel = ""; open.clear(); render(); toHash(); const el = $("#vendorview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
+function selectVendor(id) { if (!id) return; vendorSel = id; orgSel = ""; cveSel = ""; open.clear(); page = 0; render(); toHash(); const el = $("#vendorview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
 function renderVendor() {
   const el = $("#vendorview");
   if (!vendorSel) { el.hidden = true; return; }
@@ -238,12 +243,12 @@ function renderVendor() {
     const links = [o && o.is_org ? `<a href="#org=${esc(o.id)}" data-org="${esc(o.id)}">its own incidents as a victim</a>` : null,
       o && o.incidents >= (STATS.vendor_feed_min || 3) ? `<a href="feeds/vendor-${esc(o.id)}.xml">Atom feed for this vendor</a>` : null,
       `<a href="vendor/${esc(vendorSel)}/">Page for this vendor</a>`].filter(Boolean);
-    el.innerHTML = `<h3>Behind: ${esc(name)}</h3><div class="note">${facts.map(esc).join(" · ") || "Named as the third party on the records below."}${o && o.aliases.length ? `<br><span class="muted">also named as ${o.aliases.map(esc).join("; ")}</span>` : ""}${links.length ? `<br>${links.join(" · ")}` : ""}<br><a href="#" id="vendor-clear">Show all records</a></div>`;
+    el.innerHTML = `<h3>Behind: ${esc(name)}</h3><div class="note">${facts.map(esc).join(" · ") || "Named as the third party on the records below."}${o && o.aliases.length ? `<br><span class="muted">also named as ${o.aliases.map(esc).join("; ")}</span>` : ""}${links.length ? `<br>${links.join(" · ")}` : ""}<br><a href="#" id="vendor-clear">Clear selection</a></div>`;
     $("#vendor-clear").addEventListener("click", e => { e.preventDefault(); vendorSel = ""; render(); toHash(); });
     el.querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); vendorSel = ""; selectOrg(a.dataset.org); }));
   });
 }
-function selectCve(cve) { if (!cve) return; cveSel = cve.toUpperCase(); orgSel = ""; vendorSel = ""; open.clear(); render(); toHash(); const el = $("#cveview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
+function selectCve(cve) { if (!cve) return; cveSel = cve.toUpperCase(); orgSel = ""; vendorSel = ""; open.clear(); page = 0; render(); toHash(); const el = $("#cveview"); if (el.scrollIntoView) el.scrollIntoView({ block: "start" }); }
 function renderCve() {
   const el = $("#cveview");
   if (!cveSel) { el.hidden = true; return; }
@@ -253,12 +258,12 @@ function renderCve() {
   const dated = mine.filter(x => x.incident_date).map(x => x.incident_date).sort();
   const firstUse = dated[0] || mine.map(x => x.disclosed_date).sort()[0];
   const lead = k.kev_added && firstUse ? dayDiff(k.kev_added, firstUse) : null;
-  if (!mine.length) { el.innerHTML = `<h3>${esc(cveSel)}</h3><div class="note">No loaded record cites this CVE${loadingFull ? " yet; the full history is still loading" : ""}. <a href="#" id="cve-clear">Show all records</a></div>`; $("#cve-clear").addEventListener("click", e => { e.preventDefault(); cveSel = ""; render(); toHash(); }); return; }
+  if (!mine.length) { el.innerHTML = `<h3>${esc(cveSel)}</h3><div class="note">No loaded record cites this CVE${loadingFull ? " yet; the full history is still loading" : ""}. <a href="#" id="cve-clear">Clear selection</a></div>`; $("#cve-clear").addEventListener("click", e => { e.preventDefault(); cveSel = ""; render(); toHash(); }); return; }
   const facts = [k.product ? `product: ${k.product}` : null, k.name || null,
     `${mine.length} record${mine.length === 1 ? "" : "s"} cite it${firstUse ? `, earliest incident ${firstUse}` : ""}`,
     k.kev_added ? `in CISA KEV since ${k.kev_added}${lead !== null ? (lead >= 0 ? ` (${lead} days before the earliest incident here)` : ` (${-lead} days after the earliest incident here)`) : ""}` : STATS.kev_loaded ? "not in CISA KEV" : "KEV status not available in this build",
     `sectors: ${count(mine, "org_type").slice(0, 3).map(([s, n]) => `${s} (${n})`).join(", ")}`].filter(Boolean);
-  el.innerHTML = `<h3>${esc(cveSel)}</h3><div class="note">${facts.map(esc).join(" · ")} · <a href="https://nvd.nist.gov/vuln/detail/${esc(cveSel)}" rel="noopener">NVD</a><br><a href="#" id="cve-clear">Show all records</a></div>`;
+  el.innerHTML = `<h3>${esc(cveSel)}</h3><div class="note">${facts.map(esc).join(" · ")} · <a href="https://nvd.nist.gov/vuln/detail/${esc(cveSel)}" rel="noopener">NVD</a><br><a href="#" id="cve-clear">Clear selection</a></div>`;
   $("#cve-clear").addEventListener("click", e => { e.preventDefault(); cveSel = ""; render(); toHash(); });
 }
 function renderWeek() {
@@ -287,11 +292,9 @@ function renderFresh() {
 function renderStats(v) {
   const known = v.filter(x => x.initial_access !== "unknown").length;
   const pct = v.length ? Math.round(100 * known / v.length) : 0;
-  const reviewed = v.filter(x => x.reviewed).length;
   $("#stats").innerHTML = [
     [v.length, "records in view"],
     [`${known} (${pct}%)`, "with a stated mechanism"],
-    [`${reviewed} of ${v.length}`, "reviewed by a person"],
     [v.filter(x => (x.third_party || {}).involved === true).length, "third party involved"],
     [v.filter(x => x.ransomware === true).length, "ransomware or extortion"],
   ].map(([b, l]) => `<div class="stat"><b>${b}</b><span>${l}</span></div>`).join("");
@@ -338,7 +341,7 @@ function renderContextCharts(v) {
     const adj = r.map(x => x.adj).filter(x => x !== null), raw = r.map(x => x.raw);
     return { h, n: r.length, adj: median(adj), raw: median(raw), neg: adj.length ? adj.filter(x => x < 0).length / adj.length : null };
   }).filter(r => r.n >= 3);
-  $("#px-note").textContent = px.length ? `${px.length} filers in view with a listed ticker. Return from the close on the filing day (most 8-Ks land after the bell), median across filers; "vs market" subtracts SPY over the same days. The sample is small and a filer has other news in a year, so read it as context, not a measurement.` : "No 8-K filers with price data in view.";
+  $("#px-note").textContent = px.length ? `${px.length} filers in view with a listed ticker. Return from the close on the filing day (most 8-Ks land after the bell), median across filers; "vs market" subtracts SPY over the same days. The sample is small and filers have other news, so treat this as context.` : "No 8-K filers with price data in view.";
   const pct = x => x === null ? "" : `<span class="${x < 0 ? "neg" : "pos"}">${(100 * x).toFixed(1)}%</span>`;
   $("#px").innerHTML = rowsH.length ? `<table class="mini"><tr><th>after</th><th>filers</th><th>median raw</th><th>median vs market</th><th>share down vs market</th></tr>${rowsH.map(r => `<tr><td>${HORIZON_LABEL[r.h]}</td><td>${r.n}</td><td>${pct(r.raw)}</td><td>${pct(r.adj)}</td><td>${r.neg === null ? "" : Math.round(100 * r.neg) + "%"}</td></tr>`).join("")}</table>` : "";
   // KEV
@@ -355,9 +358,8 @@ function renderContextCharts(v) {
   const byOrg = new Map();
   for (const x of v) { if (!x.org_id) continue; const o = byOrg.get(x.org_id) || { id: x.org_id, name: x.org_name, n: 0, last: "" }; o.n++; if (x.disclosed_date > o.last) { o.last = x.disclosed_date; o.name = x.org_name; } byOrg.set(x.org_id, o); }
   const repeat = [...byOrg.values()].filter(o => o.n > 1).sort((a, b) => b.n - a.n || (a.last < b.last ? 1 : -1));
-  $("#orgs-note").textContent = repeat.length ? `${repeat.length} organizations appear more than once in view. Click a name for its record.` : "No organization appears more than once in view.";
-  $("#orgs").innerHTML = repeat.length ? `<table class="mini"><tr><th>organization</th><th>incidents</th><th>latest</th></tr>${repeat.slice(0, 12).map(o => `<tr><td style="text-align:left"><a href="#org=${esc(o.id)}" data-org="${esc(o.id)}">${esc(o.name)}</a></td><td>${o.n}</td><td>${esc(o.last)}</td></tr>`).join("")}</table>` : "";
-  $("#orgs").querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectOrg(a.dataset.org); }));
+  $("#orgs-note").textContent = repeat.length ? `${repeat.length} organizations appear more than once in view. Click a name for its page.` : "No organization appears more than once in view.";
+  $("#orgs").innerHTML = repeat.length ? `<table class="mini"><tr><th>organization</th><th>incidents</th><th>latest</th></tr>${repeat.slice(0, 12).map(o => `<tr><td style="text-align:left"><a href="org/${esc(o.id)}/">${esc(o.name)}</a></td><td>${o.n}</td><td>${esc(o.last)}</td></tr>`).join("")}</table>` : "";
   // techniques
   const tc = {}; let withTech = 0;
   for (const x of v) { const ts = x.attack_techniques || []; if (ts.length) withTech++; for (const t of ts) tc[t] = (tc[t] || 0) + 1; }
@@ -393,7 +395,7 @@ function renderCharts(v) {
   renderContextCharts(v);
   const known = v.filter(x => x.initial_access !== "unknown");
   const unk = v.length - known.length;
-  $("#ia-note").textContent = v.length ? `${known.length} of ${v.length} records in view say how. The other ${unk} are "unknown" and are not shown as a bar: counting them would make a filing that says nothing look like a cause.` : "";
+  $("#ia-note").textContent = v.length ? `${known.length} of ${v.length} records in view state how. The ${unk} "unknown" records are left out of the bars.` : "";
   bars($("#ia-bars"), count(known, "initial_access"), known.length, "initial_access", { pct: true });
   bars($("#ev-bars"), count(v, "evidence_level"), v.length, "evidence_level", { pct: true });
   bars($("#ot-bars"), count(v, "org_type").slice(0, 10), v.length, "org_type");
@@ -437,7 +439,7 @@ function detail(x) {
     ["summary", esc(x.summary)],
     ["known exploited", ((x.derived || {}).kev || []).length ? x.derived.kev.map(k => `${esc(k.cve)}: ${k.kev_added ? `in CISA KEV since ${esc(k.kev_added)}` + (k.days_listed_before_incident > 0 ? ` (${k.days_listed_before_incident} days before the incident)` : "") : "not in CISA KEV"}`).join("<br>") : null],
     ["share price", (x.derived || {}).price ? `${esc(x.derived.price.ticker)} from the close on ${esc(x.derived.price.base_day)}: ` + Object.entries(x.derived.price.returns).map(([h, r]) => `${HORIZON_LABEL[h]} ${(100 * r.raw).toFixed(1)}%${r.adj !== null ? ` (${(100 * r.adj).toFixed(1)}% vs market)` : ""}`).join(" · ") : null],
-    ["organization", `<a href="#org=${esc(x.org_id || "")}" data-org="${esc(x.org_id || "")}">${esc(x.org_name)}</a>${(() => { const o = ORGS && ORGS.find(o => o.id === x.org_id); return o && o.incidents > 1 ? ` · ${o.incidents} incidents on record, ${esc(o.first)} to ${esc(o.last)}` : ""; })()}`],
+    ["organization", `${x.org_id ? `<a href="org/${esc(x.org_id)}/">${esc(x.org_name)}</a> · <a href="#org=${esc(x.org_id)}" data-org="${esc(x.org_id)}" class="small">only this organization in the table</a>` : esc(x.org_name)}${(() => { const o = ORGS && ORGS.find(o => o.id === x.org_id); return o && o.incidents > 1 ? ` · ${o.incidents} incidents on record, ${esc(o.first)} to ${esc(o.last)}` : ""; })()}`],
     ["quote", x.supporting_quote ? `<span class="quote">“${esc(x.supporting_quote)}”</span>` : null],
     ["root cause", esc(x.root_cause)],
     ["control failure", x.control_failure && x.control_failure !== "unknown" ? `<span title="${gl("control_failure", x.control_failure)}">${esc(x.control_failure)}</span>` : null],
@@ -478,19 +480,43 @@ function renderEntities() {
   el.querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectOrg(a.dataset.org); }));
   el.querySelectorAll("a[data-vendor]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectVendor(a.dataset.vendor); }));
 }
+function selectionLabel() {
+  if (orgSel) { const x = rows.find(x => x.org_id === orgSel); return x ? `organization: ${x.org_name}` : "one organization"; }
+  if (vendorSel) { const d = rows.flatMap(x => (x.derived || {}).vendors || []).find(d => d.id === vendorSel); return d ? `vendor: ${d.name}` : "one vendor"; }
+  if (cveSel) return cveSel;
+  return "";
+}
+function renderCount(pages, start, n) {
+  const sel = selectionLabel();
+  $("#count").innerHTML = `${view.length} of ${rows.length} records${pages > 1 ? `, showing ${start + 1}–${start + n}` : ""}${sel ? ` · ${esc(sel)} <a href="#" id="sel-clear">clear</a>` : ""}${loadingFull ? ` · loading the full history (${STATS.total} records)…` : ""}`;
+  const c = $("#sel-clear"); if (c) c.addEventListener("click", e => { e.preventDefault(); orgSel = ""; vendorSel = ""; cveSel = ""; page = 0; render(); toHash(); });
+}
+function renderPager(pages) {
+  const el = $("#pager");
+  if (pages <= 1) { el.innerHTML = ""; return; }
+  const nums = new Set([0, pages - 1]); for (let i = page - 2; i <= page + 2; i++) if (i >= 0 && i < pages) nums.add(i);
+  const parts = [], sorted = [...nums].sort((a, b) => a - b);
+  for (let i = 0; i < sorted.length; i++) { if (i && sorted[i] - sorted[i - 1] > 1) parts.push("…"); parts.push(`<a href="#" data-page="${sorted[i]}" class="${sorted[i] === page ? "cur" : ""}">${sorted[i] + 1}</a>`); }
+  el.innerHTML = `${page > 0 ? `<a href="#" data-page="${page - 1}">previous</a>` : ""}${parts.join(" ")}${page < pages - 1 ? `<a href="#" data-page="${page + 1}">next</a>` : ""}<span>${PAGE} per page</span>`;
+  el.querySelectorAll("a[data-page]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); page = +a.dataset.page; open.clear(); render(); toHash(); $("#count").scrollIntoView({ block: "start" }); }));
+}
 function render() {
   view = filtered();
   renderEntities();
   const k = sortKey;
   view.sort((a, b) => ((a[k] ?? "") > (b[k] ?? "") ? 1 : (a[k] ?? "") < (b[k] ?? "") ? -1 : 0) * sortDir);
   for (const th of document.querySelectorAll("th[data-k]")) th.setAttribute("aria-sort", th.dataset.k === k ? (sortDir > 0 ? "ascending" : "descending") : "none");
-  $("#count").textContent = `${view.length} of ${rows.length} records${loadingFull ? ` · loading the full history (${STATS.total} records)…` : ""}`;
+  const pages = Math.max(1, Math.ceil(view.length / PAGE));
+  if (showOpen && open.size === 1) { const i = view.findIndex(x => x.id === [...open][0]); if (i >= 0) page = Math.floor(i / PAGE); showOpen = false; }
+  page = Math.min(Math.max(0, page), pages - 1);
+  const start = page * PAGE, slice = view.slice(start, start + PAGE);
+  renderCount(pages, start, slice.length); renderPager(pages);
   const qSnip = $("#qq").checked ? $("#q").value.trim() : "";
-  $("#t tbody").innerHTML = view.map(x => {
+  $("#t tbody").innerHTML = slice.map(x => {
     const c = claimOf(x), o = origin(x), isOpen = open.has(x.id);
     return `<tr class="row" data-id="${esc(x.id)}" aria-expanded="${isOpen}">
     <td>${esc(x.disclosed_date)}</td>
-    <td><a href="#org=${esc(x.org_id || "")}" data-org="${esc(x.org_id || "")}" title="all incidents at this organization">${esc(x.org_name)}</a> <span class="tag" title="${gl("origin", o)}">${o}</span>${c ? ` <span class="tag claim" title="A ransomware group also claimed this on its leak site. Source: Ransomware.live">claimed</span>` : ""}<br><span class="small muted">${esc(x.org_type)} · ${esc(x.org_country || "")}${x.reviewed ? ' · <span class="rev">reviewed</span>' : ""}</span></td>
+    <td>${x.org_id ? `<a href="org/${esc(x.org_id)}/" title="page for this organization">${esc(x.org_name)}</a>` : esc(x.org_name)} <span class="tag" title="${gl("origin", o)}">${o}</span>${c ? ` <span class="tag claim" title="A ransomware group also claimed this on its leak site. Source: Ransomware.live">claimed</span>` : ""}<br><span class="small muted">${esc(x.org_type)} · ${esc(x.org_country || "")}${x.reviewed ? ' · <span class="rev">reviewed</span>' : ""}</span></td>
     <td><span title="${gl("initial_access", x.initial_access)}">${esc(x.initial_access)}</span>${x.initial_access !== "unknown" && !x.supporting_quote ? ' <span class="unrev" title="no verbatim quote">no quote</span>' : ""}${x.control_failure && x.control_failure !== "unknown" ? `<br><span class="small muted" title="${gl("control_failure", x.control_failure)}">why: ${esc(x.control_failure)}</span>` : ""}${(x.cve || []).length ? "<br>" + x.cve.slice(0, 2).map(t => `<a class="tag" href="#cve=${esc(t)}" data-cve="${esc(t)}">${esc(t)}</a>`).join(" ") : (x.technology_involved || []).length ? "<br>" + x.technology_involved.slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join(" ") : ""}${qSnip && x.supporting_quote ? `<br><span class="small quote">${esc(snippet(x.supporting_quote, qSnip))}</span>` : ""}</td>
     <td class="hide-sm"><span title="${gl("evidence_level", x.evidence_level)}">${esc(x.evidence_level)}</span><br><span class="small muted" title="${gl("confidence", x.confidence)}">${esc(x.confidence)}</span></td>
     <td class="hide-sm">${esc(x.impact_type)}${x.ransomware === true ? ' <span class="tag">ransomware</span>' : ""}${(x.actor || {}).name ? `<br><span class="tag">${esc(x.actor.name)}</span>` : (x.actor || {}).variety && x.actor.variety !== "unknown" ? `<br><span class="tag">${esc(x.actor.variety)}</span>` : ""}</td>
@@ -518,13 +544,15 @@ function toHash() {
   if (orgSel) p.set("org", orgSel);
   if (vendorSel) p.set("vendor", vendorSel);
   if (cveSel) p.set("cve", cveSel);
+  if (page) p.set("p", page + 1);
   history.replaceState(null, "", p.toString() ? "#" + p.toString() : location.pathname);
 }
 function fromHash() {
   const p = new URLSearchParams(location.hash.slice(1));
   for (const f of FIELDS) { const el = $("#" + f); if (!p.has(f)) continue; if (el.type === "checkbox") el.checked = p.get(f) === "1"; else el.value = p.get(f); }
   if (p.has("sort")) { const s = p.get("sort"); sortDir = s.startsWith("-") ? -1 : 1; sortKey = s.replace(/^-/, ""); }
-  if (p.has("id") && ID_OK.test(p.get("id"))) open.add(p.get("id"));
+  if (p.has("id") && ID_OK.test(p.get("id"))) { open.add(p.get("id")); showOpen = true; }
+  if (p.has("p")) page = Math.max(0, (parseInt(p.get("p"), 10) || 1) - 1);
   if (p.has("org") && ID_OK.test(p.get("org"))) orgSel = p.get("org");
   if (p.has("vendor") && ID_OK.test(p.get("vendor"))) vendorSel = p.get("vendor");
   if (p.has("cve") && ID_OK.test(p.get("cve"))) cveSel = p.get("cve").toUpperCase();
@@ -540,13 +568,13 @@ function downloadCsv() {
 }
 
 function fillTech() {
-  const sel = $("#tech"), cur = sel.value; sel.innerHTML = '<option value="">any</option>';
+  const sel = $("#tech"), cur = sel.value; sel.innerHTML = '<option value="">any technique</option>';
   for (const t of Object.keys(TECH_NAME)) { const o = document.createElement("option"); o.value = t; o.textContent = techLabel(t); sel.appendChild(o); }
   sel.value = cur;
 }
 function fillCountries() {
   const sel = $("#cc"), cur = sel.value;
-  sel.innerHTML = '<option value="">any</option>';
+  sel.innerHTML = '<option value="">any country</option>';
   fill(sel, (STATS.by_org_country || []).map(c => c[0]).filter(Boolean).sort());
   sel.value = cur;
 }
@@ -568,15 +596,16 @@ getJson("recent.json").then(d => {
 }).then(d => {
   const hadOpenRow = open.size && document.querySelector(`tr.row[data-id="${[...open][0]}"]`);
   rows = d; loadingFull = false; $("#loading").remove();
+  if (open.size === 1) showOpen = true;
   renderWeek(); render();
   if (!hadOpenRow) scrollToOpen();
 }).catch(e => { loadingFull = false; $("#loading")?.remove(); render(); $("#count").textContent += ` · could not load ${e.message}; showing only what loaded`; console.warn("load failed", e); });
-for (const f of FIELDS) $("#" + f).addEventListener("input", () => { render(); toHash(); });
+for (const f of FIELDS) $("#" + f).addEventListener("input", () => { page = 0; render(); toHash(); });
 $("#about-link").addEventListener("click", e => { e.preventDefault(); const a = $("#about"); a.open = true; if (a.scrollIntoView) a.scrollIntoView({ block: "start" }); });
 if (STATS.current_model) $("#about-model").textContent = ` (currently ${STATS.current_model})`;
-$("#reset").addEventListener("click", () => { for (const f of FIELDS) { const el = $("#" + f); if (el.type === "checkbox") el.checked = false; else el.value = ""; } sortKey = "disclosed_date"; sortDir = -1; open.clear(); orgSel = ""; vendorSel = ""; cveSel = ""; render(); toHash(); });
+$("#reset").addEventListener("click", () => { for (const f of FIELDS) { const el = $("#" + f); if (el.type === "checkbox") el.checked = false; else el.value = ""; } sortKey = "disclosed_date"; sortDir = -1; open.clear(); orgSel = ""; vendorSel = ""; cveSel = ""; page = 0; render(); toHash(); });
 $("#dl").addEventListener("click", downloadCsv);
-for (const th of document.querySelectorAll("th[data-k]")) th.addEventListener("click", () => { const k = th.dataset.k; sortDir = sortKey === k ? -sortDir : (k === "disclosed_date" || k === "records_affected" ? -1 : 1); sortKey = k; render(); toHash(); });
+for (const th of document.querySelectorAll("th[data-k]")) th.addEventListener("click", () => { const k = th.dataset.k; sortDir = sortKey === k ? -sortDir : (k === "disclosed_date" || k === "records_affected" ? -1 : 1); sortKey = k; page = 0; render(); toHash(); });
 $("#t tbody").addEventListener("click", e => {
   if (e.target.closest("a")) return;
   const tr = e.target.closest("tr.row"); if (!tr) return;

@@ -24,11 +24,6 @@ jobs:
       EDGAR_USER_AGENT: ${{ vars.EDGAR_USER_AGENT }}
       LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
       LLM_MODEL: ${{ vars.LLM_MODEL }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      RANSOMWARE_LIVE_API_KEY: ${{ secrets.RANSOMWARE_LIVE_API_KEY }}
-      ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
-      LIMIT: ${{ github.event.inputs.limit || '80' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
@@ -38,11 +33,26 @@ jobs:
           cache-dependency-path: pipeline/requirements.txt
       - run: pip install -r pipeline/requirements.txt
       - run: python -m pytest -q tests
-      - run: python pipeline/run.py --since-days 3 --limit "$LIMIT"
+      - run: python pipeline/run.py --since-days 3 --limit "${{ github.event.inputs.limit || '80' }}"
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RANSOMWARE_LIVE_API_KEY: ${{ secrets.RANSOMWARE_LIVE_API_KEY }}
       - run: python pipeline/letters.py --limit 30
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - run: python pipeline/vendor_aliases.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - run: python pipeline/verify_sources.py --strict
+        continue-on-error: true
+        env:
+          RANSOMWARE_LIVE_API_KEY: ${{ secrets.RANSOMWARE_LIVE_API_KEY }}
       - run: python pipeline/external.py
+        env:
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
       - run: python pipeline/build_site.py
       - name: commit data
         run: |
