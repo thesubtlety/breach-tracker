@@ -1,0 +1,12 @@
+{
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "role": "candidate",
+  "docs": 20,
+  "usage": {
+    "input": 79608,
+    "output": 1982,
+    "calls": 20
+  },
+  "date": "2026-10-09"
+}

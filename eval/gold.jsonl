@@ -1,0 +1,20 @@
+{"doc_id": "8cb92cc330f0", "skip": true}
+{"doc_id": "2bf5872ea4d2", "skip": true}
+{"doc_id": "1d774fa062b8", "skip": true}
+{"doc_id": "e0a9811bc932", "skip": true}
+{"doc_id": "93418228b9e5", "skip": false, "initial_access": "vishing_or_social_engineering", "veris_action": "social", "evidence_level": "org_confirmed", "org_type": "healthcare", "threat_actor": null, "records_affected": null}
+{"doc_id": "5947799dfc2e", "skip": false, "initial_access": "unknown", "evidence_level": "org_confirmed", "org_type": "professional_services", "threat_actor": null, "records_affected": null}
+{"doc_id": "ef0d5c42574c", "skip": true}
+{"doc_id": "c4519f06c257", "skip": true}
+{"doc_id": "ab4ffdc4724c", "skip": true}
+{"doc_id": "fefedd811537", "skip": true}
+{"doc_id": "29cdd129a5d6", "skip": true}
+{"doc_id": "3e81c73975d2", "skip": false, "initial_access": "exploit_public_facing_app", "evidence_level": "press_report", "org_type": "government", "impact_type": "data_theft", "threat_actor": "shinyhunters", "records_affected": null}
+{"doc_id": "a107c9394b7b", "skip": true}
+{"doc_id": "26a56507df54", "skip": true}
+{"doc_id": "c857da04321b", "skip": true}
+{"doc_id": "ca5ab3cf48f5", "skip": true}
+{"doc_id": "0419de820a0c", "skip": false, "initial_access": "exploit_public_facing_app", "evidence_level": "press_report", "org_type": "government", "impact_type": "data_theft", "threat_actor": "shinyhunters", "records_affected": null}
+{"doc_id": "c85e183aba75", "skip": true}
+{"doc_id": "be5870180c24", "skip": true}
+{"doc_id": "894822952396", "skip": true}

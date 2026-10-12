@@ -1,0 +1,31 @@
+name: probe
+# Fetches pages from a US runner so geofenced sources can be inspected. Manual only; no secrets.
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: space-separated URLs to fetch
+        required: true
+
+permissions: {}
+
+jobs:
+  fetch:
+    name: fetch pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: fetch
+        env:
+          URLS: ${{ github.event.inputs.urls }}
+        run: |
+          mkdir out; i=0
+          for u in $URLS; do
+            i=$((i+1))
+            code=$(curl -sS -L --max-time 60 -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36" -o "out/$i.html" -w "%{http_code} %{url_effective}" "$u" || echo "000 $u")
+            echo "$i $code $u" | tee -a out/index.txt
+          done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pages
+          path: out

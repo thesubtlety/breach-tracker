@@ -1,0 +1,12 @@
+{
+  "provider": "openai",
+  "model": "gpt-6-astra",
+  "role": "reference",
+  "docs": 20,
+  "usage": {
+    "input": 79608,
+    "output": 2438,
+    "calls": 20
+  },
+  "date": "2026-10-09"
+}

@@ -1,0 +1,12 @@
+{
+  "provider": "openai",
+  "model": "gpt-6-luna",
+  "role": "candidate",
+  "docs": 20,
+  "usage": {
+    "input": 83388,
+    "output": 7517,
+    "calls": 21
+  },
+  "date": "2026-10-09"
+}
