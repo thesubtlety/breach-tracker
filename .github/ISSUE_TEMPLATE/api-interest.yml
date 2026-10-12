@@ -1,0 +1,34 @@
+name: I want an API, alerts, or bulk data
+description: Tell us what you would use so we know what to build first
+title: "Interest: "
+labels: [interest]
+body:
+  - type: dropdown
+    id: want
+    attributes:
+      label: What would you use?
+      multiple: true
+      options:
+        - JSON API with filters
+        - Email or webhook alerts (by sector, mechanism, or organization list)
+        - Bulk export with a commercial license
+        - Something else (say below)
+    validations:
+      required: true
+  - type: textarea
+    id: use
+    attributes:
+      label: What for?
+      description: One or two sentences. Research, underwriting, vendor risk, content, a product.
+    validations:
+      required: true
+  - type: input
+    id: pay
+    attributes:
+      label: Would you pay for it, and roughly what per year?
+      placeholder: "no / $99 / $1,000 / depends on..."
+  - type: input
+    id: contact
+    attributes:
+      label: Contact (optional)
+      description: Email or handle if you want to hear when it exists. Leave blank to stay anonymous; this issue is public.

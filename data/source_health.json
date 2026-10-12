@@ -1,0 +1,51 @@
+{
+  "run_at": "2026-10-12T15:31:06+00:00",
+  "health": {
+    "counts": {
+      "sec_edgar": 16,
+      "hhs": 86,
+      "maine_ag": 0,
+      "california_ag": 47,
+      "texas_ag": 79,
+      "hibp": 8,
+      "ransomware_live": null,
+      "rss": 21,
+      "mastodon": 31
+    },
+    "previous_counts": {
+      "sec_edgar": 18,
+      "hhs": 21,
+      "maine_ag": 0,
+      "ransomware_live": null,
+      "rss": 21,
+      "mastodon": 36
+    },
+    "problems": [
+      "maine_ag: zero candidates two runs in a row"
+    ],
+    "skipped": [
+      "ransomware_live"
+    ]
+  },
+  "links": {
+    "checked": 20,
+    "dead": [
+      "https://www.databreaches.net/tx-sewell-family-of-companies-discloses-breach/",
+      "https://www.yorkregion.com/news-story/8699947-stouffville-takes-mayor-justin-altmann-to-court-for-alleged-leaked-documents/;",
+      "http://www.informationsecuritybuzz.com/expert-comments/2-5-million-playstation-xbox-user-details-leaked/;"
+    ],
+    "dead_rate": 0.15
+  },
+  "quotes": {
+    "checked": 20,
+    "confirmed": 19,
+    "missing": [
+      {
+        "id": "a00a2e40eaec5e0ceaae78debabcd1645318f7c0",
+        "org": "Epic Games",
+        "url": "https://haveibeenpwned.com/Breach/EpicGames"
+      }
+    ],
+    "unfetchable": 0
+  }
+}
