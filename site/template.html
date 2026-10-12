@@ -6,6 +6,7 @@
 <title>Breach Vectors: how organizations get breached</title>
 <link rel="alternate" type="application/atom+xml" title="Breach Vectors: new and updated records" href="feed.xml">
 <link rel="canonical" href="__SITE_URL__">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="description" content="How organizations actually get breached: publicly reported breaches classified by initial access vector, vendor, CVE and ATT&CK technique, with the source quoted. Search any organization or vendor.">
 <style>
   :root { --bg:#fff; --fg:#1a1a1a; --muted:#666; --line:#e3e3e3; --soft:#f5f5f5; --accent:#2b5bd7; --warn:#b36b00; --ok:#1f7a3a;
@@ -13,7 +14,7 @@
   @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#9a9a9a; --line:#2a2a2a; --soft:#1a1a1a; --accent:#7aa2ff; --warn:#e0a84a; --ok:#5ac57a; --bar:#7aa2ff; --bar-unk:#444; --claim:#b78cff; } }
   * { box-sizing:border-box; }
   body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:15px/1.45 system-ui, sans-serif; max-width:1200px; margin-inline:auto; }
-  h1 { font-size:24px; margin:0 0 4px; } h2 { font-size:17px; margin:24px 0 8px; }
+  h1 { font-size:24px; margin:0 0 4px; display:flex; align-items:center; gap:10px; } h1 svg { width:30px; height:30px; color:var(--accent); flex:none; } h2 { font-size:17px; margin:24px 0 8px; }
   p { margin:0 0 8px; } .muted { color:var(--muted); } .small { font-size:13px; }
   a { color:var(--accent); }
   .lead { max-width:70ch; }
@@ -86,7 +87,7 @@
 </head>
 <body>
 <div id="loading" role="progressbar" aria-label="loading records"></div>
-<h1>Breach Vectors</h1>
+<h1><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M15.1 46.1 A22 22 0 1 0 15.1 17.9" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M3 32 H26" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M23 19 L44 32 L23 45 Z" fill="currentColor"/></svg>Breach Vectors</h1>
 <p class="lead">Explore publicly reported breaches by access method, affected technology, and reported security weaknesses. An unknown mechanism means the available sources do not establish how the breach occurred. <a href="incidents.json">Download JSON</a> · <a href="incidents.csv">Download CSV</a> · <a href="feed.xml" title="Atom feed of records new or changed in the last 30 days">Feed</a> · <a href="#about" id="about-link">Coverage and limitations</a> · <a href="https://github.com/thesubtlety/breach-tracker/blob/master/docs/METHODOLOGY.md">Methodology</a></p>
 <div class="stats" id="stats"></div>
 <div class="week" id="orgview" hidden></div>

@@ -59,6 +59,7 @@ def sector_registry(rows: list[dict]) -> list[dict]:
     out.sort(key=lambda o: (-o["incidents"], o["id"]))
     return out
 CSS = """
+  nav svg { width:18px; height:18px; vertical-align:-3px; margin-right:6px; color:var(--accent); }
 :root{--bg:#fff;--fg:#1a1a1a;--muted:#666;--line:#e3e3e3;--soft:#f5f5f5;--accent:#2b5bd7}
 @media(prefers-color-scheme:dark){:root{--bg:#111;--fg:#eee;--muted:#9a9a9a;--line:#2a2a2a;--soft:#1a1a1a;--accent:#7aa2ff}}
 body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;max-width:80ch;margin-inline:auto}
@@ -122,10 +123,11 @@ def shell(title: str, description: str, canonical: str, body: str, home: str) ->
 <title>{escape(title)}</title>
 <meta name="description" content="{escape(description[:300])}">
 <link rel="canonical" href="{escape(canonical)}">
+<link rel="icon" type="image/svg+xml" href="{home}favicon.svg">
 <style>{CSS}</style>
 </head>
 <body>
-<nav><a href="{home}">{SITE_NAME}</a></nav>
+<nav><a href="{home}"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M15.1 46.1 A22 22 0 1 0 15.1 17.9" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M3 32 H26" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M23 19 L44 32 L23 45 Z" fill="currentColor"/></svg>{SITE_NAME}</a></nav>
 {body}
 <footer>
 <p>Built from public breach reports: regulator filings, SEC 8-Ks, notification letters, press. Every stated mechanism carries a quote from its source; "unknown" means no source said. Records are machine-classified and unreviewed unless marked.</p>

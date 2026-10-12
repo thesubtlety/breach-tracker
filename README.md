@@ -1,4 +1,11 @@
+<img src="site/logo.svg" alt="" width="48" align="left">
+
 # Breach Vectors
+
+[![daily run](https://github.com/thesubtlety/breach-tracker/actions/workflows/daily.yml/badge.svg)](https://github.com/thesubtlety/breach-tracker/actions/workflows/daily.yml)
+[![records](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fwww.thesubtlety.com%2Fbreach-tracker%2Fstats.json&query=%24.records&label=records&color=2b5bd7)](https://www.thesubtlety.com/breach-tracker/)
+[![data: CC BY-SA 4.0](https://img.shields.io/badge/data-CC%20BY--SA%204.0-lightgrey)](LICENSE)
+[![code: MIT](https://img.shields.io/badge/code-MIT-lightgrey)](LICENSE)
 
 A dataset and site of publicly reported data breaches, classified by how the attacker
 got in. Each record names the organization, the breach mechanism, the reported security

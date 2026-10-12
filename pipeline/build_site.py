@@ -278,6 +278,7 @@ def main() -> int:
     urls = write_pages(rows, all_orgs, vendors, SITE_DIR, SITE_URL, actors, today())
     (SITE_DIR / "sitemap.xml").write_text(sitemap(urls, SITE_URL, today()))
     (SITE_DIR / "robots.txt").write_text(robots(SITE_URL))
+    (SITE_DIR / "stats.json").write_text(json.dumps({"records": len(rows), "organizations": len({r["org_id"] for r in rows}), "generated": today()}))
     feeds = SITE_DIR / "feeds"
     feeds.mkdir(exist_ok=True)
     for f in feeds.glob("vendor-*.xml"):
