@@ -48,6 +48,9 @@
   input[type=search] { min-width:200px; }
   button { padding:6px 10px; border:1px solid var(--line); border-radius:4px; background:var(--soft); color:var(--fg); font:inherit; font-size:13px; cursor:pointer; }
   .count { font-size:13px; color:var(--muted); margin:4px 0 8px; }
+  #loading { position:fixed; top:0; left:0; width:100%; height:2px; z-index:10; background:linear-gradient(90deg, transparent, var(--bar), transparent) 0 0/40% 100% no-repeat; animation:sweep 1.4s linear infinite; }
+  @keyframes sweep { from { background-position:-40% 0; } to { background-position:140% 0; } }
+  @media (prefers-reduced-motion: reduce) { #loading { animation:none; background:var(--bar); opacity:.4; } }
   .wrap { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; font-size:14px; }
   th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
@@ -72,6 +75,7 @@
 </style>
 </head>
 <body>
+<div id="loading" role="progressbar" aria-label="loading records"></div>
 <h1>Breach Vectors</h1>
 <p class="lead">How organizations actually get breached, counted only from what a public source said. This is a sample that grows weekly, not a census: the coverage line below says what each part of it spans. Regulator filings give who and how many; 8-Ks and news give how, for the minority of cases where anyone said. <strong>“unknown” is a value, and the honest default.</strong> <a href="incidents.json">JSON</a> · <a href="incidents.csv">CSV</a> · <a href="feed.xml" title="Atom feed of records new or changed in the last 30 days; any feed reader or a free feed-to-email service will deliver it">feed</a> · <a href="#about" id="about-link">about the data</a> · <a href="https://github.com/thesubtlety/breach-tracker">source and method</a></p>
 <div class="fresh" id="fresh"></div>
@@ -118,7 +122,7 @@
   <button id="dl" type="button" title="CSV of the rows currently shown">download view as CSV</button>
 </div>
 <div class="week" id="entities" hidden></div>
-<div class="count" id="count"></div>
+<div class="count" id="count">loading records…</div>
 
 <div class="wrap"><table id="t">
   <thead><tr>
@@ -563,10 +567,10 @@ getJson("recent.json").then(d => {
   return getJson("incidents.json");
 }).then(d => {
   const hadOpenRow = open.size && document.querySelector(`tr.row[data-id="${[...open][0]}"]`);
-  rows = d; loadingFull = false;
+  rows = d; loadingFull = false; $("#loading").remove();
   renderWeek(); render();
   if (!hadOpenRow) scrollToOpen();
-}).catch(e => { loadingFull = false; render(); $("#count").textContent += ` · could not load ${e.message}; showing only what loaded`; console.warn("load failed", e); });
+}).catch(e => { loadingFull = false; $("#loading")?.remove(); render(); $("#count").textContent += ` · could not load ${e.message}; showing only what loaded`; console.warn("load failed", e); });
 for (const f of FIELDS) $("#" + f).addEventListener("input", () => { render(); toHash(); });
 $("#about-link").addEventListener("click", e => { e.preventDefault(); const a = $("#about"); a.open = true; if (a.scrollIntoView) a.scrollIntoView({ block: "start" }); });
 if (STATS.current_model) $("#about-model").textContent = ` (currently ${STATS.current_model})`;
