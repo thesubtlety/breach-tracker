@@ -343,6 +343,37 @@ def test_texas_rows_become_state_ag_candidates():
     assert deterministic_record(dict(bare, all_sources=rec["sources"]), "2026-10-12")["impact_type"] == "unknown"
 
 
+def test_washington_oregon_south_carolina_lists_become_state_ag_candidates():
+    from sources import parse_or_list, parse_sc_list, parse_wa_list
+    wa = """<table><tr><th>Date Reported</th><th>Organization Name</th><th>Date of Breach</th><th>Number</th><th>Information Compromised</th></tr>
+    <tr><td>09/11/2026</td><td><a href="https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachA1.pdf">Acme Dental, PLLC</a></td><td>11/06/2025</td><td>681</td>
+    <td>Name; Social Security Number; Driver&#039;s License or Washington ID Card Number; Medical Information; Username and Password/Security Question Answers</td></tr></table>"""
+    rows = parse_wa_list(wa)
+    assert len(rows) == 1 and rows[0]["org_name"] == "Acme Dental, PLLC" and rows[0]["disclosed_date"] == "2026-09-11"
+    assert rows[0]["source_url"].endswith("BreachA1.pdf") and rows[0]["structured_hint"]["letter_url"] == rows[0]["source_url"]
+    rec = deterministic_record(dict(rows[0], all_sources=[{"url": rows[0]["source_url"], "type": "state_ag", "title": None}]), "2026-10-12")
+    assert rec["incident_date"] == "2025-11-06" and rec["records_affected"] == 681
+    assert rec["data_types"] == ["credentials", "medical", "personal"] and rec["impact_type"] == "exposure_no_theft_confirmed"
+    orh = """<table id="grid"><thead><tr><th>Organization</th></tr></thead><tbody>
+    <tr><td> Midvale Indemnity Company </td><td>09/30/2026</td><td> 6/30/2026 - 8/20/2026 </td><td> 8/20/2026<br /> </td><td> 9/30/2026<br /> </td><td> 38381 </td></tr>
+    <tr><td> No Date Co </td><td></td><td></td><td></td><td></td><td>5</td></tr></tbody></table>"""
+    rows = parse_or_list(orh)
+    assert [r["org_name"] for r in rows] == ["Midvale Indemnity Company"] and rows[0]["disclosed_date"] == "2026-09-30"
+    assert rows[0]["structured_hint"] == {"date_occurred": "2026-06-30", "date_discovered": "2026-08-20", "persons_affected": "38381", "state": "OR"}
+    assert rows[0]["source_url"].startswith("https://justice.oregon.gov/consumer/DataBreach/#Midvale")
+    sc = """<table><tr><th>Organization Name</th><th>Date Reported</th><th>Affected SC Residents</th></tr>
+    <tr><td><a href="/sites/consumer/files/Documents/Security%20Breach%20Notices/2026/Consumer%20Letter%20-%20iRhythm.pdf" target="_blank">iRhythm</a></td><td>10/6/2026</td><td>69,526</td></tr>
+    <tr><td>Old Fund</td><td>1/20/2015</td><td>102</td></tr></table>"""
+    rows = parse_sc_list(sc)
+    assert rows[0]["source_url"] == "https://consumer.sc.gov/sites/consumer/files/Documents/Security%20Breach%20Notices/2026/Consumer%20Letter%20-%20iRhythm.pdf"
+    assert rows[1]["source_url"].startswith("https://consumer.sc.gov/identity-theft-unit/security-breach-notices#Old") and rows[1]["structured_hint"]["letter_url"] is None
+    rec = deterministic_record(dict(rows[0], all_sources=[{"url": rows[0]["source_url"], "type": "state_ag", "title": None}]), "2026-10-12")
+    assert rec["records_affected"] == 69526 and rec["disclosed_date"] == "2026-10-06"
+    from letters import letter_source, wants_letter
+    assert letter_source(rec) == (rows[0]["source_url"], "SC") and wants_letter(rec)
+    assert letter_source({"sources": [{"type": "state_ag", "url": rows[1]["source_url"]}]}) is None
+
+
 def test_california_list_rows_become_state_ag_candidates():
     from sources import parse_ca_list
     html = """<table><thead><tr><th>Org</th><th>Date</th><th>Reported</th></tr></thead><tbody>

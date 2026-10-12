@@ -51,7 +51,7 @@ names the same incident date; otherwise it becomes a second record.
 |---|---|---|
 | SEC EDGAR full-text search | 8-K filings with a narrative paragraph; timing and confirmation more than mechanism | Public record; descriptive `User-Agent` required |
 | HHS OCR breach portal | Every US healthcare breach of 500 or more people, with breach type and count | Public domain |
-| California, Texas and Maine attorney general lists | Organization, dates, counts, data types; California notices include the consumer letter, which the pipeline reads | Public record. Maine's database has been offline since October 2026 |
+| State breach lists: California, Texas, Washington, Oregon, South Carolina and Maine | Organization, dates, counts, and in some states the data types; California, Washington and South Carolina link the consumer letter, which the pipeline reads | Public record. Oregon and South Carolina serve US addresses only. Maine's database has been offline since October 2026 |
 | Have I Been Pwned breach catalog | Breach date, record count, data classes, and a description | Attribution, given in the site footer |
 | Security news feeds and Mastodon `#databreach` | The place mechanism and technology usually appear | One quoted sentence and a link are stored, not the article |
 | VERIS Community Database | Historical incidents coded in VERIS, mapped into this schema and marked `imported_from` | CC BY-SA 4.0 |

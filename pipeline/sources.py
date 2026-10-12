@@ -419,6 +419,113 @@ def california_ag(since: date, max_pages: int = 3) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# 3b2. Washington, Oregon and South Carolina publish HTML tables of breach reports.
+#      Washington and South Carolina link the consumer letter; Oregon gives dates only.
+#      Oregon and South Carolina answer US addresses only.
+WA_LIST = "https://www.atg.wa.gov/data-breach-notifications"
+OR_LIST = "https://justice.oregon.gov/consumer/DataBreach/"
+SC_LIST = "https://consumer.sc.gov/identity-theft-unit/security-breach-notices"
+
+
+def _state_row(name: str, reported: str | None, url: str, state: str, title: str, hint: dict) -> dict | None:
+    name = short_org(name)
+    if not (name and reported):
+        return None
+    return {"org_name": name, "disclosed_date": reported, "source_type": "state_ag", "source_url": url,
+            "title": title, "text": None, "structured_hint": dict(hint, state=state),
+            "evidence_level_hint": "regulator_filing", "org_country": "US"}
+
+
+def _rows(html: str, min_cells: int):
+    for tr in BeautifulSoup(html, "lxml").select("table tr"):
+        tds = tr.find_all("td")
+        if len(tds) >= min_cells:
+            yield tds
+
+
+def _anchor_url(td, base: str) -> str | None:
+    a = td.find("a", href=True)
+    return requests.compat.urljoin(base, a["href"]) if a else None
+
+
+def _frag(base: str, name: str, reported: str) -> str:
+    return f"{base}#{requests.utils.quote(name)}-{reported}"
+
+
+def parse_wa_list(html: str) -> list[dict]:
+    """Columns: date reported, organization (letter link), date of breach, Washingtonians affected, information compromised."""
+    out = []
+    for tds in _rows(html, 5):
+        name, reported = tds[1].get_text(" ", strip=True), _iso(tds[0].get_text(" ", strip=True))
+        url = _anchor_url(tds[1], WA_LIST) or _frag(WA_LIST, name, reported or "")
+        c = _state_row(name, reported, url, "WA", "Washington AG data breach notification",
+                       {"date_occurred": _iso(tds[2].get_text(" ", strip=True)), "persons_affected": tds[3].get_text(" ", strip=True),
+                        "information_acquired": tds[4].get_text(" ", strip=True), "letter_url": url if url.lower().endswith(".pdf") else None})
+        if c:
+            out.append(c)
+    return out
+
+
+def parse_or_list(html: str) -> list[dict]:
+    """Columns: organization, reported date, dates of breach, dates of discovery, date notice sent, number affected."""
+    out = []
+    for tds in _rows(html, 6):
+        name, reported = tds[0].get_text(" ", strip=True), _iso(tds[1].get_text(" ", strip=True))
+        first = lambda td: _iso(td.get_text(" ", strip=True).split("-")[0])  # noqa: E731  "6/30/2026 - 8/20/2026"
+        c = _state_row(name, reported, _frag(OR_LIST, name, reported or ""), "OR", "Oregon DOJ data breach report",
+                       {"date_occurred": first(tds[2]), "date_discovered": first(tds[3]), "persons_affected": tds[5].get_text(" ", strip=True)})
+        if c:
+            out.append(c)
+    return out
+
+
+def parse_sc_list(html: str) -> list[dict]:
+    """Columns: organization (letter link), date reported, affected SC residents."""
+    out = []
+    for tds in _rows(html, 3):
+        name, reported = tds[0].get_text(" ", strip=True), _iso(tds[1].get_text(" ", strip=True))
+        url = _anchor_url(tds[0], SC_LIST) or _frag(SC_LIST, name, reported or "")
+        c = _state_row(name, reported, url, "SC", "South Carolina consumer affairs breach notice",
+                       {"persons_affected": tds[2].get_text(" ", strip=True), "letter_url": url if url.lower().endswith(".pdf") else None})
+        if c:
+            out.append(c)
+    return out
+
+
+def washington_ag(since: date, max_pages: int = 40) -> list[dict]:
+    out: list[dict] = []
+    for page in range(max_pages):
+        r = _get(WA_LIST, params={"page": page} if page else None, headers={"User-Agent": BROWSER_UA})
+        rows = parse_wa_list(r.text) if r else []
+        if not rows:
+            break
+        out += [c for c in rows if c["disclosed_date"] >= since.isoformat()]
+        if rows[-1]["disclosed_date"] < since.isoformat():
+            break
+        time.sleep(1)
+    log.info("washington_ag: %d candidates", len(out))
+    return out
+
+
+def _single_page(name: str, url: str, parse, since: date) -> list[dict]:
+    r = _get(url, headers={"User-Agent": BROWSER_UA}, timeout=90)
+    if not r:
+        log.warning("%s: list unavailable (US-only site?)", name)
+        return []
+    out = [c for c in parse(r.text) if c["disclosed_date"] >= since.isoformat()]
+    log.info("%s: %d candidates", name, len(out))
+    return out
+
+
+def oregon_doj(since: date) -> list[dict]:
+    return _single_page("oregon_doj", OR_LIST, parse_or_list, since)
+
+
+def south_carolina(since: date) -> list[dict]:
+    return _single_page("south_carolina", SC_LIST, parse_sc_list, since)
+
+
+# ---------------------------------------------------------------------------
 # 3c. Have I Been Pwned breach list (free, no key, attribution asked). One row per
 #     breach: name, domain, breach date, date added, count, data classes, a short
 #     description that often says how. Spam lists, stealer logs and fabricated sets
@@ -623,6 +730,9 @@ ALL_SOURCES = {
     "maine_ag": lambda since, until: maine_ag(since),
     "california_ag": lambda since, until: california_ag(since),
     "texas_ag": lambda since, until: texas_ag(since),
+    "washington_ag": lambda since, until: washington_ag(since),
+    "oregon_doj": lambda since, until: oregon_doj(since),
+    "south_carolina": lambda since, until: south_carolina(since),
     "hibp": lambda since, until: hibp(since),
     "ransomware_live": lambda since, until: ransomware_live(since),
     "rss": lambda since, until: rss(since),

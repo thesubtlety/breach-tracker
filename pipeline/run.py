@@ -49,6 +49,8 @@ MAINE_ORG_TYPE = {
 }
 MAINE_DATA_TYPES = {  # substrings of Maine's "Information Acquired" field -> data_types
     "social security": "personal", "driver": "personal", "date of birth": "personal", "name": "personal",
+    "passport": "personal", "biometric": "personal", "military id": "personal", "student id": "personal",
+    "private key": "credentials",
     "financial account": "financial", "credit": "financial", "debit": "financial", "bank": "financial",
     "medical": "medical", "health": "medical", "insurance": "medical",
     "password": "credentials", "username": "credentials", "account credentials": "credentials",

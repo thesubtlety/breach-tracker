@@ -30,7 +30,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import CANDIDATES_PATH, read_jsonl, write_jsonl  # noqa: E402
 from sources import (EFTS, MAINE_DIR, _edgar_hit, _get, california_ag, hhs, hibp, maine_ag,  # noqa: E402
-                     parse_maine_notice, rwl_candidate, rwl_get)
+                     oregon_doj, parse_maine_notice, rwl_candidate, rwl_get, south_carolina, washington_ag)
 
 log = logging.getLogger("backfill")
 
@@ -121,6 +121,12 @@ def main() -> int:
         new += hibp(start)
     if "maine_ag" in wanted:
         new += maine_ag(start, max_pages=args.maine_pages)
+    if "washington_ag" in wanted:
+        new += washington_ag(start)
+    if "oregon_doj" in wanted:
+        new += oregon_doj(start)
+    if "south_carolina" in wanted:
+        new += south_carolina(start)
     if "ransomware_live" in wanted:
         new += ransomware_live_history(start, end)
 

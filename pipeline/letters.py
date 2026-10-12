@@ -22,6 +22,8 @@ import sys
 import time
 from pathlib import Path
 
+import requests
+
 sys.path.insert(0, str(Path(__file__).parent))
 from common import INCIDENTS_PATH, read_jsonl, today, write_jsonl  # noqa: E402
 from extract import extract_one  # noqa: E402
@@ -32,6 +34,7 @@ log = logging.getLogger("letters")
 logging.getLogger("pypdf").setLevel(logging.ERROR)  # font-encoding chatter on every letter
 
 CA_HOST = "oag.ca.gov"
+LETTER_HOSTS = {"agportal-s3bucket.s3.amazonaws.com": "WA", "consumer.sc.gov": "SC"}  # lists that link the PDF directly
 PDF_LINK = re.compile(r'href="(https://oag\.ca\.gov/system/files/[^"]+\.pdf)"', re.I)
 HEADING = re.compile(r"(?im)^[\s\W]*(what happened|what information was involved|what we are doing|"
                      r"what are we doing|what you can do|what can you do|for more information|"
@@ -44,7 +47,7 @@ SAVE_EVERY = 50  # a backlog run takes hours; keep progress
 
 LETTER_PREAMBLE = (
     "Consumer notification letter that the organization named below sent to affected people, "
-    "filed with the California Attorney General. Only the sections describing what happened and "
+    "filed with a state attorney general. Only the sections describing what happened and "
     "what information was involved are included. The letter is the incident; do not skip it as a "
     "retrospective. Letters rarely state how many people were affected, so leave records_affected "
     "null unless a total is written. incident_date is when the intrusion began or the data was "
@@ -77,32 +80,47 @@ def pdf_text(data: bytes) -> str:
         return ""
 
 
+def letter_source(rec: dict) -> tuple[str, str] | None:
+    """(url, state): a California report page, or a letter PDF linked from another state's list."""
+    for s in rec["sources"]:
+        if s["type"] != "state_ag":
+            continue
+        host = requests.utils.urlparse(s["url"]).hostname or ""
+        if CA_HOST in host and "/reports/" in s["url"]:
+            return s["url"], "CA"
+        if host in LETTER_HOSTS and s["url"].lower().endswith(".pdf"):
+            return s["url"], LETTER_HOSTS[host]
+    return None
+
+
 def ca_source(rec: dict) -> str | None:
-    return next((s["url"] for s in rec["sources"] if CA_HOST in s["url"] and "/reports/" in s["url"]), None)
+    src = letter_source(rec)
+    return src[0] if src else None
 
 
 def wants_letter(rec: dict) -> bool:
-    return (not rec.get("reviewed") and not rec.get("letter") and ca_source(rec) is not None
+    return (not rec.get("reviewed") and not rec.get("letter") and letter_source(rec) is not None
             and rec.get("initial_access", "unknown") == "unknown")
 
 
-def fetch_letter(detail_url: str) -> tuple[str | None, str]:
+def fetch_letter(url: str) -> tuple[str | None, str]:
     """(pdf url, narrative text). Empty text means nothing usable."""
-    page = _get(detail_url, headers={"User-Agent": BROWSER_UA})
-    if not page:
-        return None, ""
-    m = PDF_LINK.search(page.text)
-    if not m:
-        return None, ""
-    time.sleep(PACE_SECONDS)
-    pdf = _get(m.group(1), headers={"User-Agent": BROWSER_UA}, timeout=60)
+    if not url.lower().endswith(".pdf"):
+        page = _get(url, headers={"User-Agent": BROWSER_UA})
+        m = page and PDF_LINK.search(page.text)
+        if not m:
+            return None, ""
+        url = m.group(1)
+        time.sleep(PACE_SECONDS)
+    pdf = _get(url, headers={"User-Agent": BROWSER_UA}, timeout=60)
     if not pdf:
-        return m.group(1), ""
-    return m.group(1), letter_sections(pdf_text(pdf.content))
+        return url, ""
+    return url, letter_sections(pdf_text(pdf.content))
 
 
 def candidate_from(rec: dict, pdf_url: str) -> dict:
-    hint = {"state": "CA", "letter": True}
+    src = letter_source(rec)
+    hint = {"state": src[1] if src else "CA", "letter": True}
     for k in ("incident_date", "discovered_date", "records_affected"):
         if rec.get(k) is not None:
             hint[k] = rec[k]

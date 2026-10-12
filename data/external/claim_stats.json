@@ -1,7 +1,7 @@
 {
  "generated": "2026-10-12",
- "pending": 9942,
- "confirmed": 115,
+ "pending": 9937,
+ "confirmed": 120,
  "min_claims": 5,
  "groups": [
   {
@@ -197,8 +197,8 @@
   {
    "group": "akira",
    "claims": 604,
-   "confirmed": 4,
-   "rate": 0.007,
+   "confirmed": 5,
+   "rate": 0.008,
    "by_month": [
     [
      "2025-10",
@@ -271,7 +271,7 @@
    "countries": [
     [
      "US",
-     379
+     378
     ],
     [
      "DE",
@@ -282,14 +282,14 @@
      24
     ]
    ],
-   "median_days_to_confirmation": 280,
-   "n_lag": 1
+   "median_days_to_confirmation": 166.5,
+   "n_lag": 2
   },
   {
    "group": "incransom",
    "claims": 475,
-   "confirmed": 8,
-   "rate": 0.017,
+   "confirmed": 10,
+   "rate": 0.021,
    "by_month": [
     [
      "2024-07",
@@ -374,7 +374,7 @@
    "countries": [
     [
      "US",
-     268
+     266
     ],
     [
      "CA",
@@ -385,8 +385,8 @@
      14
     ]
    ],
-   "median_days_to_confirmation": 227,
-   "n_lag": 1
+   "median_days_to_confirmation": 231,
+   "n_lag": 3
   },
   {
    "group": "dragonforce",
@@ -1511,8 +1511,8 @@
   {
    "group": "anubis",
    "claims": 94,
-   "confirmed": 3,
-   "rate": 0.032,
+   "confirmed": 4,
+   "rate": 0.043,
    "by_month": [
     [
      "2025-10",
@@ -1577,7 +1577,7 @@
    "countries": [
     [
      "US",
-     46
+     45
     ],
     [
      "GB",
@@ -1588,8 +1588,8 @@
      5
     ]
    ],
-   "median_days_to_confirmation": null,
-   "n_lag": 0
+   "median_days_to_confirmation": 312,
+   "n_lag": 1
   },
   {
    "group": "silentransomgroup",
@@ -1927,8 +1927,8 @@
   {
    "group": "pear",
    "claims": 85,
-   "confirmed": 4,
-   "rate": 0.047,
+   "confirmed": 5,
+   "rate": 0.059,
    "by_month": [
     [
      "2025-10",
@@ -1997,7 +1997,7 @@
    "countries": [
     [
      "US",
-     70
+     69
     ],
     [
      "JM",
@@ -2008,8 +2008,8 @@
      3
     ]
    ],
-   "median_days_to_confirmation": null,
-   "n_lag": 0
+   "median_days_to_confirmation": 51,
+   "n_lag": 1
   },
   {
    "group": "storm",
