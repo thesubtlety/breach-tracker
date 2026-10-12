@@ -134,8 +134,8 @@ def candidate_from(rec: dict, pdf_url: str) -> dict:
 
 
 def read_letters(store: list[dict], limit: int, model: str | None, run_date: str,
-                 ids: set[str] | None = None, dry_run: bool = False, save=None) -> dict:
-    todo = [r for r in store if wants_letter(r) and (not ids or r["id"] in ids)]
+                 ids: set[str] | None = None, dry_run: bool = False, save=None, state: str | None = None) -> dict:
+    todo = [r for r in store if wants_letter(r) and (not ids or r["id"] in ids) and (not state or letter_source(r)[1] == state)]
     todo.sort(key=lambda r: r["disclosed_date"], reverse=True)
     counts = {"eligible": len(todo), "read": 0, "extracted": 0, "skipped": 0, "no_text": 0, "no_letter": 0}
     for rec in todo[:limit]:
@@ -187,12 +187,13 @@ def main() -> None:
     ap.add_argument("--model", default=None, help="override LLM_MODEL for this pass")
     ap.add_argument("--ids", default="", help="comma-separated record ids")
     ap.add_argument("--dry-run", action="store_true", help="print the text that would be sent")
+    ap.add_argument("--state", default=None, help="only letters filed in this state (CA, WA, SC); some sites are US-only")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     store = read_jsonl(INCIDENTS_PATH)
     counts = read_letters(store, args.limit, args.model, today(),
                           {i for i in args.ids.split(",") if i} or None, args.dry_run,
-                          save=lambda: write_jsonl(INCIDENTS_PATH, store))
+                          save=lambda: write_jsonl(INCIDENTS_PATH, store), state=args.state)
     if not args.dry_run:
         write_jsonl(INCIDENTS_PATH, store)
     log.info("letters: %s", counts)

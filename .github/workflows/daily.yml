@@ -7,6 +7,9 @@ on:
       limit:
         description: max LLM extractions this run
         default: "80"
+      letters:
+        description: max notification letters to read this run
+        default: "30"
 
 permissions: {}
 
@@ -42,8 +45,9 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           RANSOMWARE_LIVE_API_KEY: ${{ secrets.RANSOMWARE_LIVE_API_KEY }}
-      - run: python pipeline/letters.py --limit 30
+      - run: python pipeline/letters.py --limit "$LETTERS"
         env:
+          LETTERS: ${{ github.event.inputs.letters || '30' }}
           EDGAR_USER_AGENT: ${{ secrets.EDGAR_USER_AGENT }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
