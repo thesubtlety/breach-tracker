@@ -7,6 +7,7 @@ carry the organization's name and the question in their title so a query like
 """
 from __future__ import annotations
 
+import re
 import shutil
 from collections import Counter, defaultdict
 from html import escape
@@ -166,6 +167,11 @@ def _price_line(p: dict | None) -> str | None:
     return f"{p['ticker']} from the close on {p['base_day']}: " + " · ".join(moves)
 
 
+def cut_note(s: str) -> str:
+    """Imported and catalogue summaries were stored cut at 280 characters; show that they go on."""
+    return s.rstrip() + "…" if len(s) >= 280 and not re.search(r"""[.!?"”')\]]\s*$""", s) else s
+
+
 def record_block(r: dict, home: str, show_org: bool = False) -> str:
     d = r.get("derived") or {}
     tp = r.get("third_party") or {}
@@ -195,7 +201,7 @@ def record_block(r: dict, home: str, show_org: bool = False) -> str:
     dl = "".join(f"<dt>{k}</dt><dd>{v if k in ('CVE', 'third party', 'ATT&CK', 'record') else escape(v)}</dd>" for k, v in rows if v)
     parts = [f"<h2>{head}</h2>"]
     if r.get("summary"):
-        parts.append(f"<p>{escape(r['summary'])}</p>")
+        parts.append(f"<p>{escape(cut_note(r['summary']))}</p>")
     if r.get("root_cause"):
         parts.append(f"<p><span class='muted'>Root cause:</span> {escape(r['root_cause'])}</p>")
     if r.get("supporting_quote"):
@@ -236,7 +242,7 @@ def org_page(o: dict, recs: list[dict], site_url: str) -> str:
     body = [f"<h1>{escape(o['name'])}</h1>", f"<p class='muted small'>{_facts(o)}</p>"]
     if o.get("aliases"):
         body.append(f"<p class='muted small'>Also recorded as {escape('; '.join(o['aliases']))}</p>")
-    body.append(f'<p class="small"><a href="{home}#org={escape(o["id"])}">Open these records in the app</a></p>')
+    body.append(f'<p class="small"><a href="{home}#org={escape(o["id"])}">Show these records in the table</a></p>')
     body += [record_block(r, home) for r in recs]
     return shell(title, desc, f"{site_url}org/{o['id']}/", "\n".join(body), home)
 
@@ -255,7 +261,7 @@ def vendor_page(v: dict, recs: list[dict], site_url: str) -> str:
         body.append(f"<p class='muted small'>Also named as {escape('; '.join(v['aliases']))}</p>")
     if v.get("is_org"):
         body.append(f'<p class="small"><a href="../../org/{escape(v["id"])}/">{escape(v["name"])}\'s own breaches</a></p>')
-    body.append(f'<p class="small"><a href="{home}#vendor={escape(v["id"])}">Open these records in the app</a>'
+    body.append(f'<p class="small"><a href="{home}#vendor={escape(v["id"])}">Show these records in the table</a>'
                 + (f' · <a href="{home}feeds/vendor-{escape(v["id"])}.xml">Atom feed</a>' if v.get("feed") else "") + "</p>")
     body += [record_block(r, home, show_org=True) for r in recs]
     return shell(title, desc, f"{site_url}vendor/{v['id']}/", "\n".join(body), home)
@@ -292,7 +298,7 @@ def actor_page(a: dict, recs: list[dict], site_url: str) -> str:
         body.append(f"<p class='small'>Victim sectors: {escape(', '.join(f'{label(k)} ×{v}' for k, v in a['sectors']))}</p>")
     if a.get("vendors"):
         body.append(f"<p class='small'>Third parties named: {escape(', '.join(f'{k} ×{v}' for k, v in a['vendors']))}</p>")
-    body.append(f'<p class="small"><a href="{home}#actor={escape(a["id"])}">Open these records in the app</a></p>')
+    body.append(f'<p class="small"><a href="{home}#actor={escape(a["id"])}">Show these records in the table</a></p>')
     body += [record_block(r, home, show_org=True) for r in recs]
     return shell(title, desc, f"{site_url}actor/{a['id']}/", "\n".join(body), home)
 
@@ -316,7 +322,7 @@ def technique_page(t: dict, recs: list[dict], site_url: str) -> str:
         body.append(f"<p class='small'>Sectors: {escape(', '.join(f'{label(k)} ×{v}' for k, v in t['sectors']))}</p>")
     if t.get("initial_access"):
         body.append(f"<p class='small'>Initial access on these records: {escape(', '.join(f'{label(k)} ×{v}' for k, v in t['initial_access']))}</p>")
-    body.append(f'<p class="small"><a href="https://attack.mitre.org/techniques/{escape(t["id"].replace(".", "/"))}/" rel="noopener">ATT&CK entry</a> · <a href="{home}#tech={escape(t["id"])}">Open these records in the app</a></p>')
+    body.append(f'<p class="small"><a href="https://attack.mitre.org/techniques/{escape(t["id"].replace(".", "/"))}/" rel="noopener">ATT&CK entry</a> · <a href="{home}#tech={escape(t["id"])}">Show these records in the table</a></p>')
     body += _capped(recs, home, f"tech={t['id']}")
     return shell(title, desc, f"{site_url}technique/{t['id']}/", "\n".join(body), home)
 
@@ -332,7 +338,7 @@ def sector_page(sct: dict, recs: list[dict], site_url: str) -> str:
         body.append(f"<p class='small'>Initial access, where stated: {escape(', '.join(f'{label(k)} ×{v}' for k, v in sct['initial_access']))}</p>")
     if sct.get("vendors"):
         body.append(f"<p class='small'>Third parties named most: {escape(', '.join(f'{k} ×{v}' for k, v in sct['vendors']))}</p>")
-    body.append(f'<p class="small"><a href="{home}#ot={escape(sct["id"])}">Open these records in the app</a></p>')
+    body.append(f'<p class="small"><a href="{home}#ot={escape(sct["id"])}">Show these records in the table</a></p>')
     body += _capped(recs, home, f"ot={sct['id']}")
     return shell(title, desc, f"{site_url}sector/{sct['id']}/", "\n".join(body), home)
 

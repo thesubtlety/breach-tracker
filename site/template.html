@@ -240,6 +240,8 @@ function renderOrg() {
 // Matches at the start of a word, so "llm" finds "LLM" but not "enrollments".
 function wordRe(q) { return new RegExp("(^|[^a-z0-9])" + q.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")); }
 function matcher(q) { const re = wordRe(q); return t => re.test(String(t || "").toLowerCase()); }
+// Imported and catalogue summaries were stored cut at 280 characters; show that they go on.
+function cutNote(s) { return s && s.length >= 280 && !/[.!?"”')\]]\s*$/.test(s) ? s.trimEnd() + "…" : s; }
 function snippet(text, q) {
   const m = wordRe(q).exec(text.toLowerCase()); const i = m ? m.index + m[1].length : -1; if (i < 0) return text.slice(0, 160);
   const a = Math.max(0, i - 70), b = Math.min(text.length, i + q.length + 90);
@@ -321,7 +323,7 @@ function renderWeek() {
   const LIMIT = 30, shown = items.slice(0, LIMIT);
   const nNew = items.filter(isNew).length, nUpd = items.length - nNew;
   el.hidden = false;
-  el.innerHTML = `<h3>Recent activity</h3><div class="note">${fmt(nNew)} records first recorded and ${fmt(nUpd)} changed by a later source since ${esc(STATS.week_ago)}, counting only records disclosed since ${esc(STATS.new_window)}. Imported rows and backfilled older notices are excluded${STATS.backfilled_last_7_days ? ` (${fmt(STATS.backfilled_last_7_days)} of those were added in the same period)` : ""}. Select a row to open it.</div>
+  el.innerHTML = `<h3>Recent activity</h3><div class="note">${fmt(nNew)} new records and ${fmt(nUpd)} updated by a later source since ${esc(STATS.week_ago)}. Only records disclosed in the last ${STATS.new_window_days || 90} days count; imported rows and backfilled older notices do not. Select a row to open it.</div>
   <ul>${shown.map(x => `<li><a href="#id=${esc(x.id)}" data-open="${esc(x.id)}"><span class="d">${esc(x.disclosed_date)}</span>${esc(x.org_name)} <span class="muted">· ${esc(lab(x.initial_access))}${x.ransomware === true ? " · ransomware" : ""}</span> <span class="tag ${isNew(x) ? "new" : "upd"}">${isNew(x) ? "new" : "updated"}</span></a></li>`).join("")}</ul>
   ${items.length > LIMIT ? `<div class="note" style="margin-top:6px"><a href="#wk=1" id="week-all">Show all ${items.length} in the table</a></div>` : ""}`;
   el.querySelectorAll("a[data-open]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openRow(a.dataset.open); }));
@@ -329,10 +331,11 @@ function renderWeek() {
 }
 function renderFresh() {
   const h = STATS.health || {}, counts = h.counts || {};
-  const bits = [`Updated ${STATS.generated}`, `${fmt(STATS.added_last_7_days)} records added and ${fmt(STATS.updated_last_7_days)} updated since ${STATS.week_ago}, counting records disclosed since ${STATS.new_window}${STATS.backfilled_last_7_days ? `; ${fmt(STATS.backfilled_last_7_days)} older or imported rows were also added` : ""}`];
-  for (const c of STATS.coverage || []) bits.push(`${fmt(c.n)} ${c.origin} records, ${c.from} to ${c.to}`);
-  if ((h.problems || []).length) bits.push(`<span class="bad">source problems at the last check: ${esc(h.problems.join("; "))}</span>`);
-  $("#fresh").innerHTML = bits.join(" · ");
+  const bits = [`Updated ${STATS.generated}.`,
+    `In the last 7 days: ${fmt(STATS.added_last_7_days)} new records, ${fmt(STATS.updated_last_7_days)} updated by a later source${STATS.backfilled_last_7_days ? `, and ${fmt(STATS.backfilled_last_7_days)} older or imported records added` : ""}. A record counts as new when it was disclosed in the last ${STATS.new_window_days || 90} days.`,
+    (STATS.coverage || []).length ? "Coverage: " + STATS.coverage.map(c => `${fmt(c.n)} ${c.origin} records from ${c.from} to ${c.to}`).join("; ") + "." : ""];
+  if ((h.problems || []).length) bits.push(`<span class="bad">Source problems at the last check: ${esc(h.problems.join("; "))}.</span>`);
+  $("#fresh").innerHTML = bits.filter(Boolean).join("<br>");
 }
 function renderStats(v) {
   const sw = siteWide(), total = sw ? STATS.total : v.length;
@@ -586,7 +589,7 @@ function actorLine(x) {
 function detail(x) {
   const c = claimOf(x);
   const dd = [
-    ["summary", esc(x.summary)],
+    ["summary", esc(cutNote(x.summary))],
     [origin(x) === "imported" ? "incident date (imported)" : "disclosed", esc(x.disclosed_date)],
     ["known exploited", ((x.derived || {}).kev || []).length ? x.derived.kev.map(k => `${esc(k.cve)}: ${k.kev_added ? `in CISA KEV since ${esc(k.kev_added)}` + (k.days_listed_before_incident > 0 ? ` (${k.days_listed_before_incident} days before the incident)` : "") : "not in CISA KEV"}`).join("<br>") : null],
     ["share price", (x.derived || {}).price ? `${esc(x.derived.price.ticker)} from the close on ${esc(x.derived.price.base_day)}: ` + Object.entries(x.derived.price.returns).map(([h, r]) => `${HORIZON_LABEL[h]} ${(100 * r.raw).toFixed(1)}%${r.adj !== null ? ` (${(100 * r.adj).toFixed(1)}% vs market)` : ""}`).join(" · ") : null],

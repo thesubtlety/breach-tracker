@@ -317,6 +317,7 @@ def main() -> int:
         "generated": today(),
         "week_ago": week_ago,
         "new_window": window,
+        "new_window_days": NEW_WINDOW_DAYS,
         "added_last_7_days": sum(1 for r in rows if newsworthy(r, window) and first_seen(r) >= week_ago),
         "backfilled_last_7_days": sum(1 for r in rows if not newsworthy(r, window) and first_seen(r) >= week_ago),
         "updated_last_7_days": sum(1 for r in rows if newsworthy(r, window) and (r.get("updated_at") or "") >= week_ago and first_seen(r) < week_ago),
