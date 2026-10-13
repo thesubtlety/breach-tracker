@@ -540,10 +540,10 @@ def test_vendor_registry_shares_org_ids():
     # a made-up vendor, so the model-written alias file (data/vendor_aliases.json) cannot change the outcome
     mk = lambda org, vendor, d: {"id": org + d, "org_name": org, "org_id": org_id(org), "disclosed_date": d, "org_type": "healthcare",
                                  "third_party": {"involved": True, "vendor": vendor, "archetype": "service_provider"}, "sources": []}
-    out = vendor_registry([mk("Hospital A", "Zorbital Billing", "2019-06-01"), mk("Hospital B", "Zorbital Billing Inc.", "2019-06-03"), mk("Zorbital Billing", None, "2019-06-05"),
-                           mk("Hospital C", "Zorbital Billing and MOVEit", "2023-06-05"), mk("Hospital D", "third-party vendor", "2023-06-06")])
+    out = vendor_registry([mk("Hospital A", "Zorbital", "2019-06-01"), mk("Hospital B", "Zorbital Inc.", "2019-06-03"), mk("Zorbital", None, "2019-06-05"),
+                           mk("Hospital C", "Zorbital and MOVEit", "2023-06-05"), mk("Hospital D", "third-party vendor", "2023-06-06")])
     by = {o["name"]: o for o in out}
-    assert set(by) == {"Zorbital Billing", "MOVEit"} and by["Zorbital Billing"]["incidents"] == 3 and by["Zorbital Billing"]["is_org"] is True and by["Zorbital Billing"]["id"] == org_id("Zorbital Billing")
+    assert set(by) == {"Zorbital", "MOVEit"} and by["Zorbital"]["incidents"] == 3 and by["Zorbital"]["is_org"] is True and by["Zorbital"]["id"] == org_id("Zorbital")
     assert by["MOVEit"]["id"] == org_id("Progress Software")
 
 
