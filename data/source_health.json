@@ -1,7 +1,21 @@
 {
-  "run_at": "2026-10-12T15:31:06+00:00",
+  "run_at": "2026-10-13T01:32:07+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 16,
+      "hhs": 81,
+      "maine_ag": 0,
+      "california_ag": 49,
+      "texas_ag": 79,
+      "washington_ag": 0,
+      "oregon_doj": 13,
+      "south_carolina": 13,
+      "hibp": 9,
+      "ransomware_live": 100,
+      "rss": 20,
+      "mastodon": 30
+    },
+    "previous_counts": {
       "sec_edgar": 16,
       "hhs": 86,
       "maine_ag": 0,
@@ -12,40 +26,28 @@
       "rss": 21,
       "mastodon": 31
     },
-    "previous_counts": {
-      "sec_edgar": 18,
-      "hhs": 21,
-      "maine_ag": 0,
-      "ransomware_live": null,
-      "rss": 21,
-      "mastodon": 36
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
-    "skipped": [
-      "ransomware_live"
-    ]
+    "skipped": []
   },
   "links": {
     "checked": 20,
     "dead": [
-      "https://www.databreaches.net/tx-sewell-family-of-companies-discloses-breach/",
-      "https://www.yorkregion.com/news-story/8699947-stouffville-takes-mayor-justin-altmann-to-court-for-alleged-leaked-documents/;",
-      "http://www.informationsecuritybuzz.com/expert-comments/2-5-million-playstation-xbox-user-details-leaked/;"
+      "https://www.charlotteagenda.com/178386/boy-scouts-affiliate-data-breach-exposed-kids-and-parents-personal-information/",
+      "http://news.nationalpost.com/2014/12/16/rcmp-broke-privacy-laws-by-sharing-medical-histories-of-officers-report/#__federated=1;",
+      "https://www.databreaches.net/an-anonymous-hentai-porn-site-exposed-over-a-million-users-emails/;",
+      "http://www.databreaches.net/second-tampa-general-hospital-employee-charged-in-patient-identity-theft-for-tax-refund-fraud-scheme/;",
+      "https://www.databreaches.net/al-atmore-community-hospital-fires-employee-who-snooped-on-1000-patients-records-for-more-than-one-year/;",
+      "http://lakerpioneer.com/2017/09/17/data-breach-made-public-ridgeview-says-it-exposed-some-email-addresses/",
+      "https://www.privacyrights.org/node/55178"
     ],
-    "dead_rate": 0.15
+    "dead_rate": 0.35
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 19,
-    "missing": [
-      {
-        "id": "a00a2e40eaec5e0ceaae78debabcd1645318f7c0",
-        "org": "Epic Games",
-        "url": "https://haveibeenpwned.com/Breach/EpicGames"
-      }
-    ],
+    "confirmed": 20,
+    "missing": [],
     "unfetchable": 0
   }
 }
