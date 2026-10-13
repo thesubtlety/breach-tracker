@@ -4,7 +4,7 @@ What a record is, what the checks establish, and where the data is thin.
 
 ## Records come from four kinds of source, mapped three ways
 
-- **Regulator rows**: the HHS breach portal, the California, Texas, Washington, Oregon, South Carolina and Maine state breach lists, and the Have I Been Pwned catalogue, mapped by fixed rules with no model. They give who, when, how many and which data types, and rarely the mechanism. A row that lists data types gets the impact "Data exposed; theft not confirmed", because a regulator form shows that data was involved, not that it left.
+- **Regulator rows**: the HHS breach portal, the California, Texas, Washington, Oregon, South Carolina, Vermont and Maine state breach lists (`docs/STATE-LISTS.md`), and the Have I Been Pwned catalogue, mapped by fixed rules with no model. They give who, when, how many and which data types, and rarely the mechanism. A row that lists data types gets the impact "Data exposed; theft not confirmed", because a regulator form shows that data was involved, not that it left.
 - **Extracted rows**: an SEC 8-K, a news article, a breach notification letter or a catalogue description, read by a language model into `schema/incident.schema.json` using `prompts/extract.md`.
 - **Imported rows**: the VERIS Community Database, recoded from VERIS fields (`docs/VERIS-MAPPING.md`). Their date is the incident date, not a disclosure date.
 

@@ -149,6 +149,7 @@
   <div class="chart"><h3>ATT&amp;CK techniques</h3><div class="note" id="tech-note"></div><div class="bars" id="tech-bars"></div></div>
   <div class="chart"><h3>Technologies and systems named</h3><div class="note" id="tn-note"></div><div class="bars" id="tn-bars"></div></div>
   <div class="chart wide"><h3>Time to discovery and public disclosure</h3><div class="note" id="dw-note"></div><div id="dw"></div></div>
+  <div class="chart wide"><h3>Records by year</h3><div class="note" id="yrs-note"></div><div class="legend" id="yrs-legend"></div><div id="yrs"></div></div>
   <div class="chart wide"><h3>Breach mechanism mix by year</h3><div class="note" id="mix-note"></div><div class="chips" id="mix-chips"></div><div class="legend" id="mix-legend"></div><div id="mix"></div></div>
   <div class="chart wide"><h3>Time to discovery and to disclosure, by year</h3><div class="note" id="yr-note"></div><div class="legend" id="yr-legend"></div><div id="yr"></div></div>
   <div class="chart"><h3>Ransomware share by year</h3><div class="note" id="rwy-note"></div><div id="rwy"></div></div>
@@ -167,7 +168,7 @@
 <details class="gloss" id="gloss"><summary>Glossary</summary></details>
 
 <footer>
-  <p>Sources: SEC EDGAR full-text search, the HHS OCR breach portal, the California, Texas, Washington, Oregon, South Carolina and Maine state breach lists, the <a href="https://haveibeenpwned.com/">Have I Been Pwned</a> breach list, security news feeds, Mastodon #databreach, the VERIS Community Database (CC BY-SA 4.0), and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Context joined at build time: CISA's Known Exploited Vulnerabilities catalog (via NVD) and daily closing prices from Nasdaq's data API, with Alpha Vantage for older filings. Leak-site claims appear only as a tag on records that another source reported; a claim on its own is never published here.</p>
+  <p>Sources: SEC EDGAR full-text search, the HHS OCR breach portal, the California, Texas, Washington, Oregon, South Carolina, Vermont and Maine state breach lists, the <a href="https://haveibeenpwned.com/">Have I Been Pwned</a> breach list, security news feeds, Mastodon #databreach, the VERIS Community Database (CC BY-SA 4.0), and leak-site claims aggregated by <a href="https://www.ransomware.live/">Ransomware.live</a>. Context joined at build time: CISA's Known Exploited Vulnerabilities catalog (via NVD) and daily closing prices from Nasdaq's data API, with Alpha Vantage for older filings. Leak-site claims appear only as a tag on records that another source reported; a claim on its own is never published here.</p>
   <p>Records marked <span class="unrev">unreviewed</span> were produced by a fixed mapping or a language model and have not been checked by a person.</p>
   <p>Want an API, alerts or a bulk export? <a href="https://github.com/thesubtlety/breach-tracker/issues/new?template=api-interest.yml">Open an issue saying what you would use it for</a>.</p>
   <p>Dataset: CC BY-SA 4.0. Corrections: open an issue with the record id.</p>
@@ -396,13 +397,14 @@ function lineChart(el, years, series, opt = {}) {
   el.innerHTML = `<svg class="line" viewBox="0 0 ${W} ${H}" role="img">${grid}${axis}${paths}</svg>`;
 }
 // columns: [{ year, n, parts: [{ name, value, color }] }], parts as shares of 1
-function stackChart(el, columns) {
-  const W = Math.max(320, el.clientWidth || 600), H = 200, L = 36, R = 10, T = 14, B = 22, w = W - L - R, h = H - T - B;
+function stackChart(el, columns, opt = {}) {
+  const W = Math.max(320, el.clientWidth || 600), H = 200, L = 40, R = 10, T = 14, B = 22, w = W - L - R, h = H - T - B;
   if (!columns.length) { el.innerHTML = ""; return; }
   const cw = w / columns.length, bw = Math.min(40, cw * 0.7), step = Math.max(1, Math.ceil(columns.length / 10));
-  const grid = [0, 0.5, 1].map(k => `<line class="grid" x1="${L}" x2="${W - R}" y1="${T + h - h * k}" y2="${T + h - h * k}"/><text x="${L - 5}" y="${T + h - h * k + 4}" text-anchor="end">${Math.round(100 * k)}%</text>`).join("");
+  const top = opt.counts ? Math.max(1, ...columns.map(c => c.n)) * 1.08 : 1, scale = c => opt.counts ? h / top : h / c.n;
+  const grid = [0, 0.5, 1].map(k => `<line class="grid" x1="${L}" x2="${W - R}" y1="${T + h - h * k}" y2="${T + h - h * k}"/><text x="${L - 5}" y="${T + h - h * k + 4}" text-anchor="end">${opt.counts ? fmt(Math.round(top * k)) : Math.round(100 * k) + "%"}</text>`).join("");
   const cols = columns.map((c, i) => { const x = L + cw * i + (cw - bw) / 2; let y = T + h;
-    const segs = c.parts.map(p => { const sh = h * p.value / c.n; y -= sh; return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${sh.toFixed(1)}" fill="${p.color}"><title>${esc(p.name)}, ${c.year}: ${p.value} of ${c.n}</title></rect>`; }).join("");
+    const segs = c.parts.map(p => { const sh = scale(c) * p.value; y -= sh; return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${sh.toFixed(1)}" fill="${p.color}"><title>${esc(p.name)}, ${c.year}: ${p.value} of ${c.n}</title></rect>`; }).join("");
     const lbl = i % step === 0 || i === columns.length - 1 ? `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${c.year}</text>` : "";
     return segs + `<text x="${(x + bw / 2).toFixed(1)}" y="${T - 4}" text-anchor="middle" font-size="9">${c.n}</text>` + lbl; }).join("");
   el.innerHTML = `<svg class="line" viewBox="0 0 ${W} ${H}" role="img">${grid}${cols}</svg>`;
@@ -416,13 +418,20 @@ let mixOn = null;
 let trend = null;  // per-year buckets of the native records in view, shared by the trend charts
 function renderTrends(v) {
   const notes = ["mix-note", "yr-note", "rwy-note", "term-note"];
-  if (loadingFull) { trend = null; for (const id of notes) $("#" + id).textContent = "Loading the full history…"; for (const id of ["mix", "yr", "rwy", "term"]) $("#" + id).innerHTML = ""; return; }
+  if (loadingFull) { trend = null; for (const id of notes.concat("yrs-note")) $("#" + id).textContent = "Loading the full history…"; for (const id of ["yrs", "mix", "yr", "rwy", "term"]) $("#" + id).innerHTML = ""; return; }
   const nat = v.filter(x => origin(x) !== "imported"), byY = {};
   for (const x of nat) (byY[yearOf(x)] = byY[yearOf(x)] || []).push(x);
   const years = Object.keys(byY).filter(y => byY[y].length >= 30).sort();
   trend = { byY, years };
   const excl = "Imported rows are excluded: their only date is the incident date.";
   if (years.length < 2) { for (const id of notes) $("#" + id).textContent = `Fewer than two years with 30 or more records in view. ${excl}`; for (const id of ["mix", "yr", "rwy", "term"]) $("#" + id).innerHTML = ""; renderTermChart(); return; }
+  // records by year, every origin, dated as the record is dated
+  const allY = {}; for (const x of v) (allY[yearOf(x)] = allY[yearOf(x)] || []).push(x);
+  const origins = ["regulator", "extracted", "imported"], oc = { regulator: PAL[0], extracted: PAL[2], imported: "var(--bar-unk)" };
+  $("#yrs-note").textContent = "Records in view by year. Imported rows are dated by incident, the rest by disclosure.";
+  legend($("#yrs-legend"), origins.map(o => [o, oc[o]]));
+  stackChart($("#yrs"), Object.keys(allY).sort().map(y => { const c = Object.fromEntries(count(allY[y].map(x => ({ o: origin(x) })), "o"));
+    return { year: y, n: allY[y].length, parts: origins.map(o => ({ name: o, value: c[o] || 0, color: oc[o] })) }; }), { counts: true });
   // mechanism mix
   const known = y => byY[y].filter(x => x.initial_access !== "unknown");
   const all = count(rows.filter(x => origin(x) !== "imported" && x.initial_access !== "unknown"), "initial_access").map(c => c[0]);

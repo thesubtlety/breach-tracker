@@ -492,6 +492,37 @@ def parse_sc_list(html: str) -> list[dict]:
     return out
 
 
+VT_LIST = "https://ago.vermont.gov/categories/security-breach-notices"
+VT_ORG_TYPE = {"Financial Services": "financial", "Health Care": "healthcare", "Not-For-Profit": "nonprofit", "Insurance": "financial",
+               "Educational": "education", "Hospitality": "other", "Other Commercial": "other", "Government": "government"}
+
+
+def parse_vt_list(html: str) -> list[dict]:
+    """Columns: date reported, organization, organization type, VT residents affected, categories of data breached."""
+    out = []
+    for tds in _rows(html, 5):
+        name, reported = tds[1].get_text(" ", strip=True), _iso(tds[0].get_text(" ", strip=True))
+        c = _state_row(name, reported, _frag(VT_LIST, name, reported or ""), "VT", "Vermont AG security breach notice",
+                       {"org_type_raw": tds[2].get_text(" ", strip=True).strip("\xa0 "), "persons_affected": tds[3].get_text(" ", strip=True),
+                        "information_acquired": tds[4].get_text(" ", strip=True)})
+        if c:
+            out.append(c)
+    return out
+
+
+def vermont_ag(since: date, max_pages: int = 8) -> list[dict]:
+    out: list[dict] = []
+    for page in range(max_pages):  # four pages in October 2026; rows are not date-ordered across pages
+        r = _get(VT_LIST, params={"page": page} if page else None, headers={"User-Agent": BROWSER_UA})
+        rows = parse_vt_list(r.text) if r else []
+        if not rows:
+            break
+        out += [c for c in rows if c["disclosed_date"] >= since.isoformat()]
+        time.sleep(1)
+    log.info("vermont_ag: %d candidates", len(out))
+    return out
+
+
 def washington_ag(since: date, max_pages: int = 40) -> list[dict]:
     out: list[dict] = []
     for page in range(max_pages):
@@ -731,6 +762,7 @@ ALL_SOURCES = {
     "california_ag": lambda since, until: california_ag(since),
     "texas_ag": lambda since, until: texas_ag(since),
     "washington_ag": lambda since, until: washington_ag(since),
+    "vermont_ag": lambda since, until: vermont_ag(since),
     "oregon_doj": lambda since, until: oregon_doj(since),
     "south_carolina": lambda since, until: south_carolina(since),
     "hibp": lambda since, until: hibp(since),

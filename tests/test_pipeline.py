@@ -374,6 +374,19 @@ def test_washington_oregon_south_carolina_lists_become_state_ag_candidates():
     assert letter_source({"sources": [{"type": "state_ag", "url": rows[1]["source_url"]}]}) is None
 
 
+def test_vermont_list_rows_become_state_ag_candidates():
+    from sources import parse_vt_list
+    html = """<table><tr><th>Date Reported to AGO</th><th>Reporting Organization Name</th><th>Type</th><th>Number</th><th>Categories</th></tr>
+    <tr><td>4-17-2026</td><td>Connected Credit Union</td><td>Financial Services</td><td>8</td><td><p>Social Security Numbers, Financial Account Codes</p></td></tr>
+    <tr><td>5-2-2026</td><td>Valley Clinic</td><td>Health Care&nbsp;</td><td>1,204</td><td>Health Records, Genetic Information</td></tr></table>"""
+    rows = parse_vt_list(html)
+    assert [r["org_name"] for r in rows] == ["Connected Credit Union", "Valley Clinic"] and rows[0]["disclosed_date"] == "2026-04-17"
+    rec = deterministic_record(dict(rows[1], all_sources=[{"url": rows[1]["source_url"], "type": "state_ag", "title": None}]), "2026-10-13")
+    assert rec["org_type"] == "healthcare" and rec["records_affected"] == 1204 and rec["data_types"] == ["medical"]
+    rec0 = deterministic_record(dict(rows[0], all_sources=[{"url": rows[0]["source_url"], "type": "state_ag", "title": None}]), "2026-10-13")
+    assert rec0["org_type"] == "financial" and rec0["data_types"] == ["financial", "personal"]
+
+
 def test_california_list_rows_become_state_ag_candidates():
     from sources import parse_ca_list
     html = """<table><thead><tr><th>Org</th><th>Date</th><th>Reported</th></tr></thead><tbody>
