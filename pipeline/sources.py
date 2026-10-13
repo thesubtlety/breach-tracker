@@ -511,12 +511,13 @@ def parse_vt_list(html: str) -> list[dict]:
 
 
 def vermont_ag(since: date, max_pages: int = 8) -> list[dict]:
-    out: list[dict] = []
-    for page in range(max_pages):  # four pages in October 2026; rows are not date-ordered across pages
+    out, seen = [], set()
+    for page in range(max_pages):  # four pages in October 2026; a page number past the end repeats the last page
         r = _get(VT_LIST, params={"page": page} if page else None, headers={"User-Agent": BROWSER_UA})
-        rows = parse_vt_list(r.text) if r else []
+        rows = [c for c in (parse_vt_list(r.text) if r else []) if c["source_url"] not in seen]
         if not rows:
             break
+        seen.update(c["source_url"] for c in rows)
         out += [c for c in rows if c["disclosed_date"] >= since.isoformat()]
         time.sleep(1)
     log.info("vermont_ag: %d candidates", len(out))
