@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-12",
+ "generated": "2026-10-13",
  "pending": 9937,
  "confirmed": 120,
  "min_claims": 5,
@@ -71,7 +71,7 @@
      26
     ]
    ],
-   "last_90_days": 334,
+   "last_90_days": 332,
    "sectors": [
     [
      "healthcare",
@@ -257,7 +257,7 @@
    "sectors": [
     [
      "other",
-     1
+     2
     ],
     [
      "professional_services",
@@ -282,8 +282,8 @@
      24
     ]
    ],
-   "median_days_to_confirmation": 166.5,
-   "n_lag": 2
+   "median_days_to_confirmation": 280,
+   "n_lag": 1
   },
   {
    "group": "incransom",
@@ -325,7 +325,7 @@
     ],
     [
      "2026-02",
-     42
+     41
     ],
     [
      "2026-03",
@@ -333,7 +333,7 @@
     ],
     [
      "2026-04",
-     38
+     39
     ],
     [
      "2026-05",
@@ -360,11 +360,11 @@
      15
     ]
    ],
-   "last_90_days": 113,
+   "last_90_days": 111,
    "sectors": [
     [
      "healthcare",
-     7
+     8
     ],
     [
      "other",
@@ -385,8 +385,8 @@
      14
     ]
    ],
-   "median_days_to_confirmation": 231,
-   "n_lag": 3
+   "median_days_to_confirmation": 287.0,
+   "n_lag": 2
   },
   {
    "group": "dragonforce",
@@ -447,7 +447,7 @@
      2
     ]
    ],
-   "last_90_days": 60,
+   "last_90_days": 50,
    "sectors": [
     [
      "other",
@@ -753,7 +753,7 @@
      24
     ]
    ],
-   "last_90_days": 53,
+   "last_90_days": 52,
    "sectors": [],
    "countries": [
     [
@@ -960,7 +960,7 @@
      24
     ]
    ],
-   "last_90_days": 29,
+   "last_90_days": 28,
    "sectors": [
     [
      "technology_saas",
@@ -1572,6 +1572,10 @@
     [
      "healthcare",
      3
+    ],
+    [
+     "other",
+     1
     ]
    ],
    "countries": [
@@ -1588,8 +1592,8 @@
      5
     ]
    ],
-   "median_days_to_confirmation": 312,
-   "n_lag": 1
+   "median_days_to_confirmation": null,
+   "n_lag": 0
   },
   {
    "group": "silentransomgroup",
@@ -1713,7 +1717,7 @@
      3
     ]
    ],
-   "last_90_days": 10,
+   "last_90_days": 9,
    "sectors": [
     [
      "healthcare",
@@ -1972,25 +1976,25 @@
     ],
     [
      "2026-08",
-     8
+     7
     ],
     [
      "2026-09",
-     8
+     9
     ]
    ],
    "last_90_days": 20,
    "sectors": [
+    [
+     "professional_services",
+     2
+    ],
     [
      "healthcare",
      2
     ],
     [
      "transportation_logistics",
-     1
-    ],
-    [
-     "professional_services",
      1
     ]
    ],
@@ -2008,8 +2012,8 @@
      3
     ]
    ],
-   "median_days_to_confirmation": 51,
-   "n_lag": 1
+   "median_days_to_confirmation": null,
+   "n_lag": 0
   },
   {
    "group": "storm",
@@ -2209,7 +2213,7 @@
      2
     ]
    ],
-   "last_90_days": 30,
+   "last_90_days": 27,
    "sectors": [],
    "countries": [
     [
@@ -2809,7 +2813,7 @@
      4
     ]
    ],
-   "last_90_days": 8,
+   "last_90_days": 7,
    "sectors": [],
    "countries": [
     [
@@ -3273,7 +3277,7 @@
      12
     ]
    ],
-   "last_90_days": 8,
+   "last_90_days": 7,
    "sectors": [],
    "countries": [
     [
@@ -3881,7 +3885,7 @@
      2
     ]
    ],
-   "last_90_days": 13,
+   "last_90_days": 12,
    "sectors": [],
    "countries": [
     [
@@ -4486,7 +4490,7 @@
      3
     ]
    ],
-   "last_90_days": 19,
+   "last_90_days": 13,
    "sectors": [],
    "countries": [
     [
