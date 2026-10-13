@@ -323,7 +323,7 @@ function renderWeek() {
   const LIMIT = 30, shown = items.slice(0, LIMIT);
   const nNew = items.filter(isNew).length, nUpd = items.length - nNew;
   el.hidden = false;
-  el.innerHTML = `<h3>Recent activity</h3><div class="note">${fmt(nNew)} new records and ${fmt(nUpd)} updated by a later source since ${esc(STATS.week_ago)}. Only records disclosed in the last ${STATS.new_window_days || 90} days count; imported rows and backfilled older notices do not. Select a row to open it.</div>
+  el.innerHTML = `<h3>Recent activity</h3><div class="note">${fmt(nNew)} new and ${fmt(nUpd)} updated since ${esc(STATS.week_ago)}, among records disclosed in the last ${STATS.new_window_days || 90} days.</div>
   <ul>${shown.map(x => `<li><a href="#id=${esc(x.id)}" data-open="${esc(x.id)}"><span class="d">${esc(x.disclosed_date)}</span>${esc(x.org_name)} <span class="muted">· ${esc(lab(x.initial_access))}${x.ransomware === true ? " · ransomware" : ""}</span> <span class="tag ${isNew(x) ? "new" : "upd"}">${isNew(x) ? "new" : "updated"}</span></a></li>`).join("")}</ul>
   ${items.length > LIMIT ? `<div class="note" style="margin-top:6px"><a href="#wk=1" id="week-all">Show all ${items.length} in the table</a></div>` : ""}`;
   el.querySelectorAll("a[data-open]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openRow(a.dataset.open); }));
@@ -428,7 +428,7 @@ function renderTrends(v) {
   if (!mixOn) mixOn = new Set(all.slice(0, 6));
   const colour = k => PAL[all.indexOf(k) % PAL.length];
   const top = all.filter(k => mixOn.has(k)), mixYears = years.filter(y => known(y).length >= 15);
-  $("#mix-note").textContent = "Share of records with a recorded mechanism, by year. Count above each column. Unselected mechanisms count as other.";
+  $("#mix-note").textContent = "Share of records with a recorded mechanism, by year. Unselected mechanisms count as other.";
   $("#mix-chips").innerHTML = all.map(k => `<button type="button" class="${mixOn.has(k) ? "on" : ""}" data-mech="${esc(k)}">${esc(lab(k))}</button>`).join("");
   $("#mix-chips").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { mixOn.has(b.dataset.mech) ? mixOn.delete(b.dataset.mech) : mixOn.add(b.dataset.mech); renderTrends(v); }));
   legend($("#mix-legend"), top.map(k => [lab(k), colour(k)]).concat([["other", "var(--bar-unk)"]]));
@@ -460,7 +460,7 @@ function renderTermChart() {
   if (q && !$("#qq").checked) series.push({ name: `“${q}” (your search)`, color: "var(--fg)", re: wordRe(normText(q)) });
   for (const sr of series) sr.vals = years.map(y => withText[y].length >= 10 ? { v: 100 * withText[y].filter(t => sr.re.test(t)).length / withText[y].length, n: withText[y].length } : null);
   const nText = Object.values(withText).reduce((a, t) => a + t.length, 0);
-  $("#term-note").textContent = `Share of records whose narrative mentions the term, by year, across ${fmt(nText)} records with text. Preset terms match whole words; a search above adds its own line, matched at word starts as in the table.`;
+  $("#term-note").textContent = `Share of records whose narrative mentions the term, by year (${fmt(nText)} records with text). Presets match whole words; a search above adds its own line.`;
   legend($("#term-legend"), series.map(sr => [sr.name, sr.color]));
   lineChart($("#term"), years, series, { fmt: v => `${Math.round(v)}%`, h: 240 });
 }
@@ -471,13 +471,13 @@ function renderContextCharts(v) {
                .map(x => ({ k: srcType(x), d: dayDiff(x.incident_date, x.disclosed_date) })).filter(x => x.d <= 3650);
   const byK = {}; for (const x of lag) (byK[x.k] = byK[x.k] || []).push(x.d);
   const lagItems = Object.entries(byK).filter(([, a]) => a.length >= 3).map(([k, a]) => [lab(k), median(a), `n=${fmt(a.length)}`]).sort((a, b) => b[1] - a[1]);
-  $("#lag-note").textContent = lag.length ? `Median days from the earliest recorded incident date to public disclosure, using ${fmt(lag.length)} records with both dates. For regulator records, the regulatory report date is used instead. Results are grouped by data source. Differences may reflect reporting practices and source coverage.` : "No records in view carry an incident date.";
+  $("#lag-note").textContent = lag.length ? `Median days from incident to disclosure or regulatory report, by source.` : "No records in view carry an incident date.";
   barsVal($("#lag-bars"), lagItems, d => `${Math.round(d)}d`);
   // third parties
   const tp = {}; let unnamed = 0;
   for (const x of v) { const t = x.third_party || {}; if (t.involved === true) { const vs = (x.derived || {}).vendors || []; if (vs.length) for (const d of vs) tp[d.id] = { name: d.name, n: ((tp[d.id] || {}).n || 0) + 1 }; else unnamed++; } }
   const tpItems = Object.values(tp).sort((a, b) => b.n - a.n).slice(0, 12).map(o => [o.name, o.n]);
-  $("#tp-note").textContent = tpItems.length || unnamed ? `Named third parties associated with reported breaches. Another ${fmt(unnamed)} records indicate third-party involvement without naming the provider. A name opens its page.` : "No third-party involvement in view.";
+  $("#tp-note").textContent = tpItems.length || unnamed ? `Named third parties. Another ${fmt(unnamed)} records report third-party involvement without a name.` : "No third-party involvement in view.";
   bars($("#tp-bars"), tpItems, v.length, "third_party");
   const vidOf = {}; for (const [id, o] of Object.entries(tp)) vidOf[o.name] = id;
   $("#tp-bars").querySelectorAll(".lbl").forEach(l => { const id = vidOf[l.textContent]; if (id) l.innerHTML = `<a href="vendor/${esc(id)}/" title="page for this third party">${esc(l.textContent)}</a>`; });
@@ -488,7 +488,7 @@ function renderContextCharts(v) {
     const adj = r.map(x => x.adj).filter(x => x !== null), raw = r.map(x => x.raw);
     return { h, n: r.length, adj: median(adj), raw: median(raw), neg: adj.length ? adj.filter(x => x < 0).length / adj.length : null };
   }).filter(r => r.n >= 3);
-  $("#px-note").textContent = px.length ? `${fmt(px.length)} filers in view with a listed ticker. Returns are measured from the close on the filing day, so any move earlier that day is not captured; most 8-Ks are filed after the close. Medians across filers; "vs market" subtracts SPY over the same days. The sample is small and filers have other news, so treat this as context.` : "No 8-K filers with price data in view.";
+  $("#px-note").textContent = px.length ? `${fmt(px.length)} filers with a ticker. Returns from the filing-day close; "vs market" subtracts SPY. Small sample, and filers have other news.` : "No 8-K filers with price data in view.";
   const pct = x => x === null ? "" : `<span class="${x < 0 ? "neg" : "pos"}">${(100 * x).toFixed(1)}%</span>`;
   $("#px").innerHTML = rowsH.length ? `<table class="mini"><tr><th>after</th><th>filers</th><th>median return</th><th>median vs market</th><th>filers underperforming SPY</th></tr>${rowsH.map(r => `<tr><td>${HORIZON_LABEL[r.h]}</td><td>${r.n}</td><td>${pct(r.raw)}</td><td>${pct(r.adj)}</td><td>${r.neg === null ? "" : Math.round(100 * r.neg) + "%"}</td></tr>`).join("")}</table>` : "";
   // KEV
@@ -496,29 +496,29 @@ function renderContextCharts(v) {
   const listed = kevRows.filter(k => k.kev_added);
   const before = listed.filter(k => k.days_listed_before_incident > 0);
   const uniqueCves = new Set(kevRows.map(k => k.cve)).size;
-  $("#kev-note").textContent = kevRows.length ? `${fmt(kevRows.length)} CVE mentions (${fmt(uniqueCves)} unique CVEs) on ${fmt(v.filter(x => (x.derived || {}).kev).length)} records. ${fmt(listed.length)} mentions are in CISA's Known Exploited Vulnerabilities catalog${before.length ? `, ${fmt(before.length)} of them listed before the incident date (median ${median(before.map(k => k.days_listed_before_incident))} days earlier)` : ""}. The catalog began in late 2021, so older incidents show a listing long after the fact.` : "No records in view cite a CVE.";
+  $("#kev-note").textContent = kevRows.length ? `${fmt(kevRows.length)} CVE mentions (${fmt(uniqueCves)} unique) on ${fmt(v.filter(x => (x.derived || {}).kev).length)} records; ${fmt(listed.length)} in CISA's KEV catalog${before.length ? `, ${fmt(before.length)} listed before the incident (median ${median(before.map(k => k.days_listed_before_incident))} days earlier)` : ""}. The catalog began in late 2021.` : "No records in view cite a CVE.";
   const unlisted = {}; for (const k of kevRows) if (!k.kev_added) (unlisted[k.cve] = unlisted[k.cve] || new Set()).add(k.org);
   const unlistedList = Object.entries(unlisted).sort((a, b) => b[1].size - a[1].size).slice(0, 8);
   $("#kev").innerHTML = (kevRows.length ? `<table class="mini"><tr><th>CVE</th><th>product</th><th>organization</th><th>in KEV since</th><th>KEV listing relative to incident</th></tr>${kevRows.slice(0, 14).map(k => `<tr><td><a href="#cve=${esc(k.cve)}" data-cve="${esc(k.cve)}">${esc(k.cve)}</a></td><td style="text-align:left">${esc(k.product || "Not identified")}</td><td style="text-align:left"><a href="#id=${esc(k.id)}" data-open="${esc(k.id)}">${esc(k.org)}</a></td><td>${esc(k.kev_added || "not listed")}</td><td>${k.days_listed_before_incident === null ? "" : k.days_listed_before_incident > 0 ? `${fmt(k.days_listed_before_incident)} days before` : k.days_listed_before_incident < 0 ? `${fmt(-k.days_listed_before_incident)} days after` : "same day"}</td></tr>`).join("")}</table>` : "")
-    + (unlistedList.length ? `<div class="note">Cited in a breach but not in the KEV catalog: ${unlistedList.map(([c, orgs]) => `<a href="#cve=${esc(c)}" data-cve="${esc(c)}">${esc(c)}</a> at ${[...orgs].slice(0, 3).map(esc).join(", ")}${orgs.size > 3 ? ` and ${orgs.size - 3} more` : ""}`).join("; ")}. Select a CVE for the records and their sources.</div>` : "");
+    + (unlistedList.length ? `<div class="note">Cited but not in the KEV catalog: ${unlistedList.map(([c, orgs]) => `<a href="#cve=${esc(c)}" data-cve="${esc(c)}">${esc(c)}</a> at ${[...orgs].slice(0, 3).map(esc).join(", ")}${orgs.size > 3 ? ` and ${orgs.size - 3} more` : ""}`).join("; ")}.</div>` : "");
   $("#kev").querySelectorAll("a[data-cve]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectCve(a.dataset.cve); }));
   $("#kev").querySelectorAll("a[data-open]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); openRow(a.dataset.open); }));
   const byOrg = new Map();
   for (const x of v) { if (!x.org_id) continue; const o = byOrg.get(x.org_id) || { id: x.org_id, name: x.org_name, n: 0, last: "" }; o.n++; if (x.disclosed_date > o.last) { o.last = x.disclosed_date; o.name = x.org_name; } byOrg.set(x.org_id, o); }
   const repeat = [...byOrg.values()].filter(o => o.n > 1).sort((a, b) => b.n - a.n || (a.last < b.last ? 1 : -1));
-  $("#orgs-note").textContent = repeat.length ? `${fmt(repeat.length)} organizations have more than one record in view. A later record may be a separate breach or further reporting on the same one. Select a name for its page.` : "No organization has more than one record in view.";
+  $("#orgs-note").textContent = repeat.length ? `${fmt(repeat.length)} organizations with more than one record. A later record may be a separate breach or further reporting.` : "No organization has more than one record in view.";
   $("#orgs").innerHTML = repeat.length ? `<table class="mini"><tr><th>organization</th><th>records</th><th>latest</th></tr>${repeat.slice(0, 12).map(o => `<tr><td style="text-align:left"><a href="org/${esc(o.id)}/">${esc(o.name)}</a></td><td>${o.n}</td><td>${esc(o.last)}</td></tr>`).join("")}</table>` : "";
   // techniques
   const tc = {}; let withTech = 0;
   for (const x of v) { const ts = x.attack_techniques || []; if (ts.length) withTech++; for (const t of ts) tc[t] = (tc[t] || 0) + 1; }
   const techIds = {}, techItems = Object.entries(tc).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([t, n]) => { techIds[techLabel(t)] = t; return [techLabel(t), n]; });
-  $("#tech-note").textContent = v.length ? `At least one ATT&CK technique is mapped to ${fmt(withTech)} of ${fmt(v.length)} records (${Math.round(100 * withTech / v.length)}%). A record can have several techniques, so percentages may total more than 100%. Select one to filter.` : "";
+  $("#tech-note").textContent = v.length ? `Mapped on ${fmt(withTech)} of ${fmt(v.length)} records (${Math.round(100 * withTech / v.length)}%). A record can carry several techniques.` : "";
   bars($("#tech-bars"), techItems, withTech, "attack_techniques", { pct: true, select: "tech", ids: techIds });
   // technology named
   const tn = {};
   for (const x of v) for (const t of new Set((x.technology_involved || []).map(t => t.toLowerCase()))) tn[t] = (tn[t] || 0) + 1;
   const tnItems = Object.entries(tn).sort((a, b) => b[1] - a[1]).slice(0, 12);
-  $("#tn-note").textContent = tnItems.length ? `Products, vendors, and system types identified as an entry point or affected system. Select a term to filter records.` : "No technology named in view.";
+  $("#tn-note").textContent = tnItems.length ? `Products, vendors and system types named at the entry point or as affected.` : "No technology named in view.";
   bars($("#tn-bars"), tnItems, v.length, "technology_involved");
   $("#tn-bars").querySelectorAll(".lbl").forEach(l => { const t = l.textContent; l.innerHTML = `<a href="#q=${encodeURIComponent(t)}">${esc(t)}</a>`; l.querySelector("a").addEventListener("click", e => { e.preventDefault(); $("#q").value = t; $("#qq").checked = false; render(); toHash(); }); });
   // dwell and notice
@@ -529,13 +529,13 @@ function renderContextCharts(v) {
   for (const r of dwellRows) (bySector[r.s] = bySector[r.s] || { dwell: [], notice: [] }).dwell.push(r.d);
   for (const r of noticeRows) (bySector[r.s] = bySector[r.s] || { dwell: [], notice: [] }).notice.push(r.d);
   const dwItems = Object.entries(bySector).filter(([, a]) => a.dwell.length + a.notice.length >= 5).sort((a, b) => (b[1].dwell.length + b[1].notice.length) - (a[1].dwell.length + a[1].notice.length)).slice(0, 10);
-  $("#dw-note").textContent = dwellRows.length || noticeRows.length ? `${dwellRows.length ? `Median time to discovery: ${median(dwellRows.map(r => r.d))} days across ${fmt(dwellRows.length)} records. This measures the interval from the first recorded intrusion to discovery and excludes records with same-day discovery. ` : ""}${noticeRows.length ? `Median time from discovery to public disclosure: ${median(noticeRows.map(r => r.d))} days across ${fmt(noticeRows.length)} records. ` : ""}Dates come mainly from breach notification letters.` : "No records in view carry a discovery date.";
+  $("#dw-note").textContent = dwellRows.length || noticeRows.length ? `${dwellRows.length ? `Median days to discovery: ${median(dwellRows.map(r => r.d))} (n ${fmt(dwellRows.length)}). ` : ""}${noticeRows.length ? `Discovery to disclosure: ${median(noticeRows.map(r => r.d))} (n ${fmt(noticeRows.length)}). ` : ""}Dates mainly from notification letters.` : "No records in view carry a discovery date.";
   $("#dw").innerHTML = dwItems.length ? `<table class="mini"><tr><th>sector</th><th>to discovery (median days)</th><th>n</th><th>discovery to disclosure (median days)</th><th>n</th></tr>${dwItems.map(([s, a]) => `<tr><td style="text-align:left">${esc(lab(s))}</td><td>${median(a.dwell) ?? ""}</td><td>${a.dwell.length}</td><td>${median(a.notice) ?? ""}</td><td>${a.notice.length}</td></tr>`).join("")}</table>` : "";
   // ransomware claims vs confirmations (site-wide aggregates, not filtered)
   const cs = STATS.claims;
   if (cs) {
     const gs = cs.groups.slice(0, 15);
-    $("#cl-note").textContent = `${fmt(cs.pending)} claims counted from leak sites; ${fmt(cs.confirmed)} matched a filing or article about the claimed victim. A match confirms a breach was reported, not who did it. Groups with at least ${cs.min_claims} claims, as of ${cs.generated}. Data: Ransomware.live.`;
+    $("#cl-note").textContent = `${fmt(cs.pending)} claims counted; ${fmt(cs.confirmed)} matched a filing or article about the claimed victim, which confirms a breach, not who did it. Groups with ${cs.min_claims}+ claims, as of ${cs.generated}. Data: Ransomware.live.`;
     $("#cl").innerHTML = `<table class="mini"><tr><th>group</th><th>claims</th><th>last 90 days</th><th>matched claims</th><th>match rate</th><th>matched victims’ sectors</th><th>days from claim to match</th></tr>${gs.map(g => `<tr><td style="text-align:left"><a href="actor/${esc(g.group)}/">${esc(g.group)}</a> <a class="small" href="#actor=${esc(g.group)}" data-actor="${esc(g.group)}">filter</a></td><td>${g.claims}</td><td>${g.last_90_days}</td><td>${g.confirmed}</td><td>${(100 * g.rate).toFixed(1)}%</td><td style="text-align:left">${esc(g.sectors.map(([s, n]) => `${lab(s)} ${n}`).join(", "))}</td><td>${g.median_days_to_confirmation === null ? "" : `${g.median_days_to_confirmation} (n=${g.n_lag})`}</td></tr>`).join("")}</table>`;
     $("#cl").querySelectorAll("a[data-actor]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectActor(a.dataset.actor); }));
   } else { $("#cl-note").textContent = "No claim statistics in this build."; }
@@ -547,15 +547,15 @@ function renderCharts(v) {
   const sw = siteWide(), total = sw ? STATS.total : v.length, sum = c => c.reduce((a, x) => a + x[1], 0);
   const noUnk = c => c.filter(x => x[0] !== "unknown");
   const ia = sw ? noUnk(STATS.by_initial_access) : count(v.filter(x => x.initial_access !== "unknown"), "initial_access"), known = sum(ia);
-  $("#ia-note").textContent = total ? `A mechanism is recorded for ${fmt(known)} of ${fmt(total)} records (${Math.round(100 * known / total)}%). Percentages below exclude the ${fmt(total - known)} records with an unknown mechanism.` : "";
+  $("#ia-note").textContent = total ? `Recorded for ${fmt(known)} of ${fmt(total)} records (${Math.round(100 * known / total)}%); shares below exclude the rest.` : "";
   bars($("#ia-bars"), ia, known, "initial_access", { pct: true, select: "ia" });
   bars($("#ev-bars"), sw ? STATS.by_evidence : count(v, "evidence_level"), total, "evidence_level", { pct: true, select: "ev" });
   bars($("#ot-bars"), (sw ? STATS.by_org_type : count(v, "org_type")).slice(0, 10), total, "org_type", { select: "ot" });
   const cf = sw ? noUnk(STATS.by_control_failure) : count(v.filter(x => (x.control_failure || "unknown") !== "unknown"), "control_failure"), cfN = sum(cf);
-  $("#cf-note").textContent = total ? `A security weakness is recorded for ${fmt(cfN)} of ${fmt(total)} records (${Math.round(100 * cfN / total)}%). Percentages below use those records only.` : "";
+  $("#cf-note").textContent = total ? `Recorded for ${fmt(cfN)} of ${fmt(total)} records (${Math.round(100 * cfN / total)}%).` : "";
   bars($("#cf-bars"), cf, cfN, "control_failure", { pct: true, select: "cf" });
   const ac = sw ? noUnk(STATS.by_actor_variety) : count(v.map(x => ({ actor_variety: (x.actor || {}).variety || "unknown" })).filter(x => x.actor_variety !== "unknown"), "actor_variety"), acN = sum(ac);
-  $("#ac-note").textContent = total ? `An actor type or role is recorded for ${fmt(acN)} of ${fmt(total)} records (${Math.round(100 * acN / total)}%). Classifications may be explicit or inferred from the source.` : "";
+  $("#ac-note").textContent = total ? `Recorded for ${fmt(acN)} of ${fmt(total)} records (${Math.round(100 * acN / total)}%).` : "";
   bars($("#ac-bars"), ac, acN, "actor_variety", { pct: true, select: "ac" });
 }
 
@@ -637,7 +637,7 @@ function renderEntities() {
   const os = top(orgs), vs = top(vendors), as = top(actors), ts = top(techs), ss = top(sectors);
   if (!os.length && !vs.length && !as.length && !ts.length && !ss.length) { el.hidden = true; return; }
   el.hidden = false;
-  el.innerHTML = `<h3>Matching “${esc($("#q").value.trim())}”</h3><div class="note">Each has its own page; "filter" narrows the table below instead.</div>` +
+  el.innerHTML = `<h3>Matching “${esc($("#q").value.trim())}”</h3><div class="note">“filter” narrows the table.</div>` +
     (os.length ? `<ul>${os.map(e => li("org", e)).join("")}</ul>` : "") + (vs.length ? `<div class="note" style="margin-top:6px">Vendors</div><ul>${vs.map(e => li("vendor", e)).join("")}</ul>` : "") + (as.length ? `<div class="note" style="margin-top:6px">Groups</div><ul>${as.map(e => li("actor", e)).join("")}</ul>` : "") +
     (ts.length ? `<div class="note" style="margin-top:6px">Techniques</div><ul>${ts.map(e => li("technique", e)).join("")}</ul>` : "") + (ss.length ? `<div class="note" style="margin-top:6px">Sectors</div><ul>${ss.map(e => li("sector", e)).join("")}</ul>` : "");
   el.querySelectorAll("a[data-org]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); selectOrg(a.dataset.org); }));
