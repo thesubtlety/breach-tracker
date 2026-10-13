@@ -200,6 +200,16 @@ def price_reaction(series: dict, spy: dict) -> dict | None:
     return out if out["returns"] else None
 
 
+def price_series(rows: list[dict], prices: dict) -> dict:
+    """Daily closes for every filer with a price reaction, plus SPY over the same span, so the
+    page can draw each filer against the market."""
+    filers = {r["id"]: {"ticker": r["derived"]["price"]["ticker"], "base_day": r["derived"]["price"]["base_day"],
+                        "closes": prices[r["id"]]["closes"]} for r in rows if (r.get("derived") or {}).get("price")}
+    days = sorted({d for f in filers.values() for d in f["closes"]})
+    spy = {d: c for d, c in (prices.get("_SPY") or {}).items() if days and days[0] <= d <= days[-1]}
+    return {"spy": spy, "filers": filers}
+
+
 def kev_context(r: dict, kev: dict) -> list[dict]:
     anchor = r.get("incident_date") or r["disclosed_date"]
     out = []
@@ -279,6 +289,7 @@ def main() -> int:
     (SITE_DIR / "sitemap.xml").write_text(sitemap(urls, SITE_URL, today()))
     (SITE_DIR / "robots.txt").write_text(robots(SITE_URL))
     (SITE_DIR / "stats.json").write_text(json.dumps({"records": len(rows), "organizations": len({r["org_id"] for r in rows}), "generated": today()}))
+    (SITE_DIR / "prices.json").write_text(json.dumps(price_series(rows, prices), separators=(",", ":")))
     feeds = SITE_DIR / "feeds"
     feeds.mkdir(exist_ok=True)
     for f in feeds.glob("vendor-*.xml"):

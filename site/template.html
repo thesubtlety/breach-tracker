@@ -49,7 +49,7 @@
   .bars .n { font-variant-numeric:tabular-nums; color:var(--muted); min-width:3ch; text-align:right; }
   .mini { width:100%; border-collapse:collapse; font-size:13px; } .mini th, .mini td { padding:3px 6px; border-bottom:1px solid var(--line); text-align:right; }
   .mini th:first-child, .mini td:first-child { text-align:left; } .mini th { font-weight:600; position:static; }
-  .neg { color:var(--warn); } .pos { color:var(--ok); }
+  .neg { color:var(--warn); } .pos { color:var(--ok); } .mini tr.sel td { background:var(--soft); }
   .filters { display:flex; gap:5px; flex-wrap:wrap; align-items:center; margin:8px 0; }
   .filters label { font-size:12px; color:var(--muted); display:flex; gap:3px; align-items:center; white-space:nowrap; }
   select, input[type=search] { padding:3px 5px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--fg); font:inherit; font-size:12px; max-width:150px; }
@@ -143,7 +143,7 @@
   <div class="chart"><h3>Affected sectors</h3><div class="note">By the affected organization’s sector.</div><div class="bars" id="ot-bars"></div></div>
   <div class="chart"><h3>Time from incident to disclosure or regulatory report</h3><div class="note" id="lag-note"></div><div class="bars" id="lag-bars"></div></div>
   <div class="chart"><h3>Third parties named in breach reports</h3><div class="note" id="tp-note"></div><div class="bars" id="tp-bars"></div></div>
-  <div class="chart wide"><h3>Share price after an 8-K</h3><div class="note" id="px-note"></div><div id="px"></div></div>
+  <div class="chart full"><h3>Share price after an 8-K</h3><div class="note" id="px-note"></div><div id="px"></div><div class="legend" id="px-legend" style="margin-top:10px"></div><div id="px-chart"></div><div id="px-filers"></div></div>
   <div class="chart full"><h3>Cited vulnerabilities and KEV status</h3><div class="note" id="kev-note"></div><div id="kev"></div></div>
   <div class="chart"><h3>Organizations with multiple records</h3><div class="note" id="orgs-note"></div><div id="orgs"></div></div>
   <div class="chart"><h3>ATT&amp;CK techniques</h3><div class="note" id="tech-note"></div><div class="bars" id="tech-bars"></div></div>
@@ -382,14 +382,15 @@ function lineChart(el, years, series, opt = {}) {
   const W = Math.max(320, el.clientWidth || 600), H = opt.h || 180, L = 40, R = 22, T = 8, B = 22, w = W - L - R, h = H - T - B;
   const all = series.flatMap(s => s.vals.map(p => p && p.v)).filter(x => x != null);
   if (years.length < 2 || !all.length) { el.innerHTML = ""; return; }
-  const max = Math.max(1, ...all) * 1.1, X = i => L + i * w / (years.length - 1), Y = v => T + h - h * v / max;
+  const lo = opt.min ?? 0, max = lo + (Math.max(1, ...all) - lo) * 1.1, X = i => L + i * w / (years.length - 1), Y = v => T + h - h * (v - lo) / (max - lo);
   const f = opt.fmt || (v => String(Math.round(v))), step = Math.max(1, Math.ceil(years.length / 8));
-  const grid = [0, 0.5, 1].map(k => `<line class="grid" x1="${L}" x2="${W - R}" y1="${Y(max * k)}" y2="${Y(max * k)}"/><text x="${L - 5}" y="${Y(max * k) + 4}" text-anchor="end">${f(max * k)}</text>`).join("");
-  const axis = years.map((y, i) => i % step === 0 || i === years.length - 1 ? `<text x="${X(i)}" y="${H - 6}" text-anchor="middle">${y}</text>` : "").join("");
+  const grid = [0, 0.5, 1].map(k => { const v = lo + (max - lo) * k; return `<line class="grid" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 5}" y="${Y(v) + 4}" text-anchor="end">${f(v)}</text>`; }).join("")
+    + (opt.mark != null ? `<line class="grid" x1="${X(opt.mark)}" x2="${X(opt.mark)}" y1="${T}" y2="${T + h}" stroke-dasharray="4 3"/><text x="${X(opt.mark) + 4}" y="${T + 10}">${esc(opt.markLabel || "")}</text>` : "");
+  const axis = years.map((y, i) => (i % step === 0 && i < years.length - step / 2) || i === years.length - 1 ? `<text x="${X(i)}" y="${H - 6}" text-anchor="middle">${y}</text>` : "").join("");
   const paths = series.map(sr => {
     const pts = sr.vals.map((p, i) => p && p.v != null ? [X(i).toFixed(1), Y(p.v).toFixed(1), p] : null);
     const d = pts.map((p, i) => p ? `${pts[i - 1] ? "L" : "M"}${p[0]},${p[1]}` : "").join("");
-    const dots = pts.map((p, i) => p ? `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${sr.color}"><title>${esc(sr.name)}, ${years[i]}: ${f(p[2].v)}${p[2].n != null ? ` (n=${fmt(p[2].n)})` : ""}</title></circle>` : "").join("");
+    const dots = pts.map((p, i) => p ? `<circle cx="${p[0]}" cy="${p[1]}" r="${years.length > 40 ? 2 : 3}" fill="${sr.color}"><title>${esc(sr.name)}, ${years[i]}: ${f(p[2].v)}${p[2].n != null ? ` (n=${fmt(p[2].n)})` : ""}</title></circle>` : "").join("");
     return `<path d="${d}" fill="none" stroke="${sr.color}" stroke-width="2"/>${dots}`;
   }).join("");
   el.innerHTML = `<svg class="line" viewBox="0 0 ${W} ${H}" role="img">${grid}${axis}${paths}</svg>`;
@@ -464,6 +465,32 @@ function renderTermChart() {
   legend($("#term-legend"), series.map(sr => [sr.name, sr.color]));
   lineChart($("#term"), years, series, { fmt: v => `${Math.round(v)}%`, h: 240 });
 }
+let PRICES = null, pxSel = null;
+function renderFilers(px) {
+  const el = $("#px-filers"), hs = Object.keys(HORIZON_LABEL);
+  if (!px.length) { el.innerHTML = ""; $("#px-chart").innerHTML = ""; $("#px-legend").innerHTML = ""; return; }
+  const cell = r => r ? `<span class="${r.raw < 0 ? "neg" : "pos"}">${(100 * r.raw).toFixed(1)}%</span>${r.adj !== null ? `<br><span class="muted small">${(100 * r.adj).toFixed(1)}% vs mkt</span>` : ""}` : "";
+  const sorted = [...px].sort((a, b) => b.derived.price.base_day.localeCompare(a.derived.price.base_day));
+  el.innerHTML = `<div class="note" style="margin-top:10px">Each filer, from the close on the filing day. Select a row to draw it against SPY above.</div>
+    <table class="mini"><tr><th style="text-align:left">filer</th><th>ticker</th><th>filed</th>${hs.map(h => `<th>${HORIZON_LABEL[h]}</th>`).join("")}</tr>${sorted.map(x => { const p = x.derived.price;
+      return `<tr class="${x.id === pxSel ? "sel" : ""}" data-px="${esc(x.id)}" style="cursor:pointer"><td style="text-align:left"><a href="org/${esc(x.org_id)}/">${esc(x.org_name)}</a></td><td>${esc(p.ticker)}</td><td>${esc(p.base_day)}</td>${hs.map(h => `<td>${cell(p.returns[h])}</td>`).join("")}</tr>`; }).join("")}</table>`;
+  el.querySelectorAll("tr[data-px]").forEach(tr => tr.addEventListener("click", e => { if (e.target.closest("a")) return; pxSel = tr.dataset.px; renderFilers(px); drawFiler(px.find(x => x.id === pxSel)); }));
+  if (pxSel && px.some(x => x.id === pxSel)) drawFiler(px.find(x => x.id === pxSel)); else { $("#px-chart").innerHTML = ""; $("#px-legend").innerHTML = ""; }
+}
+function drawFiler(x) {
+  const go = () => {
+    const f = PRICES.filers[x.id]; if (!f) return;
+    const days = Object.keys(f.closes).sort(), i0 = days.indexOf(f.base_day), base = f.closes[f.base_day], spyBase = PRICES.spy[f.base_day];
+    const idx = (c, b) => c != null && b ? 100 * c / b : null;
+    const vals = days.map(d => ({ v: idx(f.closes[d], base) })), spy = days.map(d => ({ v: idx(PRICES.spy[d], spyBase) }));
+    const all = [...vals, ...spy].map(p => p.v).filter(v => v != null);
+    legend($("#px-legend"), [[`${f.ticker} (${x.org_name})`, PAL[1]], ["SPY", PAL[6]]]);
+    lineChart($("#px-chart"), days, [{ name: f.ticker, color: PAL[1], vals }, { name: "SPY", color: PAL[6], vals: spy }],
+      { min: Math.floor(Math.min(...all) * 0.98), fmt: v => String(Math.round(v)), mark: i0, markLabel: `filed ${f.base_day}`, h: 220 });
+    $("#px-chart").insertAdjacentHTML("beforeend", `<div class="note">Indexed to 100 at the ${esc(f.base_day)} close (${esc(f.ticker)} ${base}). Daily closes from Nasdaq's data API, with Alpha Vantage for older filings; the series is in <a href="prices.json">prices.json</a>.</div>`);
+  };
+  if (PRICES) go(); else getJson("prices.json").then(d => { PRICES = d; go(); }).catch(() => { $("#px-chart").textContent = "Price series unavailable."; });
+}
 const HORIZON_LABEL = { "1": "next day", "5": "1 week", "21": "1 month", "63": "3 months", "126": "6 months", "250": "1 year" };
 function renderContextCharts(v) {
   // lag: incident -> disclosure, by the kind of source that disclosed it; imported rows have no disclosure date of their own
@@ -491,6 +518,7 @@ function renderContextCharts(v) {
   $("#px-note").textContent = px.length ? `${fmt(px.length)} filers with a ticker. Returns from the filing-day close; "vs market" subtracts SPY. Small sample, and filers have other news.` : "No 8-K filers with price data in view.";
   const pct = x => x === null ? "" : `<span class="${x < 0 ? "neg" : "pos"}">${(100 * x).toFixed(1)}%</span>`;
   $("#px").innerHTML = rowsH.length ? `<table class="mini"><tr><th>after</th><th>filers</th><th>median return</th><th>median vs market</th><th>filers underperforming SPY</th></tr>${rowsH.map(r => `<tr><td>${HORIZON_LABEL[r.h]}</td><td>${r.n}</td><td>${pct(r.raw)}</td><td>${pct(r.adj)}</td><td>${r.neg === null ? "" : Math.round(100 * r.neg) + "%"}</td></tr>`).join("")}</table>` : "";
+  renderFilers(px);
   // KEV
   const kevRows = v.flatMap(x => ((x.derived || {}).kev || []).map(k => ({ ...k, org: x.org_name, id: x.id })));
   const listed = kevRows.filter(k => k.kev_added);
