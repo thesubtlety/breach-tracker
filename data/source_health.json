@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-14T11:51:50+00:00",
+  "run_at": "2026-10-15T11:34:51+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 13,
+      "hhs": 73,
+      "maine_ag": 0,
+      "california_ag": 53,
+      "texas_ag": 87,
+      "washington_ag": 0,
+      "vermont_ag": 84,
+      "oregon_doj": 11,
+      "south_carolina": 15,
+      "hibp": 9,
+      "ransomware_live": 100,
+      "rss": 14,
+      "mastodon": 33
+    },
+    "previous_counts": {
       "sec_edgar": 16,
       "hhs": 80,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 13,
       "mastodon": 31
     },
-    "previous_counts": {
-      "sec_edgar": 16,
-      "hhs": 82,
-      "maine_ag": 0,
-      "california_ag": 49,
-      "texas_ag": 79,
-      "washington_ag": 0,
-      "vermont_ag": 82,
-      "oregon_doj": 0,
-      "south_carolina": 13,
-      "hibp": 9,
-      "ransomware_live": 100,
-      "rss": 18,
-      "mastodon": 32
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row",
       "washington_ag: zero candidates two runs in a row"
@@ -40,20 +40,26 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.northjersey.com/news/220613991_Secret_Service_investigating_alleged_debit_card_skimming_in_Montvale_and_other_towns.html",
-      "http://readwrite.com/2013/02/22/microsofts-rotten-friday-hack-revealed-as-azure-halo-go-down;",
-      "http://www.chad.co.uk/news/health/medical-records-found-by-urban-explorer-at-derelict-former-mansfield-general-hospital-to-be-removed-by-health-trust-1-5090122;"
+      "http://socialbarrel.com/europes-youngest-application-designer-aaron-bond-expelled-from-school-for-hacking-the-computer-system/33493/",
+      "http://www.healthcareinfosecurity.com/prison-time-for-health-data-theft-a-5442,",
+      "http://www.bellanaija.com/2013/04/19/thenetng-online-gets-hacked-hackers-demand-ransom-alternate-website-up/;",
+      "http://www.bonsecourshamptonroads.com/news-and-events-news-room.html?newsID=DFC45C92-9F5B-46BC-BB59-064AD5F92643"
     ],
-    "dead_rate": 0.15
+    "dead_rate": 0.2
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 19,
+    "confirmed": 18,
     "missing": [
       {
-        "id": "a00a2e40eaec5e0ceaae78debabcd1645318f7c0",
-        "org": "Epic Games",
-        "url": "https://haveibeenpwned.com/Breach/EpicGames"
+        "id": "4442965e5c13ef151774e94ef7842e7447aaea0d",
+        "org": "CrimeAgency vBulletin Hacks",
+        "url": "https://haveibeenpwned.com/Breach/CrimeAgencyVBulletin"
+      },
+      {
+        "id": "10ec9e3e4867a58ca4e9db7955d1305adca5c6cc",
+        "org": "TCM Bank",
+        "url": "https://oag.ca.gov/system/files/TCM-%20CA%20Letter%20Template_0.pdf"
       }
     ],
     "unfetchable": 0
