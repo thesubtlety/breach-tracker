@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-17T10:47:40+00:00",
+  "run_at": "2026-10-18T11:05:44+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 14,
+      "hhs": 72,
+      "maine_ag": 0,
+      "california_ag": 55,
+      "texas_ag": 87,
+      "washington_ag": 0,
+      "vermont_ag": 76,
+      "oregon_doj": 15,
+      "south_carolina": 14,
+      "hibp": 10,
+      "ransomware_live": 100,
+      "rss": 21,
+      "mastodon": 32
+    },
+    "previous_counts": {
       "sec_edgar": 14,
       "hhs": 73,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 21,
       "mastodon": 36
     },
-    "previous_counts": {
-      "sec_edgar": 12,
-      "hhs": 75,
-      "maine_ag": 0,
-      "california_ag": 53,
-      "texas_ag": 81,
-      "washington_ag": 0,
-      "vermont_ag": 82,
-      "oregon_doj": 15,
-      "south_carolina": 15,
-      "hibp": 9,
-      "ransomware_live": 100,
-      "rss": 19,
-      "mastodon": 32
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row",
       "washington_ag: zero candidates two runs in a row"
@@ -40,27 +40,26 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.oregonlive.com/gresham/index.ssf/2014/10/laptops_stolen_from_albertina.html",
-      "http://news.ufl.edu/2013/04/03/potential-identity-theft/",
-      "http://www.stltoday.com/news/local/metro/laptop-stolen-from-washington-university-doctor-in-argentina-contained-patient/article_1008d54d-62a8-52f2-b71d-851ef86d0a5d.html",
-      "http://articles.sun-sentinel.com/2013-07-17/news/fl-broward-court-clerk-fraud-20130717_1_former-broward-court-clerk-courts-howard-forman-records",
-      "http://www.databreaches.net/cerberus-notifies-users-to-reset-paswords-after-some-users-usernames-and-encrypted-passwords-accessed/"
+      "https://www.privacyrights.org/node/53393",
+      "http://www.ledger-enquirer.com/2013/10/25/2762763/sheriffs-deputy-who-email-co-workers.html",
+      "http://www.atg.state.vt.us/assets/files/Variable%20Annuity%20Life%20Insurance%20Co%20Security%20Breach%20Notice%20to%20consumer.pdf;",
+      "http://www.local10.com/news/another-data-breach-reported-by-aventura-hospital-medical-center/28091182;"
     ],
-    "dead_rate": 0.25
+    "dead_rate": 0.2
   },
   "quotes": {
     "checked": 20,
     "confirmed": 18,
     "missing": [
       {
-        "id": "82371e98792957bb46410f502b31d27d94dfd30e",
-        "org": "ActMobile",
-        "url": "https://haveibeenpwned.com/Breach/ActMobile"
+        "id": "11c28de70841dace6c58ae22334111928415e7bd",
+        "org": "Empi, Inc./DJO, LLC",
+        "url": "https://oag.ca.gov/system/files/California%20Notices%20Template%2012.24.14_0.pdf"
       },
       {
-        "id": "812b31cd74c2833a8c74c44979716efa8edfe979",
-        "org": "Hunter Neurology",
-        "url": "https://www.cyberdaily.au/security/14305-exclusive-hunter-neurology-investigating-patient-data-breach-claims"
+        "id": "570f0f9b200fbc40f1a1c18ce29be60ce6f0133d",
+        "org": "University of California Davis Medical Center",
+        "url": "https://oag.ca.gov/system/files/Patient%20Notification%20Letter%2014-008e_0.pdf"
       }
     ],
     "unfetchable": 0
