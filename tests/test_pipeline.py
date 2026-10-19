@@ -728,3 +728,10 @@ def test_drop_settled_skips_handled_urls_and_orgs_with_a_stated_mechanism():
     cands = [mk("Acme Corp", "https://e.org/1"), mk("Beta LLC", "https://e.org/2"), mk("Gamma", "https://e.org/3"), mk("Delta", "https://e.org/4")]
     kept = drop_settled(cands, store, {url_key("https://e.org/4")})
     assert [c["org_name"] for c in kept] == ["Beta LLC", "Gamma"]
+
+
+def test_jsonl_round_trips_unicode_line_separators(tmp_path):
+    from common import read_jsonl, write_jsonl
+    rows = [{"summary": "first line\u2028second"}, {"summary": "plain"}]
+    write_jsonl(tmp_path / "x.jsonl", rows)
+    assert read_jsonl(tmp_path / "x.jsonl") == rows

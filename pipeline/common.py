@@ -74,7 +74,9 @@ def load_schema() -> dict:
 def read_jsonl(path: Path) -> list[dict]:
     if not path.exists():
         return []
-    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    # split on newlines only: str.splitlines also breaks on U+2028 and friends, which
+    # json.dumps leaves unescaped inside strings
+    return [json.loads(line) for line in path.read_text().split("\n") if line.strip()]
 
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
