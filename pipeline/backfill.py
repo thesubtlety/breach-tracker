@@ -111,7 +111,7 @@ HM_DROP_CLASS = {"H", "CW", "N/A", "Hacktivism", "Cyber Warfare"}
 HM_DROP_ATTACK = re.compile(r"ddos|defacement|coordinated inauthentic|malicious spam|^fake\b", re.I)
 UNNAMED_TARGET = re.compile(r"^(\d|multiple|undisclosed|unknown|several|various|single|unnamed|android|windows|ios|"
                             r"users|individuals|customers|organizations|over|at least|more than|nearly|dozens|hundreds|"
-                            r"thousands|some|numerous|a (number|dozen|few)|two|three|four|five|six|seven|eight|nine|ten)\b", re.I)
+                            r"thousands|some|numerous|a (number|dozen|few))\b", re.I)
 
 
 def _hm_date(s: str | None, post_date: str) -> str:
