@@ -8839,6 +8839,15 @@
 "ransomware": "Known",
 "vendor": "Check Point"
 },
+"CVE-2024-26008": {
+"added": null,
+"checked": "2026-10-19",
+"name": null,
+"nvd_published": "2025-10-14",
+"product": "fortios",
+"ransomware": null,
+"vendor": "fortinet"
+},
 "CVE-2024-26169": {
 "added": "2024-06-13",
 "name": "Microsoft Windows Error Reporting Service Improper Privilege Management Vulnerability",
@@ -10813,6 +10822,14 @@
 "ransomware": "Known",
 "vendor": "Microsoft"
 },
+"CVE-2025-61624": {
+"added": "2026-10-16",
+"checked": "2026-10-19",
+"name": "Fortinet Multiple Products Path Traversal Vulnerability",
+"product": "Multiple Products",
+"ransomware": "Unknown",
+"vendor": "Fortinet"
+},
 "CVE-2025-61757": {
 "added": "2025-11-21",
 "name": "Oracle Fusion Middleware Missing Authentication for Critical Function Vulnerability",
@@ -11030,6 +11047,13 @@
 "ransomware": "Unknown",
 "vendor": "Palo Alto Networks"
 },
+"CVE-2026-0322": {
+"added": "2026-10-14",
+"name": "Palo Alto Networks PAN-OS Code Injection Vulnerability",
+"product": "PAN-OS",
+"ransomware": "Unknown",
+"vendor": "Palo Alto Networks"
+},
 "CVE-2026-0770": {
 "added": "2026-07-21",
 "name": "Langflow Inclusion of Functionality from Untrusted Control Sphere Vulnerability",
@@ -11051,12 +11075,40 @@
 "ransomware": "Unknown",
 "vendor": "Zammad GmbH"
 },
+"CVE-2026-102764": {
+"added": "2026-10-16",
+"name": "BeyondTrust Remote Support Authentication Bypass by Spoofing Vulnerability",
+"product": "Remote Support",
+"ransomware": "Unknown",
+"vendor": "BeyondTrust"
+},
 "CVE-2026-104286": {
 "added": "2026-10-01",
 "name": "Fortinet FortiMail Path Traversal Vulnerability",
 "product": "FortiMail",
 "ransomware": "Unknown",
 "vendor": "Fortinet"
+},
+"CVE-2026-104935": {
+"added": "2026-10-13",
+"name": "Ivanti Connect Secure Authentication Bypass by Spoofing Vulnerability",
+"product": "Connect Secure",
+"ransomware": "Unknown",
+"vendor": "Ivanti"
+},
+"CVE-2026-105133": {
+"added": "2026-10-14",
+"name": "Ahsay AhsayCBS Improper Authentication Vulnerability",
+"product": "AhsayCBS",
+"ransomware": "Unknown",
+"vendor": "Ahsay"
+},
+"CVE-2026-105134": {
+"added": "2026-10-14",
+"name": "Ahsay AhsayCBS Command Injection Vulnerability",
+"product": "AhsayCBS",
+"ransomware": "Unknown",
+"vendor": "Ahsay"
 },
 "CVE-2026-10520": {
 "added": "2026-06-11",
@@ -11330,6 +11382,13 @@
 "product": "Windows",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
+},
+"CVE-2026-21589": {
+"added": "2026-10-15",
+"name": "Atlassian Multiple Products Files or Directories Accessible to External Parties Vulnerability",
+"product": "Multiple Products",
+"ransomware": "Unknown",
+"vendor": "Atlassian"
 },
 "CVE-2026-21643": {
 "added": "2026-04-13",
@@ -11996,6 +12055,13 @@
 "ransomware": "Unknown",
 "vendor": "Cisco"
 },
+"CVE-2026-76519": {
+"added": "2026-10-14",
+"name": "Cisco Secure Email Gateway Relative Path Traversal Vulnerability",
+"product": "Secure Email Gateway",
+"ransomware": "Unknown",
+"vendor": "Cisco"
+},
 "CVE-2026-8037": {
 "added": "2026-08-07",
 "name": "Progress LoadMaster Command Injection Vulnerability",
@@ -12198,5 +12264,12 @@
 "product": "Switchvox",
 "ransomware": "Unknown",
 "vendor": "Sangoma"
+},
+"CVE-2026-96951": {
+"added": "2026-10-13",
+"name": "Microsoft Windows Command Injection Vulnerability",
+"product": "Windows",
+"ransomware": "Unknown",
+"vendor": "Microsoft"
 }
 }
