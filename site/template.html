@@ -474,16 +474,21 @@ function renderTermChart() {
   legend($("#term-legend"), series.map(sr => [sr.name, sr.color]));
   lineChart($("#term"), years, series, { fmt: v => `${Math.round(v)}%`, h: 240 });
 }
-let PRICES = null, pxSel = null;
+let PRICES = null, pxSel = null, pxPage = 0;
+const PX_PAGE = 10;
 function renderFilers(px) {
   const el = $("#px-filers"), hs = Object.keys(HORIZON_LABEL);
   if (!px.length) { el.innerHTML = ""; $("#px-chart").innerHTML = ""; $("#px-legend").innerHTML = ""; return; }
   const cell = r => r ? `<span class="${r.raw < 0 ? "neg" : "pos"}">${(100 * r.raw).toFixed(1)}%</span>${r.adj !== null ? `<br><span class="muted small">${(100 * r.adj).toFixed(1)}% vs mkt</span>` : ""}` : "";
   const sorted = [...px].sort((a, b) => b.derived.price.base_day.localeCompare(a.derived.price.base_day));
-  el.innerHTML = `<div class="note" style="margin-top:10px">Each filer, from the close on the filing day. Select a row to draw it against SPY above.</div>
-    <table class="mini"><tr><th style="text-align:left">filer</th><th>ticker</th><th>filed</th>${hs.map(h => `<th>${HORIZON_LABEL[h]}</th>`).join("")}</tr>${sorted.map(x => { const p = x.derived.price;
-      return `<tr class="${x.id === pxSel ? "sel" : ""}" data-px="${esc(x.id)}" style="cursor:pointer"><td style="text-align:left"><a href="org/${esc(x.org_id)}/">${esc(x.org_name)}</a></td><td>${esc(p.ticker)}</td><td>${esc(p.base_day)}</td>${hs.map(h => `<td>${cell(p.returns[h])}</td>`).join("")}</tr>`; }).join("")}</table>`;
+  const pages = Math.ceil(sorted.length / PX_PAGE); pxPage = Math.min(pxPage, pages - 1);
+  const start = pxPage * PX_PAGE, slice = sorted.slice(start, start + PX_PAGE);
+  el.innerHTML = `<div class="note" style="margin-top:10px">Each filer, from the close on the filing day${pages > 1 ? `, newest first (${start + 1}–${start + slice.length} of ${sorted.length})` : ""}. Select a row to draw it against SPY above.</div>
+    <table class="mini"><tr><th style="text-align:left">filer</th><th>ticker</th><th>filed</th>${hs.map(h => `<th>${HORIZON_LABEL[h]}</th>`).join("")}</tr>${slice.map(x => { const p = x.derived.price;
+      return `<tr class="${x.id === pxSel ? "sel" : ""}" data-px="${esc(x.id)}" style="cursor:pointer"><td style="text-align:left"><a href="org/${esc(x.org_id)}/">${esc(x.org_name)}</a></td><td>${esc(p.ticker)}</td><td>${esc(p.base_day)}</td>${hs.map(h => `<td>${cell(p.returns[h])}</td>`).join("")}</tr>`; }).join("")}</table>
+    ${pages > 1 ? `<div class="pager">${pageLinks(pages, pxPage)}</div>` : ""}`;
   el.querySelectorAll("tr[data-px]").forEach(tr => tr.addEventListener("click", e => { if (e.target.closest("a")) return; pxSel = tr.dataset.px; renderFilers(px); drawFiler(px.find(x => x.id === pxSel)); }));
+  el.querySelectorAll("a[data-page]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); pxPage = +a.dataset.page; renderFilers(px); }));
   if (pxSel && px.some(x => x.id === pxSel)) drawFiler(px.find(x => x.id === pxSel)); else { $("#px-chart").innerHTML = ""; $("#px-legend").innerHTML = ""; }
 }
 function drawFiler(x) {
@@ -696,14 +701,18 @@ function renderCount(pages, start, n) {
   const cr = $("#count-reset"); if (cr) cr.addEventListener("click", e => { e.preventDefault(); $("#reset").click(); });
   const c = $("#sel-clear"); if (c) c.addEventListener("click", e => { e.preventDefault(); clearSel(); page = 0; render(); toHash(); });
 }
+// previous, numbered links around the current page with the ends always shown, next
+function pageLinks(pages, cur) {
+  const nums = new Set([0, pages - 1]); for (let i = cur - 2; i <= cur + 2; i++) if (i >= 0 && i < pages) nums.add(i);
+  const parts = [], sorted = [...nums].sort((a, b) => a - b);
+  for (let i = 0; i < sorted.length; i++) { if (i && sorted[i] - sorted[i - 1] > 1) parts.push("…"); parts.push(`<a href="#" data-page="${sorted[i]}" class="${sorted[i] === cur ? "cur" : ""}">${sorted[i] + 1}</a>`); }
+  return `${cur > 0 ? `<a href="#" data-page="${cur - 1}">previous</a>` : ""}${parts.join(" ")}${cur < pages - 1 ? `<a href="#" data-page="${cur + 1}">next</a>` : ""}`;
+}
 function renderPager(pages) {
   const el = $("#pager");
   if (view.length <= PAGE_SIZES[0]) { el.innerHTML = ""; return; }
-  const nums = new Set([0, pages - 1]); for (let i = page - 2; i <= page + 2; i++) if (i >= 0 && i < pages) nums.add(i);
-  const parts = [], sorted = [...nums].sort((a, b) => a - b);
-  for (let i = 0; i < sorted.length; i++) { if (i && sorted[i] - sorted[i - 1] > 1) parts.push("…"); parts.push(`<a href="#" data-page="${sorted[i]}" class="${sorted[i] === page ? "cur" : ""}">${sorted[i] + 1}</a>`); }
   const sizes = PAGE_SIZES.map(n => n === PAGE ? `<b>${n}</b>` : `<a href="#" data-size="${n}">${n}</a>`).join(" ");
-  el.innerHTML = `${pages > 1 ? `${page > 0 ? `<a href="#" data-page="${page - 1}">previous</a>` : ""}${parts.join(" ")}${page < pages - 1 ? `<a href="#" data-page="${page + 1}">next</a>` : ""}` : ""}<span>show ${sizes} per page</span>`;
+  el.innerHTML = `${pages > 1 ? pageLinks(pages, page) : ""}<span>show ${sizes} per page</span>`;
   el.querySelectorAll("a[data-page]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); page = +a.dataset.page; open.clear(); render(); toHash(); $("#count").scrollIntoView({ block: "start" }); }));
   el.querySelectorAll("a[data-size]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); const first = page * PAGE; PAGE = +a.dataset.size; page = Math.floor(first / PAGE); render(); toHash(); }));
 }
