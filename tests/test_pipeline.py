@@ -692,3 +692,39 @@ def test_entity_pages_titles_links_and_sitemap(tmp_path):
     many = [dict(r1, id=f"m{i}", org_type="healthcare", disclosed_date=f"2024-01-{1 + i % 28:02d}") for i in range(PAGE_CAP + 5)]
     sh = sector_page(sector_registry(many)[0], many, "https://x.test/")
     assert f"Newest {PAGE_CAP} of {PAGE_CAP + 5} records" in sh and sh.count("<h2>") == PAGE_CAP and "#ot=healthcare" in sh
+
+
+def test_hackmageddon_rows_become_press_candidates_and_campaign_rows_are_dropped():
+    from backfill import parse_hackmageddon_post
+    html = """<table><tr><th>ID</th><th>Date Reported</th><th>Author</th><th>Target</th><th>Description</th><th>Attack</th><th>Attack Class</th><th>Country</th><th>Link</th></tr>
+    <tr><td>1</td><td>03/02/2022</td><td>BlackCat</td><td>Oiltanking GmbH</td><td>Ransomware hits a petrol distributor.</td><td>Malware</td><td>CC</td><td>DE</td><td><a href="https://example.org/a">Link</a></td></tr>
+    <tr><td>2</td><td>04/02/2022</td><td>?</td><td>Multiple organizations</td><td>A campaign.</td><td>Malware</td><td>CC</td><td>US</td><td><a href="https://example.org/b">Link</a></td></tr>
+    <tr><td>3</td><td>05/02/2022</td><td>Killnet</td><td>Some Ministry</td><td>Site down.</td><td>DDoS</td><td>H</td><td>IT</td><td><a href="https://example.org/c">Link</a></td></tr>
+    <tr><td>4</td><td>bad</td><td>?</td><td>Acme Corp</td><td>Breach.</td><td>Unknown</td><td>Cyber Crime</td><td>N/A</td><td><a href="https://example.org/d">Link</a></td></tr></table>"""
+    rows = parse_hackmageddon_post(html, "2022-02-20")
+    assert [r["org_name"] for r in rows] == ["Oiltanking GmbH", "Acme Corp"]
+    assert rows[0]["disclosed_date"] == "2022-02-03" and rows[0]["org_country"] == "DE" and rows[0]["structured_hint"]["actor"] == "BlackCat"
+    assert rows[1]["disclosed_date"] == "2022-02-20" and rows[1]["org_country"] == "unknown" and rows[1]["structured_hint"]["actor"] is None
+    assert rows[0]["source_type"] == "press" and rows[0]["source_url"] == "https://example.org/a"
+
+
+def test_konbriefing_boxes_become_press_candidates_with_the_first_real_link():
+    from backfill import parse_konbriefing
+    html = """<article id="Res1" class="portfolio-item col-12"><div id="Main0" class="portfolio-item kbresbox1"><div><img alt="Flag"/>January 2022</div>
+    <div style="font-weight:bold;">Unauthorized access at a provider of identity management solutions</div><div>Okta - California, USA</div>
+    <div><a href="https://twitter.com/x/1">tweet</a> <a href="https://www.okta.com/blog/2022/03/updated-okta-statement-on-lapsus/">Updated Okta Statement</a></div></div></article>
+    <article id="Res2" class="portfolio-item col-12"><div>March 4, 2023</div><div>Attack on a clinic</div><div>Klinik Nord - Hamburg, Germany</div><div><a href="#Res2">self</a></div></article>"""
+    rows = parse_konbriefing(html)
+    assert len(rows) == 1 and rows[0]["org_name"] == "Okta" and rows[0]["disclosed_date"] == "2022-01-01"
+    assert rows[0]["source_url"].startswith("https://www.okta.com/") and rows[0]["org_country"] == "US"
+
+
+def test_drop_settled_skips_handled_urls_and_orgs_with_a_stated_mechanism():
+    from backfill import drop_settled
+    from common import url_key
+    store = [dict(org_name="Acme Corp", disclosed_date="2022-02-01", initial_access="phishing", sources=[]),
+             dict(org_name="Beta LLC", disclosed_date="2022-02-01", initial_access="unknown", sources=[])]
+    mk = lambda org, url: dict(org_name=org, disclosed_date="2022-02-10", source_type="press", source_url=url)
+    cands = [mk("Acme Corp", "https://e.org/1"), mk("Beta LLC", "https://e.org/2"), mk("Gamma", "https://e.org/3"), mk("Delta", "https://e.org/4")]
+    kept = drop_settled(cands, store, {url_key("https://e.org/4")})
+    assert [c["org_name"] for c in kept] == ["Beta LLC", "Gamma"]
