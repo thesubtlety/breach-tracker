@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-19T13:15:36+00:00",
+  "run_at": "2026-10-20T11:42:28+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 17,
+      "hhs": 83,
+      "maine_ag": 0,
+      "california_ag": 57,
+      "texas_ag": 87,
+      "washington_ag": 0,
+      "vermont_ag": 83,
+      "oregon_doj": 15,
+      "south_carolina": 12,
+      "hibp": 11,
+      "ransomware_live": 100,
+      "rss": 23,
+      "mastodon": 30
+    },
+    "previous_counts": {
       "sec_edgar": 14,
       "hhs": 72,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 20,
       "mastodon": 32
     },
-    "previous_counts": {
-      "sec_edgar": 14,
-      "hhs": 72,
-      "maine_ag": 0,
-      "california_ag": 55,
-      "texas_ag": 87,
-      "washington_ag": 0,
-      "vermont_ag": 76,
-      "oregon_doj": 15,
-      "south_carolina": 14,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 21,
-      "mastodon": 32
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row",
       "washington_ag: zero candidates two runs in a row"
@@ -40,30 +40,35 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.computerworld.com/article/3074117/security/100-thieves-stole-127-million-from-atms-in-25-hours.html;",
-      "http://www.pennlive.com/news/2016/07/taxpayers_data_potentially_com.html;",
-      "http://www.foxnews.com/us/2014/03/11/safe-broken-into-at-osteen-megachurch-in-houston-thieves-takes-cash-checks/"
+      "http://www.databreaches.net/va-associates-in-eye-care-notifies-patients-of-breach/",
+      "http://www.databreaches.net/brokerage-firm-benjamin-f-edwards-fell-victim-to-cryptowall-infection/;",
+      "http://kdvr.com/2015/11/25/dueling-pianos-roadshow-founder-indicted-for-fraud/;"
     ],
     "dead_rate": 0.15
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 17,
+    "confirmed": 16,
     "missing": [
       {
-        "id": "b8e12eb26a8c94c8bfaeef6d4b3b134dcd28a989",
-        "org": "American Councils for International Education",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM10474.pdf"
+        "id": "b6f18c822cb9bfb11333dced102fb94b717327b5",
+        "org": "Molina Healthcare of Washington, Inc.",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM9586.pdf"
       },
       {
-        "id": "5b4afbe9f2afe9be96e77c3401fa4bc80dfeb806",
-        "org": "Schewitz Psychological Services Inc",
-        "url": "https://oag.ca.gov/system/files/Couples%20Learn%20HIPAA%20Breach%20Notification.pdf"
+        "id": "33a541b2121b7f650e9c0ef19619a238047b279e",
+        "org": "Allstate Insurance Company",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachA20261.pdf"
       },
       {
-        "id": "1373f41580b2d99aef9f45e72801ffd4b795b657",
-        "org": "Stanford University",
-        "url": "https://oag.ca.gov/system/files/Stanford%20Notification%20Letter_FINAL_11292017_0.pdf"
+        "id": "cf87df4f52fe9dfe8ce44674971ce836ed284737",
+        "org": "The North Face",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM15147.pdf"
+      },
+      {
+        "id": "8ff2228e14ead959e65a9ca293e96cd2c2cb524f",
+        "org": "Lowe's",
+        "url": "https://oag.ca.gov/system/files/Lowes%205-19-14%20Notice%20Letter_1.pdf"
       }
     ],
     "unfetchable": 0
