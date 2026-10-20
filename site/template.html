@@ -505,7 +505,7 @@ function drawFiler(x) {
   };
   if (PRICES) go(); else getJson("prices.json").then(d => { PRICES = d; go(); }).catch(() => { $("#px-chart").textContent = "Price series unavailable."; });
 }
-const HORIZON_LABEL = { "1": "next day", "5": "1 week", "21": "1 month", "63": "3 months", "126": "6 months", "250": "1 year" };
+const HORIZON_LABEL = { "1": "next day", "5": "1 week", "21": "1 month", "126": "6 months", "250": "1 year" };
 function renderContextCharts(v) {
   // lag: incident -> disclosure, by the kind of source that disclosed it; imported rows have no disclosure date of their own
   const lag = v.filter(x => origin(x) !== "imported" && x.incident_date && x.disclosed_date >= x.incident_date)

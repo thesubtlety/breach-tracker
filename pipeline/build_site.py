@@ -173,7 +173,7 @@ def feed(rows: list[dict], since: str, generated: str, title: str = f"{SITE_NAME
 """
 
 
-HORIZONS = (1, 5, 21, 63, 126, 250)  # trading days: next day, week, month, quarter, half year, year
+HORIZONS = (1, 5, 21, 126, 250)  # trading days: next day, week, month, half year, year
 
 
 def price_reaction(series: dict, spy: dict) -> dict | None:
