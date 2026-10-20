@@ -2264,6 +2264,15 @@
 "ransomware": "Unknown",
 "vendor": "NETGEAR"
 },
+"CVE-2017-6079": {
+"added": null,
+"checked": "2026-10-20",
+"name": null,
+"nvd_published": "2017-05-16",
+"product": "edgemarc firmware",
+"ransomware": null,
+"vendor": "ribboncommunications"
+},
 "CVE-2017-6316": {
 "added": "2022-03-25",
 "name": "Citrix Multiple Products Remote Code Execution Vulnerability",
@@ -3734,6 +3743,15 @@
 "ransomware": "Known",
 "vendor": "Fortinet"
 },
+"CVE-2019-5782": {
+"added": null,
+"checked": "2026-10-20",
+"name": null,
+"nvd_published": "2019-02-19",
+"product": "chrome",
+"ransomware": null,
+"vendor": "google"
+},
 "CVE-2019-5786": {
 "added": "2022-05-23",
 "name": "Google Chrome Blink Use-After-Free Vulnerability",
@@ -4615,6 +4633,15 @@
 "product": "Archive_Tar",
 "ransomware": "Unknown",
 "vendor": "PEAR"
+},
+"CVE-2020-36195": {
+"added": null,
+"checked": "2026-10-20",
+"name": null,
+"nvd_published": "2021-04-17",
+"product": "qts",
+"ransomware": null,
+"vendor": "qnap"
 },
 "CVE-2020-3837": {
 "added": "2022-06-27",
@@ -7605,6 +7632,15 @@
 "ransomware": "Unknown",
 "vendor": "Joomla!"
 },
+"CVE-2023-24059": {
+"added": null,
+"checked": "2026-10-20",
+"name": null,
+"nvd_published": "2023-01-22",
+"product": "grand theft auto v",
+"ransomware": null,
+"vendor": "rockstargames"
+},
 "CVE-2023-24489": {
 "added": "2023-08-16",
 "name": "Citrix Content Collaboration ShareFile Improper Access Control Vulnerability",
@@ -7786,6 +7822,15 @@
 "product": "Multiple Firewalls",
 "ransomware": "Unknown",
 "vendor": "Zyxel"
+},
+"CVE-2023-29059": {
+"added": null,
+"checked": "2026-10-20",
+"name": null,
+"nvd_published": "2023-03-30",
+"product": "3cx",
+"ransomware": null,
+"vendor": "3cx"
 },
 "CVE-2023-29298": {
 "added": "2023-07-20",
@@ -10824,7 +10869,6 @@
 },
 "CVE-2025-61624": {
 "added": "2026-10-16",
-"checked": "2026-10-19",
 "name": "Fortinet Multiple Products Path Traversal Vulnerability",
 "product": "Multiple Products",
 "ransomware": "Unknown",
@@ -11116,6 +11160,20 @@
 "product": "Sentry",
 "ransomware": "Unknown",
 "vendor": "Ivanti"
+},
+"CVE-2026-106931": {
+"added": "2026-10-20",
+"name": "EG Secure Solutions SiteGuard Server Edition OS Command Injection Vulnerability",
+"product": "SiteGuard Server Edition",
+"ransomware": "Unknown",
+"vendor": "EG Secure Solutions"
+},
+"CVE-2026-110936": {
+"added": "2026-10-20",
+"name": "Siemens Software Center Uncontrolled Search Path Element Vulnerability",
+"product": "Software Center",
+"ransomware": "Unknown",
+"vendor": "Siemens"
 },
 "CVE-2026-11645": {
 "added": "2026-06-09",
@@ -12264,6 +12322,34 @@
 "product": "Switchvox",
 "ransomware": "Unknown",
 "vendor": "Sangoma"
+},
+"CVE-2026-96652": {
+"added": "2026-10-20",
+"name": "Plex Media Server Server-Side Request Forgery (SSRF) Vulnerability",
+"product": "Media Server",
+"ransomware": "Unknown",
+"vendor": "Plex"
+},
+"CVE-2026-96654": {
+"added": "2026-10-20",
+"name": "Plex Media Server Improper Neutralization of Encoded URI Schemes in a Web Page Vulnerability",
+"product": "Media Server",
+"ransomware": "Unknown",
+"vendor": "Plex"
+},
+"CVE-2026-96655": {
+"added": "2026-10-20",
+"name": "Plex Media Server Server-Side Request Forgery (SSRF) Vulnerability",
+"product": "Media Server",
+"ransomware": "Unknown",
+"vendor": "Plex"
+},
+"CVE-2026-96656": {
+"added": "2026-10-20",
+"name": "Plex Media Server External Control of File Name or Path Vulnerability",
+"product": "Media Server",
+"ransomware": "Unknown",
+"vendor": "Plex"
 },
 "CVE-2026-96951": {
 "added": "2026-10-13",

@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-20T11:42:28+00:00",
+  "run_at": "2026-10-20T20:53:09+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 19,
+      "hhs": 89,
+      "maine_ag": 0,
+      "california_ag": 57,
+      "texas_ag": 93,
+      "washington_ag": 0,
+      "vermont_ag": 85,
+      "oregon_doj": 15,
+      "south_carolina": 12,
+      "hibp": 11,
+      "ransomware_live": 100,
+      "rss": 20,
+      "mastodon": 31
+    },
+    "previous_counts": {
       "sec_edgar": 17,
       "hhs": 83,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 23,
       "mastodon": 30
     },
-    "previous_counts": {
-      "sec_edgar": 14,
-      "hhs": 72,
-      "maine_ag": 0,
-      "california_ag": 52,
-      "texas_ag": 87,
-      "washington_ag": 0,
-      "vermont_ag": 82,
-      "oregon_doj": 14,
-      "south_carolina": 12,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 20,
-      "mastodon": 32
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row",
       "washington_ag: zero candidates two runs in a row"
@@ -40,35 +40,20 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.databreaches.net/va-associates-in-eye-care-notifies-patients-of-breach/",
-      "http://www.databreaches.net/brokerage-firm-benjamin-f-edwards-fell-victim-to-cryptowall-infection/;",
+      "http://www.databreaches.net/utorrent-forums-hacked-change-your-passwords/;",
+      "http://www.databreaches.net/breaking-up-is-hard-to-do-tuesday-edition/;",
       "http://kdvr.com/2015/11/25/dueling-pianos-roadshow-founder-indicted-for-fraud/;"
     ],
     "dead_rate": 0.15
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 16,
+    "confirmed": 19,
     "missing": [
       {
-        "id": "b6f18c822cb9bfb11333dced102fb94b717327b5",
-        "org": "Molina Healthcare of Washington, Inc.",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM9586.pdf"
-      },
-      {
-        "id": "33a541b2121b7f650e9c0ef19619a238047b279e",
-        "org": "Allstate Insurance Company",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachA20261.pdf"
-      },
-      {
-        "id": "cf87df4f52fe9dfe8ce44674971ce836ed284737",
-        "org": "The North Face",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM15147.pdf"
-      },
-      {
-        "id": "8ff2228e14ead959e65a9ca293e96cd2c2cb524f",
-        "org": "Lowe's",
-        "url": "https://oag.ca.gov/system/files/Lowes%205-19-14%20Notice%20Letter_1.pdf"
+        "id": "10ec9e3e4867a58ca4e9db7955d1305adca5c6cc",
+        "org": "TCM Bank",
+        "url": "https://oag.ca.gov/system/files/TCM-%20CA%20Letter%20Template_0.pdf"
       }
     ],
     "unfetchable": 0
