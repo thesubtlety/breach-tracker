@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-20T20:53:09+00:00",
+  "run_at": "2026-10-21T12:07:42+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 19,
+      "hhs": 89,
+      "maine_ag": 0,
+      "california_ag": 57,
+      "texas_ag": 93,
+      "washington_ag": 0,
+      "vermont_ag": 85,
+      "oregon_doj": 15,
+      "south_carolina": 12,
+      "hibp": 11,
+      "ransomware_live": 100,
+      "rss": 16,
+      "mastodon": 32
+    },
+    "previous_counts": {
       "sec_edgar": 19,
       "hhs": 89,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 20,
       "mastodon": 31
     },
-    "previous_counts": {
-      "sec_edgar": 17,
-      "hhs": 83,
-      "maine_ag": 0,
-      "california_ag": 57,
-      "texas_ag": 87,
-      "washington_ag": 0,
-      "vermont_ag": 83,
-      "oregon_doj": 15,
-      "south_carolina": 12,
-      "hibp": 11,
-      "ransomware_live": 100,
-      "rss": 23,
-      "mastodon": 30
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row",
       "washington_ag: zero candidates two runs in a row"
@@ -40,20 +40,25 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.databreaches.net/utorrent-forums-hacked-change-your-passwords/;",
-      "http://www.databreaches.net/breaking-up-is-hard-to-do-tuesday-edition/;",
-      "http://kdvr.com/2015/11/25/dueling-pianos-roadshow-founder-indicted-for-fraud/;"
+      "http://www.healthcareitnews.com/news/nuance-regains-some-services-after-notpetya-cyberattack",
+      "http://www.businessweek.com/news/2014-02-11/bitcoin-exchange-bitstamp-halts-withdrawals-citing-web-attack",
+      "http://www.shanghaidaily.com/metro/society/Two-students-accused-of-hacking-school-grade-system-altering-records-for-200-classmates/shdaily.shtml"
     ],
     "dead_rate": 0.15
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 19,
+    "confirmed": 18,
     "missing": [
       {
-        "id": "10ec9e3e4867a58ca4e9db7955d1305adca5c6cc",
-        "org": "TCM Bank",
-        "url": "https://oag.ca.gov/system/files/TCM-%20CA%20Letter%20Template_0.pdf"
+        "id": "55a0b45044a06d10a5cf7cb81f926a95d9498821",
+        "org": "Luxottica",
+        "url": "https://haveibeenpwned.com/Breach/Luxottica"
+      },
+      {
+        "id": "5a2dfdb8f962c7a4e82bbb5c1c975a58c5f176d7",
+        "org": "Hopamedia",
+        "url": "https://haveibeenpwned.com/Breach/Hopamedia"
       }
     ],
     "unfetchable": 0
