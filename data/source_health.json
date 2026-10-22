@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-21T12:07:42+00:00",
+  "run_at": "2026-10-22T11:57:41+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 25,
+      "hhs": 84,
+      "maine_ag": 0,
+      "california_ag": 52,
+      "texas_ag": 77,
+      "washington_ag": 2,
+      "vermont_ag": 84,
+      "oregon_doj": 14,
+      "south_carolina": 10,
+      "hibp": 10,
+      "ransomware_live": 100,
+      "rss": 14,
+      "mastodon": 28
+    },
+    "previous_counts": {
       "sec_edgar": 19,
       "hhs": 89,
       "maine_ag": 0,
@@ -16,49 +31,35 @@
       "rss": 16,
       "mastodon": 32
     },
-    "previous_counts": {
-      "sec_edgar": 19,
-      "hhs": 89,
-      "maine_ag": 0,
-      "california_ag": 57,
-      "texas_ag": 93,
-      "washington_ag": 0,
-      "vermont_ag": 85,
-      "oregon_doj": 15,
-      "south_carolina": 12,
-      "hibp": 11,
-      "ransomware_live": 100,
-      "rss": 20,
-      "mastodon": 31
-    },
     "problems": [
-      "maine_ag: zero candidates two runs in a row",
-      "washington_ag: zero candidates two runs in a row"
+      "maine_ag: zero candidates two runs in a row"
     ],
     "skipped": []
   },
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.healthcareitnews.com/news/nuance-regains-some-services-after-notpetya-cyberattack",
-      "http://www.businessweek.com/news/2014-02-11/bitcoin-exchange-bitstamp-halts-withdrawals-citing-web-attack",
-      "http://www.shanghaidaily.com/metro/society/Two-students-accused-of-hacking-school-grade-system-altering-records-for-200-classmates/shdaily.shtml"
+      "http://tvnz.co.nz/national-news/yet-another-privacy-breach-govt-department-5391914",
+      "https://www.databreaches.net/49-million-user-records-from-us-data-broker-limeleads-put-up-for-sale-online/;",
+      "http://healthitsecurity.com/news/unauthorized-phi-access-at-ohio-hospital-affects-300-patients",
+      "http://www.johnsoncitypress.com/article/124335/scammers-target-state-of-franklin-healthcare-employees-in-payroll-breach;",
+      "http://www.beckershospitalreview.com/healthcare-information-technology/northwestern-memorial-reports-stolen-laptop-notifies-2-800-patients-of-data-breach.html;"
     ],
-    "dead_rate": 0.15
+    "dead_rate": 0.25
   },
   "quotes": {
     "checked": 20,
     "confirmed": 18,
     "missing": [
       {
-        "id": "55a0b45044a06d10a5cf7cb81f926a95d9498821",
-        "org": "Luxottica",
-        "url": "https://haveibeenpwned.com/Breach/Luxottica"
-      },
-      {
         "id": "5a2dfdb8f962c7a4e82bbb5c1c975a58c5f176d7",
         "org": "Hopamedia",
         "url": "https://haveibeenpwned.com/Breach/Hopamedia"
+      },
+      {
+        "id": "78c890680b5fb57b7a9d515dd826a3da2335e8e9",
+        "org": "Johnson Investment Counsel",
+        "url": "https://mastodon.social/@netsecio/117439628431900153"
       }
     ],
     "unfetchable": 0
