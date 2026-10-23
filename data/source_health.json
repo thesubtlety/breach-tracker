@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-22T11:57:41+00:00",
+  "run_at": "2026-10-23T11:44:13+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 34,
+      "hhs": 84,
+      "maine_ag": 0,
+      "california_ag": 57,
+      "texas_ag": 77,
+      "washington_ag": 2,
+      "vermont_ag": 86,
+      "oregon_doj": 16,
+      "south_carolina": 10,
+      "hibp": 9,
+      "ransomware_live": 100,
+      "rss": 21,
+      "mastodon": 30
+    },
+    "previous_counts": {
       "sec_edgar": 25,
       "hhs": 84,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 14,
       "mastodon": 28
     },
-    "previous_counts": {
-      "sec_edgar": 19,
-      "hhs": 89,
-      "maine_ag": 0,
-      "california_ag": 57,
-      "texas_ag": 93,
-      "washington_ag": 0,
-      "vermont_ag": 85,
-      "oregon_doj": 15,
-      "south_carolina": 12,
-      "hibp": 11,
-      "ransomware_live": 100,
-      "rss": 16,
-      "mastodon": 32
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,27 +39,31 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://tvnz.co.nz/national-news/yet-another-privacy-breach-govt-department-5391914",
-      "https://www.databreaches.net/49-million-user-records-from-us-data-broker-limeleads-put-up-for-sale-online/;",
-      "http://healthitsecurity.com/news/unauthorized-phi-access-at-ohio-hospital-affects-300-patients",
-      "http://www.johnsoncitypress.com/article/124335/scammers-target-state-of-franklin-healthcare-employees-in-payroll-breach;",
-      "http://www.beckershospitalreview.com/healthcare-information-technology/northwestern-memorial-reports-stolen-laptop-notifies-2-800-patients-of-data-breach.html;"
+      "http://gadgets.ndtv.com/apps/news/partial-user-data-of-food-delivery-service-innerchef-leaked-by-purported-hackers-831292",
+      "http://www.kxly.com/news/local-news/data-breach-at-spokane-va-medical-center/640560121",
+      "https://www.gizmodo.com.au/2021/02/iranian-chat-app-gets-its-data-wiped-out-in-a-cyberattack/",
+      "https://www.databreaches.net/cove-family-sports-medicine-recovers-from-ransomware-but-loses-some-data/;",
+      "http://www.wistv.com/story/24323194/laptop-with-data-of-schip-customers-stolen",
+      "https://www.databreaches.net/oh-wright-patterson-medical-center-notifies-3800-of-breach-involving-their-info/;",
+      "http://vcdb.org/pdf/va-security-sep-2014.pdf",
+      "http://www.cbc.ca/news/canada/new-brunswick/vitalit-health-refers-doctor-privacy-breach-to-rcmp-1.2775290",
+      "https://www.databreaches.net/ct-hospital-patients-caught-in-identity-theft-ring/;"
     ],
-    "dead_rate": 0.25
+    "dead_rate": 0.45
   },
   "quotes": {
     "checked": 20,
     "confirmed": 18,
     "missing": [
       {
-        "id": "5a2dfdb8f962c7a4e82bbb5c1c975a58c5f176d7",
-        "org": "Hopamedia",
-        "url": "https://haveibeenpwned.com/Breach/Hopamedia"
+        "id": "0730b5d20bf4f09749ffe4b8a0c9c91a74344f5d",
+        "org": "Ticketcounter",
+        "url": "https://haveibeenpwned.com/Breach/Ticketcounter"
       },
       {
-        "id": "78c890680b5fb57b7a9d515dd826a3da2335e8e9",
-        "org": "Johnson Investment Counsel",
-        "url": "https://mastodon.social/@netsecio/117439628431900153"
+        "id": "a4722ea4117dfa9dc00dad7f6d3e14ac2c10eac1",
+        "org": "BHI Energy",
+        "url": "https://www.bleepingcomputer.com/news/security/us-energy-firm-shares-how-akira-ransomware-hacked-its-systems/"
       }
     ],
     "unfetchable": 0
