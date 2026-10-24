@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-23T11:44:13+00:00",
+  "run_at": "2026-10-24T11:02:21+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 32,
+      "hhs": 84,
+      "maine_ag": 0,
+      "california_ag": 58,
+      "texas_ag": 86,
+      "washington_ag": 2,
+      "vermont_ag": 90,
+      "oregon_doj": 16,
+      "south_carolina": 10,
+      "hibp": 9,
+      "ransomware_live": 100,
+      "rss": 18,
+      "mastodon": 34
+    },
+    "previous_counts": {
       "sec_edgar": 34,
       "hhs": 84,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 21,
       "mastodon": 30
     },
-    "previous_counts": {
-      "sec_edgar": 25,
-      "hhs": 84,
-      "maine_ag": 0,
-      "california_ag": 52,
-      "texas_ag": 77,
-      "washington_ag": 2,
-      "vermont_ag": 84,
-      "oregon_doj": 14,
-      "south_carolina": 10,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 14,
-      "mastodon": 28
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,33 +39,15 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://gadgets.ndtv.com/apps/news/partial-user-data-of-food-delivery-service-innerchef-leaked-by-purported-hackers-831292",
-      "http://www.kxly.com/news/local-news/data-breach-at-spokane-va-medical-center/640560121",
-      "https://www.gizmodo.com.au/2021/02/iranian-chat-app-gets-its-data-wiped-out-in-a-cyberattack/",
-      "https://www.databreaches.net/cove-family-sports-medicine-recovers-from-ransomware-but-loses-some-data/;",
-      "http://www.wistv.com/story/24323194/laptop-with-data-of-schip-customers-stolen",
-      "https://www.databreaches.net/oh-wright-patterson-medical-center-notifies-3800-of-breach-involving-their-info/;",
-      "http://vcdb.org/pdf/va-security-sep-2014.pdf",
-      "http://www.cbc.ca/news/canada/new-brunswick/vitalit-health-refers-doctor-privacy-breach-to-rcmp-1.2775290",
-      "https://www.databreaches.net/ct-hospital-patients-caught-in-identity-theft-ring/;"
+      "https://www.hackread.com/internet-bot-exposes-mtn-irancell-users-data/;",
+      "http://gadgets.ndtv.com/internet/news/xhamster-reportedly-saw-380-000-accounts-compromised-in-security-breach-1632680"
     ],
-    "dead_rate": 0.45
+    "dead_rate": 0.1
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 18,
-    "missing": [
-      {
-        "id": "0730b5d20bf4f09749ffe4b8a0c9c91a74344f5d",
-        "org": "Ticketcounter",
-        "url": "https://haveibeenpwned.com/Breach/Ticketcounter"
-      },
-      {
-        "id": "a4722ea4117dfa9dc00dad7f6d3e14ac2c10eac1",
-        "org": "BHI Energy",
-        "url": "https://www.bleepingcomputer.com/news/security/us-energy-firm-shares-how-akira-ransomware-hacked-its-systems/"
-      }
-    ],
+    "confirmed": 20,
+    "missing": [],
     "unfetchable": 0
   }
 }
