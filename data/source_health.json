@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-24T11:02:21+00:00",
+  "run_at": "2026-10-25T11:25:37+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 32,
+      "hhs": 82,
+      "maine_ag": 0,
+      "california_ag": 53,
+      "texas_ag": 86,
+      "washington_ag": 2,
+      "vermont_ag": 88,
+      "oregon_doj": 15,
+      "south_carolina": 10,
+      "hibp": 9,
+      "ransomware_live": 100,
+      "rss": 17,
+      "mastodon": 30
+    },
+    "previous_counts": {
       "sec_edgar": 32,
       "hhs": 84,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 18,
       "mastodon": 34
     },
-    "previous_counts": {
-      "sec_edgar": 34,
-      "hhs": 84,
-      "maine_ag": 0,
-      "california_ag": 57,
-      "texas_ag": 77,
-      "washington_ag": 2,
-      "vermont_ag": 86,
-      "oregon_doj": 16,
-      "south_carolina": 10,
-      "hibp": 9,
-      "ransomware_live": 100,
-      "rss": 21,
-      "mastodon": 30
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,15 +39,23 @@
   "links": {
     "checked": 20,
     "dead": [
-      "https://www.hackread.com/internet-bot-exposes-mtn-irancell-users-data/;",
-      "http://gadgets.ndtv.com/internet/news/xhamster-reportedly-saw-380-000-accounts-compromised-in-security-breach-1632680"
+      "https://motherboard.vice.com/en_us/article/hackers-steal-6-million-user-accounts-for-cash-for-surveys-site",
+      "http://doj.nh.gov/consumer/security-breaches/documents/coca-cola-credit-union-20120222.pdf",
+      "http://www.journalscene.com/article/20130905/SJ01/130909814/1059/SJ01/musc-patient-credit-cards-hacked;",
+      "http://www.theregister.co.uk/2013/02/19/dutch_mp_ethical_hacking_fine/,"
     ],
-    "dead_rate": 0.1
+    "dead_rate": 0.2
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 20,
-    "missing": [],
+    "confirmed": 19,
+    "missing": [
+      {
+        "id": "4442965e5c13ef151774e94ef7842e7447aaea0d",
+        "org": "CrimeAgency vBulletin Hacks",
+        "url": "https://haveibeenpwned.com/Breach/CrimeAgencyVBulletin"
+      }
+    ],
     "unfetchable": 0
   }
 }
