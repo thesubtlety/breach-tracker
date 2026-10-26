@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-25T11:25:37+00:00",
+  "run_at": "2026-10-26T13:01:18+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 34,
+      "hhs": 84,
+      "maine_ag": 0,
+      "california_ag": 48,
+      "texas_ag": 75,
+      "washington_ag": 2,
+      "vermont_ag": 79,
+      "oregon_doj": 15,
+      "south_carolina": 8,
+      "hibp": 9,
+      "ransomware_live": 100,
+      "rss": 15,
+      "mastodon": 29
+    },
+    "previous_counts": {
       "sec_edgar": 32,
       "hhs": 82,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 17,
       "mastodon": 30
     },
-    "previous_counts": {
-      "sec_edgar": 32,
-      "hhs": 84,
-      "maine_ag": 0,
-      "california_ag": 58,
-      "texas_ag": 86,
-      "washington_ag": 2,
-      "vermont_ag": 90,
-      "oregon_doj": 16,
-      "south_carolina": 10,
-      "hibp": 9,
-      "ransomware_live": 100,
-      "rss": 18,
-      "mastodon": 34
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,21 +39,23 @@
   "links": {
     "checked": 20,
     "dead": [
-      "https://motherboard.vice.com/en_us/article/hackers-steal-6-million-user-accounts-for-cash-for-surveys-site",
-      "http://doj.nh.gov/consumer/security-breaches/documents/coca-cola-credit-union-20120222.pdf",
-      "http://www.journalscene.com/article/20130905/SJ01/130909814/1059/SJ01/musc-patient-credit-cards-hacked;",
-      "http://www.theregister.co.uk/2013/02/19/dutch_mp_ethical_hacking_fine/,"
+      "http://www.hipaabreachlist.com/breach/526ed43f2e0bc531a01e4f68"
     ],
-    "dead_rate": 0.2
+    "dead_rate": 0.05
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 19,
+    "confirmed": 18,
     "missing": [
       {
-        "id": "4442965e5c13ef151774e94ef7842e7447aaea0d",
-        "org": "CrimeAgency vBulletin Hacks",
-        "url": "https://haveibeenpwned.com/Breach/CrimeAgencyVBulletin"
+        "id": "1ff050612508898ac3cd77a91305360cd94baf12",
+        "org": "American Payroll Institute",
+        "url": "https://oag.ca.gov/system/files/APA%20Security%20Incident%20Sample%20Notice%20Template.pdf"
+      },
+      {
+        "id": "45f8207bf9e73004de29b36b5e7d02c40a795d16",
+        "org": "Dynamic Networks",
+        "url": "https://therecord.media/lockbit-ransomware-group-attacks-ohio-towns-court-police-department-and-more/"
       }
     ],
     "unfetchable": 0
