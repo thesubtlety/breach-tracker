@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-26T13:01:18+00:00",
+  "run_at": "2026-10-27T12:14:29+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 36,
+      "hhs": 83,
+      "maine_ag": 0,
+      "california_ag": 48,
+      "texas_ag": 75,
+      "washington_ag": 4,
+      "vermont_ag": 82,
+      "oregon_doj": 16,
+      "south_carolina": 8,
+      "hibp": 10,
+      "ransomware_live": 100,
+      "rss": 10,
+      "mastodon": 31
+    },
+    "previous_counts": {
       "sec_edgar": 34,
       "hhs": 84,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 15,
       "mastodon": 29
     },
-    "previous_counts": {
-      "sec_edgar": 32,
-      "hhs": 82,
-      "maine_ag": 0,
-      "california_ag": 53,
-      "texas_ag": 86,
-      "washington_ag": 2,
-      "vermont_ag": 88,
-      "oregon_doj": 15,
-      "south_carolina": 10,
-      "hibp": 9,
-      "ransomware_live": 100,
-      "rss": 17,
-      "mastodon": 30
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,25 +39,19 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.hipaabreachlist.com/breach/526ed43f2e0bc531a01e4f68"
+      "https://www.databreaches.net/texas-health-human-services-commission-notifies-600-after-contractor-cant-locate-600-records/;",
+      "http://www.krcrtv.com/news/local/shasta/redding-travel-agent-arrested-on-70-criminal-counts/70773503",
+      "http://www.pahomepage.com/news/lccc-data-mistake-impacts-faculty-and-staff;",
+      "http://www.atg.state.vt.us/issues/consumer-protection/privacy-and-Data-Security/documents-and-resources5/nationwide-security-breach-notice-ltr-to-consumer.php",
+      "https://securitydiscovery.com/iranian-ride-hailing-app-database-exposure/,https://financialtribune.com/articles/sci-tech/97520/massive-data-leak-hits-ride-hailing-firm-in-iran",
+      "https://bc.ctvnews.ca/personal-information-of-students-faculty-at-b-c-university-exposed-in-recent-data-breach-1.4835336"
     ],
-    "dead_rate": 0.05
+    "dead_rate": 0.3
   },
   "quotes": {
-    "checked": 20,
-    "confirmed": 18,
-    "missing": [
-      {
-        "id": "1ff050612508898ac3cd77a91305360cd94baf12",
-        "org": "American Payroll Institute",
-        "url": "https://oag.ca.gov/system/files/APA%20Security%20Incident%20Sample%20Notice%20Template.pdf"
-      },
-      {
-        "id": "45f8207bf9e73004de29b36b5e7d02c40a795d16",
-        "org": "Dynamic Networks",
-        "url": "https://therecord.media/lockbit-ransomware-group-attacks-ohio-towns-court-police-department-and-more/"
-      }
-    ],
-    "unfetchable": 0
+    "checked": 19,
+    "confirmed": 19,
+    "missing": [],
+    "unfetchable": 1
   }
 }
