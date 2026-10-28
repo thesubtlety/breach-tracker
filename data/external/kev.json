@@ -11168,12 +11168,49 @@
 "ransomware": "Unknown",
 "vendor": "EG Secure Solutions"
 },
+"CVE-2026-109618": {
+"added": "2026-10-26",
+"checked": "2026-10-28",
+"name": "PHP Memory Corruption Vulnerability",
+"product": "PHP",
+"ransomware": "Unknown",
+"vendor": "PHP Group"
+},
+"CVE-2026-109619": {
+"added": "2026-10-26",
+"checked": "2026-10-28",
+"name": "PHP Stale Internal Request-State Vulnerability",
+"product": "PHP",
+"ransomware": "Unknown",
+"vendor": "PHP Group"
+},
+"CVE-2026-110447": {
+"added": "2026-10-23",
+"name": "Collabora Online \u2013 Built-in CODE Server OS Command Injection Vulnerability",
+"product": "Collabora Online \u2013 Built-in CODE Server",
+"ransomware": "Unknown",
+"vendor": "Collabora"
+},
 "CVE-2026-110936": {
 "added": "2026-10-20",
 "name": "Siemens Software Center Uncontrolled Search Path Element Vulnerability",
 "product": "Software Center",
 "ransomware": "Unknown",
 "vendor": "Siemens"
+},
+"CVE-2026-111497": {
+"added": "2026-10-27",
+"name": "Google Brotli Unchecked Return Value Vulnerability",
+"product": "Brotli",
+"ransomware": "Unknown",
+"vendor": "Google"
+},
+"CVE-2026-114625": {
+"added": "2026-10-23",
+"name": "Arista VeloCloud Orchestrator SQL Injection Vulnerability",
+"product": "VeloCloud Orchestrator",
+"ransomware": "Unknown",
+"vendor": "Arista"
 },
 "CVE-2026-11645": {
 "added": "2026-06-09",
@@ -11763,6 +11800,15 @@
 "ransomware": "Known",
 "vendor": "Microsoft"
 },
+"CVE-2026-46300": {
+"added": null,
+"checked": "2026-10-28",
+"name": null,
+"nvd_published": "2026-05-23",
+"product": "linux kernel",
+"ransomware": null,
+"vendor": "linux"
+},
 "CVE-2026-46817": {
 "added": "2026-07-15",
 "name": "Oracle E-Business Suite Improper Privilege Management Vulnerability",
@@ -11788,6 +11834,13 @@
 "added": "2026-07-07",
 "name": "Adobe ColdFusion Path Traversal Vulnerability",
 "product": "ColdFusion",
+"ransomware": "Unknown",
+"vendor": "Adobe"
+},
+"CVE-2026-48356": {
+"added": "2026-10-27",
+"name": "Adobe Commerce and Magento Unrestricted Upload of File with Dangerous Type Vulnerability",
+"product": "Commerce and Magento",
 "ransomware": "Unknown",
 "vendor": "Adobe"
 },
@@ -12182,6 +12235,15 @@
 "product": "NetScaler ADC and NetScaler Gateway",
 "ransomware": "Unknown",
 "vendor": "Citrix"
+},
+"CVE-2026-8467": {
+"added": null,
+"checked": "2026-10-28",
+"name": null,
+"nvd_published": "2026-05-20",
+"product": null,
+"ransomware": null,
+"vendor": null
 },
 "CVE-2026-84869": {
 "added": "2026-09-11",
