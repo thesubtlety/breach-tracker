@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-10-29T13:04:33+00:00",
+  "run_at": "2026-10-30T13:00:52+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 53,
+      "hhs": 90,
+      "maine_ag": 0,
+      "california_ag": 57,
+      "texas_ag": 87,
+      "washington_ag": 3,
+      "vermont_ag": 88,
+      "oregon_doj": 13,
+      "south_carolina": 7,
+      "hibp": 10,
+      "ransomware_live": 100,
+      "rss": 16,
+      "mastodon": 32
+    },
+    "previous_counts": {
       "sec_edgar": 48,
       "hhs": 89,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 23,
       "mastodon": 30
     },
-    "previous_counts": {
-      "sec_edgar": 45,
-      "hhs": 86,
-      "maine_ag": 0,
-      "california_ag": 51,
-      "texas_ag": 75,
-      "washington_ag": 4,
-      "vermont_ag": 85,
-      "oregon_doj": 17,
-      "south_carolina": 9,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 25,
-      "mastodon": 35
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,20 +39,21 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.nepabuzz.com/2016/02/01/privacy-breach-at-wayne-memorial-hospital/",
-      "http://www.nzherald.co.nz/bay-of-plenty-times/news/article.cfm?c_id=1503343&objectid=11906814",
-      "http://www.databreaches.net/cerberus-notifies-users-to-reset-paswords-after-some-users-usernames-and-encrypted-passwords-accessed/"
+      "https://www.beyondtrust.com/trust-center/security-advisories/salesforce-salesloft-drift-security-incident",
+      "http://www.eweek.com/security/ca-leak-highlights-weakness-in-net-security-again/",
+      "http://members.jacksonville.com/news/crime/2013-06-21/story/douglas-insurance-agent-charged-fraud-and-identity-theft",
+      "http://archive.armytimes.com/article/20140513/NEWS06/305130064"
     ],
-    "dead_rate": 0.15
+    "dead_rate": 0.2
   },
   "quotes": {
     "checked": 20,
     "confirmed": 19,
     "missing": [
       {
-        "id": "b8e12eb26a8c94c8bfaeef6d4b3b134dcd28a989",
-        "org": "American Councils for International Education",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM10474.pdf"
+        "id": "8ff2228e14ead959e65a9ca293e96cd2c2cb524f",
+        "org": "Lowe's",
+        "url": "https://oag.ca.gov/system/files/Lowes%205-19-14%20Notice%20Letter_1.pdf"
       }
     ],
     "unfetchable": 0
