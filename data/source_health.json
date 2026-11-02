@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-01T13:21:07+00:00",
+  "run_at": "2026-11-02T15:48:23+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 53,
+      "hhs": 90,
+      "maine_ag": 0,
+      "california_ag": 47,
+      "texas_ag": 82,
+      "washington_ag": 3,
+      "vermont_ag": 84,
+      "oregon_doj": 10,
+      "south_carolina": 5,
+      "hibp": 9,
+      "ransomware_live": 100,
+      "rss": 22,
+      "mastodon": 26
+    },
+    "previous_counts": {
       "sec_edgar": 54,
       "hhs": 90,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 14,
       "mastodon": 22
     },
-    "previous_counts": {
-      "sec_edgar": 54,
-      "hhs": 0,
-      "maine_ag": 0,
-      "california_ag": 53,
-      "texas_ag": 99,
-      "washington_ag": 3,
-      "vermont_ag": 85,
-      "oregon_doj": 11,
-      "south_carolina": 5,
-      "hibp": 9,
-      "ransomware_live": 100,
-      "rss": 15,
-      "mastodon": 25
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,15 +39,25 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.myfloridalegal.com/newsrel.nsf/newsreleases/7120C04994ADCE3385257FF70054FF1A",
-      "http://www.databreaches.net/ny-treasure-trove-of-grand-street-medical-associates-patient-data-exposed-and-indexed/;"
+      "https://databreaches.net/2026/10/20/attorney-general-tong-announces-625000-settlement-with-frontier-over-data-breach/"
     ],
-    "dead_rate": 0.1
+    "dead_rate": 0.05
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 20,
-    "missing": [],
+    "confirmed": 18,
+    "missing": [
+      {
+        "id": "9489cec28cde08347720d60a99ff2dceb7947abe",
+        "org": "Health Now Networks",
+        "url": "https://haveibeenpwned.com/Breach/HealthNowNetworks"
+      },
+      {
+        "id": "6416b1650873dd3a073bc47e7230a75cb70950ef",
+        "org": "Gallant Risk & Insurance Services, Inc.",
+        "url": "https://oag.ca.gov/system/files/Gallant%20notice%20only%20_0.pdf"
+      }
+    ],
     "unfetchable": 0
   }
 }
