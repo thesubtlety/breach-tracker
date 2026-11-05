@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-04T14:38:39+00:00",
+  "run_at": "2026-11-05T14:42:47+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 69,
+      "hhs": 82,
+      "maine_ag": 0,
+      "california_ag": 64,
+      "texas_ag": 90,
+      "washington_ag": 3,
+      "vermont_ag": 94,
+      "oregon_doj": 10,
+      "south_carolina": 10,
+      "hibp": 10,
+      "ransomware_live": 100,
+      "rss": 20,
+      "mastodon": 27
+    },
+    "previous_counts": {
       "sec_edgar": 65,
       "hhs": 88,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 17,
       "mastodon": 27
     },
-    "previous_counts": {
-      "sec_edgar": 60,
-      "hhs": 89,
-      "maine_ag": 0,
-      "california_ag": 58,
-      "texas_ag": 82,
-      "washington_ag": 3,
-      "vermont_ag": 84,
-      "oregon_doj": 10,
-      "south_carolina": 9,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 20,
-      "mastodon": 26
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,41 +39,26 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.bognor.co.uk/news/top-stories/latest/former-bognor-police-officer-fined-for-breaching-data-protection-act-1-5499982",
-      "http://www.register-herald.com/news/arh-computers-breached/article_5159665b-7786-523b-b233-c3524259b538.html",
-      "https://blog.boltonco.com/2016/06/28/company-agrees-to-3-9-million-settlement-for-hipaa-breach/",
-      "http://t.co/XNf5rLMUor;",
-      "http://www.ehackingnews.com/2014/05/tata-motors-website-hacked-by-pakistani.html",
-      "http://storify.com/xdamman/sncbgate-nmbsgate,",
-      "http://www.databreaches.net/probable-security-breach-may-have-compromised-thousands-of-lewis-palmer-students-data/;"
+      "http://www.abc12.com/story/24204456/big-brother-big-sisters-worker-charged-with-id-theft-of-volunteers",
+      "http://thesheridanpress.com/?p=46743"
     ],
-    "dead_rate": 0.35
+    "dead_rate": 0.1
   },
   "quotes": {
-    "checked": 20,
-    "confirmed": 16,
+    "checked": 19,
+    "confirmed": 17,
     "missing": [
       {
-        "id": "7a2ce18cd3f3883016122af644a2cc5ce594a06b",
-        "org": "Amadeus",
-        "url": "https://infosec.exchange/@DailyCyberSecurity/117546065844803442"
+        "id": "1ff050612508898ac3cd77a91305360cd94baf12",
+        "org": "American Payroll Institute",
+        "url": "https://oag.ca.gov/system/files/APA%20Security%20Incident%20Sample%20Notice%20Template.pdf"
       },
       {
-        "id": "a7716c2061f2c2e47bfaa73f525c139cbff4a850",
-        "org": "Denmark's national population register",
-        "url": "https://mastox.eu/@thecybersecguru/117440607907239185"
-      },
-      {
-        "id": "5bbbd3f4390f346cf96b48323f3e336fdc104d3e",
-        "org": "Betterment",
-        "url": "https://haveibeenpwned.com/Breach/Betterment"
-      },
-      {
-        "id": "63dad4e0d801a0907dc4e00a9d4021a663b86088",
-        "org": "Denmark's national CPR register",
-        "url": "https://infosec.exchange/@cloud/117437400358207126"
+        "id": "6850ab0bb7b90054476dfbcea70f8dc2414cc7ae",
+        "org": "The Freeman Company",
+        "url": "https://oag.ca.gov/system/files/Employee%20Notification_2.4.14_all%20other_final_0.pdf"
       }
     ],
-    "unfetchable": 0
+    "unfetchable": 1
   }
 }
