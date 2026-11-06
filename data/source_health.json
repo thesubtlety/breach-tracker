@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-05T14:42:47+00:00",
+  "run_at": "2026-11-06T14:22:50+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 72,
+      "hhs": 76,
+      "maine_ag": 0,
+      "california_ag": 66,
+      "texas_ag": 81,
+      "washington_ag": 2,
+      "vermont_ag": 97,
+      "oregon_doj": 9,
+      "south_carolina": 9,
+      "hibp": 10,
+      "ransomware_live": 100,
+      "rss": 18,
+      "mastodon": 30
+    },
+    "previous_counts": {
       "sec_edgar": 69,
       "hhs": 82,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 20,
       "mastodon": 27
     },
-    "previous_counts": {
-      "sec_edgar": 65,
-      "hhs": 88,
-      "maine_ag": 0,
-      "california_ag": 61,
-      "texas_ag": 90,
-      "washington_ag": 3,
-      "vermont_ag": 91,
-      "oregon_doj": 10,
-      "south_carolina": 10,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 17,
-      "mastodon": 27
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,26 +39,18 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.abc12.com/story/24204456/big-brother-big-sisters-worker-charged-with-id-theft-of-volunteers",
-      "http://thesheridanpress.com/?p=46743"
+      "https://www.databreaches.net/ca-commissioners-investigation-determines-that-faxing-failures-put-sensitive-mental-health-information-at-risk/;",
+      "http://news.softpedia.com/news/Unity-Rehab-Centers-Leak-Highly-Sensitive-Patient-Info-482746.shtml;",
+      "http://www.kjonline.com/news/Gardiner-pleads-guilty-to-identity-theft-fraud-charges.html",
+      "http://www.washingtonpost.com/blogs/federal-eye/wp/2014/11/10/china-suspected-of-breaching-u-s-postal-service-computer-networks/;",
+      "http://www.roanoke.com/news/roanoke/wb/307564"
     ],
-    "dead_rate": 0.1
+    "dead_rate": 0.25
   },
   "quotes": {
-    "checked": 19,
-    "confirmed": 17,
-    "missing": [
-      {
-        "id": "1ff050612508898ac3cd77a91305360cd94baf12",
-        "org": "American Payroll Institute",
-        "url": "https://oag.ca.gov/system/files/APA%20Security%20Incident%20Sample%20Notice%20Template.pdf"
-      },
-      {
-        "id": "6850ab0bb7b90054476dfbcea70f8dc2414cc7ae",
-        "org": "The Freeman Company",
-        "url": "https://oag.ca.gov/system/files/Employee%20Notification_2.4.14_all%20other_final_0.pdf"
-      }
-    ],
-    "unfetchable": 1
+    "checked": 20,
+    "confirmed": 20,
+    "missing": [],
+    "unfetchable": 0
   }
 }
