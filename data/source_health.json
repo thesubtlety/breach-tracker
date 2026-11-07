@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-06T14:22:50+00:00",
+  "run_at": "2026-11-07T13:01:07+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 71,
+      "hhs": 76,
+      "maine_ag": 0,
+      "california_ag": 65,
+      "texas_ag": 88,
+      "washington_ag": 2,
+      "vermont_ag": 97,
+      "oregon_doj": 8,
+      "south_carolina": 9,
+      "hibp": 7,
+      "ransomware_live": 100,
+      "rss": 20,
+      "mastodon": 22
+    },
+    "previous_counts": {
       "sec_edgar": 72,
       "hhs": 76,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 18,
       "mastodon": 30
     },
-    "previous_counts": {
-      "sec_edgar": 69,
-      "hhs": 82,
-      "maine_ag": 0,
-      "california_ag": 64,
-      "texas_ag": 90,
-      "washington_ag": 3,
-      "vermont_ag": 94,
-      "oregon_doj": 10,
-      "south_carolina": 10,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 20,
-      "mastodon": 27
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,18 +39,23 @@
   "links": {
     "checked": 20,
     "dead": [
-      "https://www.databreaches.net/ca-commissioners-investigation-determines-that-faxing-failures-put-sensitive-mental-health-information-at-risk/;",
-      "http://news.softpedia.com/news/Unity-Rehab-Centers-Leak-Highly-Sensitive-Patient-Info-482746.shtml;",
-      "http://www.kjonline.com/news/Gardiner-pleads-guilty-to-identity-theft-fraud-charges.html",
-      "http://www.washingtonpost.com/blogs/federal-eye/wp/2014/11/10/china-suspected-of-breaching-u-s-postal-service-computer-networks/;",
-      "http://www.roanoke.com/news/roanoke/wb/307564"
+      "http://www.telluridenews.com/articles/2013/08/22/news/doc52154157b3afe254343018.txt",
+      "https://www.databreaches.net/turkish-hackers-launch-second-cyber-attack-on-killeens-website/",
+      "http://www.dailyitem.com/news/upmc-susquehanna-notifies-patients-of-data-breach/article_ee1b32c6-cbb6-11e7-97e6-bf68278e1b03.html;",
+      "https://www.databreaches.net/hackers-steal-air-india-frequent-flyer-miles-worth-24000/;"
     ],
-    "dead_rate": 0.25
+    "dead_rate": 0.2
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 20,
-    "missing": [],
+    "confirmed": 19,
+    "missing": [
+      {
+        "id": "7c176e3d6b6833a9926f17c45074507ebc412633",
+        "org": "Group 1 Automotive",
+        "url": "https://www.sec.gov/Archives/edgar/data/1031203/000103120324000048/gpi-20240619.htm"
+      }
+    ],
     "unfetchable": 0
   }
 }
