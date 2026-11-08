@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-07T13:01:07+00:00",
+  "run_at": "2026-11-08T13:23:41+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 70,
+      "hhs": 76,
+      "maine_ag": 0,
+      "california_ag": 65,
+      "texas_ag": 88,
+      "washington_ag": 2,
+      "vermont_ag": 90,
+      "oregon_doj": 6,
+      "south_carolina": 9,
+      "hibp": 7,
+      "ransomware_live": 100,
+      "rss": 21,
+      "mastodon": 31
+    },
+    "previous_counts": {
       "sec_edgar": 71,
       "hhs": 76,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 20,
       "mastodon": 22
     },
-    "previous_counts": {
-      "sec_edgar": 72,
-      "hhs": 76,
-      "maine_ag": 0,
-      "california_ag": 66,
-      "texas_ag": 81,
-      "washington_ag": 2,
-      "vermont_ag": 97,
-      "oregon_doj": 9,
-      "south_carolina": 9,
-      "hibp": 10,
-      "ransomware_live": 100,
-      "rss": 18,
-      "mastodon": 30
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,21 +39,22 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.telluridenews.com/articles/2013/08/22/news/doc52154157b3afe254343018.txt",
-      "https://www.databreaches.net/turkish-hackers-launch-second-cyber-attack-on-killeens-website/",
-      "http://www.dailyitem.com/news/upmc-susquehanna-notifies-patients-of-data-breach/article_ee1b32c6-cbb6-11e7-97e6-bf68278e1b03.html;",
-      "https://www.databreaches.net/hackers-steal-air-india-frequent-flyer-miles-worth-24000/;"
+      "http://www.obsentinel.com/news/obx-hospital-warns-about-data-privacy-breach/article_96cb6d34-6707-11e6-8d27-23fee1531639.html",
+      "https://madison.com/wsj/news/local/crime/stolen-laptop-had-state-program-participants-personal-info-on-it/article_e7a477b4-3cc3-5fa3-a01c-27f12e961583.html;",
+      "https://databreaches.net/2026/10/20/attorney-general-tong-announces-625000-settlement-with-frontier-over-data-breach/",
+      "http://www.philadelphiaweekly.com/news/dbhids-announces-hippa-breach-after-a-laptop-containing-sensitive-information/article_3c4bf8fc-b483-11e9-b6f3-2780e00e25ad.html",
+      "http://news.softpedia.com/news/Venezuelan-Police-and-Government-Sites-Hacked-in-Protest-Against-Killing-of-Students-427223.shtml"
     ],
-    "dead_rate": 0.2
+    "dead_rate": 0.25
   },
   "quotes": {
     "checked": 20,
     "confirmed": 19,
     "missing": [
       {
-        "id": "7c176e3d6b6833a9926f17c45074507ebc412633",
-        "org": "Group 1 Automotive",
-        "url": "https://www.sec.gov/Archives/edgar/data/1031203/000103120324000048/gpi-20240619.htm"
+        "id": "78b19882f90a8d778d359b62ccf4122c16479208",
+        "org": "Japan Airlines",
+        "url": "https://osintsights.com/amadeus-data-breach-exposes-airlines-passenger-info?utm_source=mastodon&utm_medium=social"
       }
     ],
     "unfetchable": 0
