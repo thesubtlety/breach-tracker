@@ -589,7 +589,7 @@
 },
 "CVE-2012-5385": {
 "added": null,
-"checked": "2026-10-10",
+"checked": "2026-11-10",
 "name": null,
 "nvd_published": "2012-10-11",
 "product": "webcalendar",
@@ -1767,7 +1767,7 @@
 },
 "CVE-2016-6483": {
 "added": null,
-"checked": "2026-10-10",
+"checked": "2026-11-10",
 "name": null,
 "nvd_published": "2016-09-02",
 "product": "vbulletin",
@@ -8928,6 +8928,13 @@
 "ransomware": "Unknown",
 "vendor": "Synacor"
 },
+"CVE-2024-27834": {
+"added": "2026-11-04",
+"name": "Apple Multiple Products Improper Authentication Vulnerability",
+"product": "Multiple Products",
+"ransomware": "Unknown",
+"vendor": "Apple"
+},
 "CVE-2024-28986": {
 "added": "2024-08-15",
 "name": "SolarWinds Web Help Desk Deserialization of Untrusted Data Vulnerability",
@@ -11126,6 +11133,13 @@
 "ransomware": "Unknown",
 "vendor": "BeyondTrust"
 },
+"CVE-2026-102895": {
+"added": "2026-11-09",
+"name": "GPUStack Improper Authentication Vulnerability",
+"product": "GPUStack",
+"ransomware": "Unknown",
+"vendor": "GPUStack"
+},
 "CVE-2026-104286": {
 "added": "2026-10-01",
 "name": "Fortinet FortiMail Path Traversal Vulnerability",
@@ -11224,12 +11238,40 @@
 "ransomware": "Unknown",
 "vendor": "Google"
 },
+"CVE-2026-116779": {
+"added": "2026-11-09",
+"name": "SignalWire FreeSwitch Code Injection Vulnerability",
+"product": "FreeSwitch",
+"ransomware": "Unknown",
+"vendor": "SignalWire"
+},
 "CVE-2026-118527": {
 "added": "2026-10-30",
 "name": "Ivanti Connect Secure Generation of Predictable Numbers or Identifiers Vulnerability",
 "product": "Connect Secure",
 "ransomware": "Unknown",
 "vendor": "Ivanti"
+},
+"CVE-2026-119977": {
+"added": "2026-11-03",
+"name": "WordPress WordPress Core Time-of-check Time-of-use (TOCTOU) Race Condition Vulnerability",
+"product": "WordPress Core",
+"ransomware": "Unknown",
+"vendor": "WordPress"
+},
+"CVE-2026-123158": {
+"added": "2026-11-09",
+"name": "OpenBSD OpenSSH Unexpected Status Code or Return Value Vulnerability",
+"product": "OpenSSH",
+"ransomware": "Unknown",
+"vendor": "OpenBSD"
+},
+"CVE-2026-123218": {
+"added": "2026-11-09",
+"name": "IBM Aspera Faspex Incorrect Authorization Vulnerability",
+"product": "Aspera Faspex",
+"ransomware": "Unknown",
+"vendor": "IBM"
 },
 "CVE-2026-12569": {
 "added": "2026-06-25",
@@ -11314,6 +11356,13 @@
 "product": "NetScaler",
 "ransomware": "Unknown",
 "vendor": "Citrix"
+},
+"CVE-2026-19868": {
+"added": "2026-11-06",
+"name": "SonicWall SonicOS SSLVPN Use of Single-factor Authentication Vulnerability",
+"product": "SonicOS SSLVPN",
+"ransomware": "Unknown",
+"vendor": "SonicWall"
 },
 "CVE-2026-20045": {
 "added": "2026-01-21",
@@ -12446,7 +12495,6 @@
 },
 "CVE-2026-97229": {
 "added": "2026-10-29",
-"checked": "2026-11-02",
 "name": "GitLab Community Edition and Enterprise Edition Integer Overflow or Wraparound Vulnerability",
 "product": "Community Edition and Enterprise Edition",
 "ransomware": "Unknown",
