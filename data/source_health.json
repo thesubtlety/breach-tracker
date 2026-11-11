@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-10T14:58:22+00:00",
+  "run_at": "2026-11-11T14:23:33+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 73,
+      "hhs": 69,
+      "maine_ag": 0,
+      "california_ag": 77,
+      "texas_ag": 97,
+      "washington_ag": 13,
+      "vermont_ag": 94,
+      "oregon_doj": 9,
+      "south_carolina": 12,
+      "hibp": 8,
+      "ransomware_live": 100,
+      "rss": 15,
+      "mastodon": 29
+    },
+    "previous_counts": {
       "sec_edgar": 71,
       "hhs": 72,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 23,
       "mastodon": 27
     },
-    "previous_counts": {
-      "sec_edgar": 71,
-      "hhs": 73,
-      "maine_ag": 0,
-      "california_ag": 65,
-      "texas_ag": 88,
-      "washington_ag": 5,
-      "vermont_ag": 91,
-      "oregon_doj": 6,
-      "south_carolina": 9,
-      "hibp": 6,
-      "ransomware_live": 100,
-      "rss": 24,
-      "mastodon": 26
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,22 +39,38 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.databreaches.net/?p=23354",
-      "http://www.whtimes.co.uk/news/anger_and_resignations_after_welwyn_hatfield_council_security_breach_1_4516253",
-      "https://mackeeper.com/blog/post/265-data-breach-at-kingo-energy;"
+      "http://www.digitaljournal.com/business/international-education-institute-involved-in-major-data-breach/article/567106",
+      "http://wishtv.com/2014/05/21/police-credit-card-info-stolen-from-car-wash/",
+      "https://www.cisoadvisor.com.br/ataque-derruba-20-sites-do-governo-da-bahia-2/",
+      "http://www.databreaches.net/second-tampa-general-hospital-employee-charged-in-patient-identity-theft-for-tax-refund-fraud-scheme/;"
     ],
-    "dead_rate": 0.15
+    "dead_rate": 0.2
   },
   "quotes": {
-    "checked": 20,
-    "confirmed": 19,
+    "checked": 19,
+    "confirmed": 15,
     "missing": [
       {
-        "id": "bb427b576343f577f81b7b6cdcd01486da9e5c98",
-        "org": "Data & Leads",
-        "url": "https://haveibeenpwned.com/Breach/DataAndLeads"
+        "id": "280bd4c87c3fc32e204d1a83c535ffe0716335f1",
+        "org": "Cierant Corporation",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachA33868.pdf"
+      },
+      {
+        "id": "33a541b2121b7f650e9c0ef19619a238047b279e",
+        "org": "Allstate Insurance Company",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachA20261.pdf"
+      },
+      {
+        "id": "6cb5c333b69c954a014d5aec948cdcf809a731e6",
+        "org": "Pi-hole",
+        "url": "https://haveibeenpwned.com/Breach/ThePi-Hole"
+      },
+      {
+        "id": "cf87df4f52fe9dfe8ce44674971ce836ed284737",
+        "org": "The North Face",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM15147.pdf"
       }
     ],
-    "unfetchable": 0
+    "unfetchable": 1
   }
 }
