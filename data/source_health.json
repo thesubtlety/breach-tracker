@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-11T14:23:33+00:00",
+  "run_at": "2026-11-12T15:17:39+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 75,
+      "hhs": 81,
+      "maine_ag": 0,
+      "california_ag": 76,
+      "texas_ag": 93,
+      "washington_ag": 13,
+      "vermont_ag": 100,
+      "oregon_doj": 8,
+      "south_carolina": 12,
+      "hibp": 7,
+      "ransomware_live": 100,
+      "rss": 23,
+      "mastodon": 30
+    },
+    "previous_counts": {
       "sec_edgar": 73,
       "hhs": 69,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 15,
       "mastodon": 29
     },
-    "previous_counts": {
-      "sec_edgar": 71,
-      "hhs": 72,
-      "maine_ag": 0,
-      "california_ag": 73,
-      "texas_ag": 88,
-      "washington_ag": 9,
-      "vermont_ag": 91,
-      "oregon_doj": 5,
-      "south_carolina": 11,
-      "hibp": 6,
-      "ransomware_live": 100,
-      "rss": 23,
-      "mastodon": 27
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,38 +39,21 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.digitaljournal.com/business/international-education-institute-involved-in-major-data-breach/article/567106",
-      "http://wishtv.com/2014/05/21/police-credit-card-info-stolen-from-car-wash/",
-      "https://www.cisoadvisor.com.br/ataque-derruba-20-sites-do-governo-da-bahia-2/",
-      "http://www.databreaches.net/second-tampa-general-hospital-employee-charged-in-patient-identity-theft-for-tax-refund-fraud-scheme/;"
+      "http://healthitsecurity.com/news/possible-phi-security-breach-in-fl-respiratory-facility;",
+      "http://www.phiprivacy.net/nz-pathways-mops-up-privacy-breach/"
     ],
-    "dead_rate": 0.2
+    "dead_rate": 0.1
   },
   "quotes": {
-    "checked": 19,
-    "confirmed": 15,
+    "checked": 20,
+    "confirmed": 19,
     "missing": [
       {
-        "id": "280bd4c87c3fc32e204d1a83c535ffe0716335f1",
-        "org": "Cierant Corporation",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachA33868.pdf"
-      },
-      {
-        "id": "33a541b2121b7f650e9c0ef19619a238047b279e",
-        "org": "Allstate Insurance Company",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachA20261.pdf"
-      },
-      {
-        "id": "6cb5c333b69c954a014d5aec948cdcf809a731e6",
-        "org": "Pi-hole",
-        "url": "https://haveibeenpwned.com/Breach/ThePi-Hole"
-      },
-      {
-        "id": "cf87df4f52fe9dfe8ce44674971ce836ed284737",
-        "org": "The North Face",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM15147.pdf"
+        "id": "c21ca36f22c0ac4913a773975046d20cf67396e9",
+        "org": "City of Johnstown",
+        "url": "https://eu.newarkadvocate.com/story/news/2023/01/08/johnstown-computer-system-hacked-police-department-most-affected/69782802007/"
       }
     ],
-    "unfetchable": 1
+    "unfetchable": 0
   }
 }
