@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-12T15:17:39+00:00",
+  "run_at": "2026-11-13T14:37:37+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 76,
+      "hhs": 80,
+      "maine_ag": 0,
+      "california_ag": 75,
+      "texas_ag": 86,
+      "washington_ag": 11,
+      "vermont_ag": 101,
+      "oregon_doj": 7,
+      "south_carolina": 13,
+      "hibp": 7,
+      "ransomware_live": 100,
+      "rss": 20,
+      "mastodon": 20
+    },
+    "previous_counts": {
       "sec_edgar": 75,
       "hhs": 81,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 23,
       "mastodon": 30
     },
-    "previous_counts": {
-      "sec_edgar": 73,
-      "hhs": 69,
-      "maine_ag": 0,
-      "california_ag": 77,
-      "texas_ag": 97,
-      "washington_ag": 13,
-      "vermont_ag": 94,
-      "oregon_doj": 9,
-      "south_carolina": 12,
-      "hibp": 8,
-      "ransomware_live": 100,
-      "rss": 15,
-      "mastodon": 29
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,21 +39,15 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://healthitsecurity.com/news/possible-phi-security-breach-in-fl-respiratory-facility;",
-      "http://www.phiprivacy.net/nz-pathways-mops-up-privacy-breach/"
+      "http://news.softpedia.com/news/Defacements-Archive-Append-Hc-Hacked-User-Credentials-Leaked-375805.shtml",
+      "http://doj.nh.gov/consumer/security-breaches/documents/fujifilm-recording-20120917.pdf"
     ],
     "dead_rate": 0.1
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 19,
-    "missing": [
-      {
-        "id": "c21ca36f22c0ac4913a773975046d20cf67396e9",
-        "org": "City of Johnstown",
-        "url": "https://eu.newarkadvocate.com/story/news/2023/01/08/johnstown-computer-system-hacked-police-department-most-affected/69782802007/"
-      }
-    ],
+    "confirmed": 20,
+    "missing": [],
     "unfetchable": 0
   }
 }

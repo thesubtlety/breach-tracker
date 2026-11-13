@@ -8016,7 +8016,7 @@
 },
 "CVE-2023-3462": {
 "added": null,
-"checked": "2026-10-13",
+"checked": "2026-11-13",
 "name": null,
 "nvd_published": "2023-07-31",
 "product": "vault",
@@ -11224,6 +11224,20 @@
 "ransomware": "Unknown",
 "vendor": "Google"
 },
+"CVE-2026-111560": {
+"added": "2026-11-10",
+"name": "Barracuda Networks Multiple Products OS Command Injection Vulnerability",
+"product": "Multiple Products",
+"ransomware": "Unknown",
+"vendor": "Barracuda Networks"
+},
+"CVE-2026-111793": {
+"added": "2026-11-10",
+"name": "Openwave Messaging Limited Webtop Media Transcoder Incorrect Resource Transfer Between Spheres Vulnerability",
+"product": "Webtop Media Transcoder",
+"ransomware": "Unknown",
+"vendor": "Openwave Messaging Limited"
+},
 "CVE-2026-114625": {
 "added": "2026-10-23",
 "name": "Arista VeloCloud Orchestrator SQL Injection Vulnerability",
@@ -11237,6 +11251,13 @@
 "product": "Chromium V8",
 "ransomware": "Unknown",
 "vendor": "Google"
+},
+"CVE-2026-116606": {
+"added": "2026-11-10",
+"name": "Barracuda Networks Email Security Gateway (ESG) Authentication Bypass Using an Alternate Path or Channel Vulnerability",
+"product": "Barracuda Email Security Gateway (ESG)",
+"ransomware": "Unknown",
+"vendor": "Barracuda Networks"
 },
 "CVE-2026-116779": {
 "added": "2026-11-09",
@@ -11272,6 +11293,20 @@
 "product": "Aspera Faspex",
 "ransomware": "Unknown",
 "vendor": "IBM"
+},
+"CVE-2026-124194": {
+"added": "2026-11-10",
+"name": "Microsoft Office Outlook Missing User Interaction for Potentially Unsafe Action Vulnerability",
+"product": "Office",
+"ransomware": "Unknown",
+"vendor": "Microsoft"
+},
+"CVE-2026-125350": {
+"added": "2026-11-10",
+"name": "Google Chromium Use-After-Free Vulnerability",
+"product": "Chromium",
+"ransomware": "Unknown",
+"vendor": "Google"
 },
 "CVE-2026-12569": {
 "added": "2026-06-25",
@@ -11453,6 +11488,13 @@
 "name": "Cisco Secure Firewall Management Center Use of Hard-coded Password Vulnerability",
 "product": "Secure Firewall Management Center (FMC)",
 "ransomware": "Known",
+"vendor": "Cisco"
+},
+"CVE-2026-20320": {
+"added": "2026-11-10",
+"name": "Cisco BroadWorks Improper Restriction of XML External Entity Reference Vulnerability",
+"product": "BroadWorks",
+"ransomware": "Unknown",
 "vendor": "Cisco"
 },
 "CVE-2026-20349": {
