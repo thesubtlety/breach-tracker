@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-13T14:37:37+00:00",
+  "run_at": "2026-11-14T13:34:21+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 76,
+      "hhs": 80,
+      "maine_ag": 0,
+      "california_ag": 80,
+      "texas_ag": 97,
+      "washington_ag": 11,
+      "vermont_ag": 104,
+      "oregon_doj": 7,
+      "south_carolina": 12,
+      "hibp": 6,
+      "ransomware_live": 100,
+      "rss": 18,
+      "mastodon": 25
+    },
+    "previous_counts": {
       "sec_edgar": 76,
       "hhs": 80,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 20,
       "mastodon": 20
     },
-    "previous_counts": {
-      "sec_edgar": 75,
-      "hhs": 81,
-      "maine_ag": 0,
-      "california_ag": 76,
-      "texas_ag": 93,
-      "washington_ag": 13,
-      "vermont_ag": 100,
-      "oregon_doj": 8,
-      "south_carolina": 12,
-      "hibp": 7,
-      "ransomware_live": 100,
-      "rss": 23,
-      "mastodon": 30
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,15 +39,23 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://news.softpedia.com/news/Defacements-Archive-Append-Hc-Hacked-User-Credentials-Leaked-375805.shtml",
-      "http://doj.nh.gov/consumer/security-breaches/documents/fujifilm-recording-20120917.pdf"
+      "http://www.king5.com/news/local/Private-information-of-Section-8-waitlist-applicants-accidentally-posted-online-223054931.html",
+      "http://www.databreaches.net/ny-dermatologist-notifies-patients-after-email-error-exposes-phi/",
+      "http://www.ehackingnews.com/2013/01/sri-lankan-nic-siteniclk-hacked-via-sql.html",
+      "http://fox4kc.com/2014/06/09/van-gets-stolen-with-medical-records-could-keep-boy-scouts-from-attending-camp/"
     ],
-    "dead_rate": 0.1
+    "dead_rate": 0.2
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 20,
-    "missing": [],
+    "confirmed": 19,
+    "missing": [
+      {
+        "id": "99843aeb7a024e6324d8d16e0449b642dc4c4075",
+        "org": "Task Bar Hero",
+        "url": "https://infosec.exchange/@thecybersecguru/117603034007373048"
+      }
+    ],
     "unfetchable": 0
   }
 }
