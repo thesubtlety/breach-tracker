@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-14T13:34:21+00:00",
+  "run_at": "2026-11-15T13:58:30+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 76,
+      "hhs": 78,
+      "maine_ag": 0,
+      "california_ag": 78,
+      "texas_ag": 97,
+      "washington_ag": 11,
+      "vermont_ag": 103,
+      "oregon_doj": 7,
+      "south_carolina": 12,
+      "hibp": 6,
+      "ransomware_live": 100,
+      "rss": 18,
+      "mastodon": 27
+    },
+    "previous_counts": {
       "sec_edgar": 76,
       "hhs": 80,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 18,
       "mastodon": 25
     },
-    "previous_counts": {
-      "sec_edgar": 76,
-      "hhs": 80,
-      "maine_ag": 0,
-      "california_ag": 75,
-      "texas_ag": 86,
-      "washington_ag": 11,
-      "vermont_ag": 101,
-      "oregon_doj": 7,
-      "south_carolina": 13,
-      "hibp": 7,
-      "ransomware_live": 100,
-      "rss": 20,
-      "mastodon": 20
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,21 +39,29 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.king5.com/news/local/Private-information-of-Section-8-waitlist-applicants-accidentally-posted-online-223054931.html",
-      "http://www.databreaches.net/ny-dermatologist-notifies-patients-after-email-error-exposes-phi/",
-      "http://www.ehackingnews.com/2013/01/sri-lankan-nic-siteniclk-hacked-via-sql.html",
-      "http://fox4kc.com/2014/06/09/van-gets-stolen-with-medical-records-could-keep-boy-scouts-from-attending-camp/"
+      "http://www.news-gazette.com/news/local/2016-08-05/updated-carle-warns-data-breach.html;",
+      "https://dailyvoice.com/new-york/suffolk/news/ex-investment-bank-director-from-long-island-sentenced-for-insider-trading-scheme/780217/",
+      "http://vcdb.org/pdf/va-security-sep-2014.pdf",
+      "http://algonquintimes.com/news/instructor-no-longer-with-algonquin-after-cheo-privacy-breach/",
+      "http://www.buffalonews.com/business/first-niagara-reissuing-cards-after-security-breach-at-merchant-20140715",
+      "https://www.rnews.co.za/article/15615/former-hawks-lt-col-jailed-for-tipping-off-port-elizabeth-card-skimming-syndicate",
+      "http://www.bizjournals.com/tampabay/news/2013/09/09/usf-patient-information-breach-probed.html"
     ],
-    "dead_rate": 0.2
+    "dead_rate": 0.35
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 19,
+    "confirmed": 18,
     "missing": [
       {
-        "id": "99843aeb7a024e6324d8d16e0449b642dc4c4075",
-        "org": "Task Bar Hero",
-        "url": "https://infosec.exchange/@thecybersecguru/117603034007373048"
+        "id": "64617834079c4ab4b594a2dc36b8b21836acc82a",
+        "org": "Kroll",
+        "url": "https://www.kroll.com/en/about-us/news/security-incident"
+      },
+      {
+        "id": "5a9882d99472b36b40bbe560467e032aa0fc9fea",
+        "org": "Seattle Housing Authority",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM10616.pdf"
       }
     ],
     "unfetchable": 0
