@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-15T13:58:30+00:00",
+  "run_at": "2026-11-16T15:46:15+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 76,
+      "hhs": 78,
+      "maine_ag": 0,
+      "california_ag": 72,
+      "texas_ag": 85,
+      "washington_ag": 11,
+      "vermont_ag": 100,
+      "oregon_doj": 7,
+      "south_carolina": 12,
+      "hibp": 6,
+      "ransomware_live": 100,
+      "rss": 19,
+      "mastodon": 30
+    },
+    "previous_counts": {
       "sec_edgar": 76,
       "hhs": 78,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 18,
       "mastodon": 27
     },
-    "previous_counts": {
-      "sec_edgar": 76,
-      "hhs": 80,
-      "maine_ag": 0,
-      "california_ag": 80,
-      "texas_ag": 97,
-      "washington_ag": 11,
-      "vermont_ag": 104,
-      "oregon_doj": 7,
-      "south_carolina": 12,
-      "hibp": 6,
-      "ransomware_live": 100,
-      "rss": 18,
-      "mastodon": 25
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,29 +39,42 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.news-gazette.com/news/local/2016-08-05/updated-carle-warns-data-breach.html;",
-      "https://dailyvoice.com/new-york/suffolk/news/ex-investment-bank-director-from-long-island-sentenced-for-insider-trading-scheme/780217/",
-      "http://vcdb.org/pdf/va-security-sep-2014.pdf",
-      "http://algonquintimes.com/news/instructor-no-longer-with-algonquin-after-cheo-privacy-breach/",
-      "http://www.buffalonews.com/business/first-niagara-reissuing-cards-after-security-breach-at-merchant-20140715",
-      "https://www.rnews.co.za/article/15615/former-hawks-lt-col-jailed-for-tipping-off-port-elizabeth-card-skimming-syndicate",
-      "http://www.bizjournals.com/tampabay/news/2013/09/09/usf-patient-information-breach-probed.html"
+      "http://www.theregister.co.uk/2013/02/19/dutch_mp_ethical_hacking_fine/,",
+      "http://kstp.com/news/hcmc-employee-identity-theft-plea-patients-credit-cards/4268671/",
+      "http://www.oag.state.md.us/idtheft/Breach%20Notices/itu-227160.pdf",
+      "http://www.jtchc.org/notice/JTCHC%20-%20Data%20Breach%20General%20Statement%2011%2003%2014_.pdf",
+      "http://www.databreaches.net/ga-veteran-given-10-other-patients-records-by-atlanta-v-a-medical-center/;"
     ],
-    "dead_rate": 0.35
+    "dead_rate": 0.25
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 18,
+    "confirmed": 15,
     "missing": [
       {
-        "id": "64617834079c4ab4b594a2dc36b8b21836acc82a",
-        "org": "Kroll",
-        "url": "https://www.kroll.com/en/about-us/news/security-incident"
+        "id": "e06ead01c2aa9b372c43ed7ae65af678ef62f656",
+        "org": "Activision",
+        "url": "https://haveibeenpwned.com/Breach/Activision"
       },
       {
-        "id": "5a9882d99472b36b40bbe560467e032aa0fc9fea",
-        "org": "Seattle Housing Authority",
-        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM10616.pdf"
+        "id": "25370f758d7bb114042926fc0f515f778dc4ae7c",
+        "org": "Mailchimp",
+        "url": "https://mailchimp.com/en-gb/january-2023-security-incident/"
+      },
+      {
+        "id": "f23ec051e2461ac5abb6be43303f738528e070c8",
+        "org": "Amarin Pharma, Inc.",
+        "url": "https://oag.ca.gov/system/files/Data%20Issue%20-%20Individual%20Notification.pdf"
+      },
+      {
+        "id": "80b1d46d6986138e0a2af15564454edb2acb8530",
+        "org": "S\u00fcdwest Presse",
+        "url": "https://www.augsburger-allgemeine.de/neu-ulm/ulm-hackerangriff-legt-nachrichtenportel-der-suedwest-presse-lahm-id66546536.html"
+      },
+      {
+        "id": "603b406db51bc82a140e8fdd78015d2be245f129",
+        "org": "The Hertz Corporation",
+        "url": "https://oag.ca.gov/system/files/PDF%20-%20CA%20Notice%20Letter%20-%204-11-25.pdf"
       }
     ],
     "unfetchable": 0
