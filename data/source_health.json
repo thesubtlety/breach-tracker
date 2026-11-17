@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-16T15:46:15+00:00",
+  "run_at": "2026-11-17T16:05:57+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 80,
+      "hhs": 76,
+      "maine_ag": 0,
+      "california_ag": 74,
+      "texas_ag": 85,
+      "washington_ag": 11,
+      "vermont_ag": 103,
+      "oregon_doj": 26,
+      "south_carolina": 14,
+      "hibp": 6,
+      "ransomware_live": 100,
+      "rss": 16,
+      "mastodon": 23
+    },
+    "previous_counts": {
       "sec_edgar": 76,
       "hhs": 78,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 19,
       "mastodon": 30
     },
-    "previous_counts": {
-      "sec_edgar": 76,
-      "hhs": 78,
-      "maine_ag": 0,
-      "california_ag": 78,
-      "texas_ag": 97,
-      "washington_ag": 11,
-      "vermont_ag": 103,
-      "oregon_doj": 7,
-      "south_carolina": 12,
-      "hibp": 6,
-      "ransomware_live": 100,
-      "rss": 18,
-      "mastodon": 27
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,42 +39,20 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.theregister.co.uk/2013/02/19/dutch_mp_ethical_hacking_fine/,",
-      "http://kstp.com/news/hcmc-employee-identity-theft-plea-patients-credit-cards/4268671/",
-      "http://www.oag.state.md.us/idtheft/Breach%20Notices/itu-227160.pdf",
-      "http://www.jtchc.org/notice/JTCHC%20-%20Data%20Breach%20General%20Statement%2011%2003%2014_.pdf",
-      "http://www.databreaches.net/ga-veteran-given-10-other-patients-records-by-atlanta-v-a-medical-center/;"
+      "http://www.sixthtone.com/news/hospital-hackers-steal-thousands-newborn-baby-videos",
+      "https://www.leparisien.fr/high-tech/nuxe-victime-dune-cyberattaque-des-hackers-russophones-de-lockbit-font-chanter-le-geant-des-cosmetiques-12-01-2023-2IJG7X4DBBEOVOFWU3P4435LM4.php",
+      "https://fox43.com/2018/07/23/state-dept-of-corrections-notifies-employees-inmates-of-online-security-incident-with-third-party-vendor/"
     ],
-    "dead_rate": 0.25
+    "dead_rate": 0.15
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 15,
+    "confirmed": 19,
     "missing": [
       {
-        "id": "e06ead01c2aa9b372c43ed7ae65af678ef62f656",
-        "org": "Activision",
-        "url": "https://haveibeenpwned.com/Breach/Activision"
-      },
-      {
-        "id": "25370f758d7bb114042926fc0f515f778dc4ae7c",
-        "org": "Mailchimp",
-        "url": "https://mailchimp.com/en-gb/january-2023-security-incident/"
-      },
-      {
-        "id": "f23ec051e2461ac5abb6be43303f738528e070c8",
-        "org": "Amarin Pharma, Inc.",
-        "url": "https://oag.ca.gov/system/files/Data%20Issue%20-%20Individual%20Notification.pdf"
-      },
-      {
-        "id": "80b1d46d6986138e0a2af15564454edb2acb8530",
-        "org": "S\u00fcdwest Presse",
-        "url": "https://www.augsburger-allgemeine.de/neu-ulm/ulm-hackerangriff-legt-nachrichtenportel-der-suedwest-presse-lahm-id66546536.html"
-      },
-      {
-        "id": "603b406db51bc82a140e8fdd78015d2be245f129",
-        "org": "The Hertz Corporation",
-        "url": "https://oag.ca.gov/system/files/PDF%20-%20CA%20Notice%20Letter%20-%204-11-25.pdf"
+        "id": "7c755b18a464ded2c3a7cb565c915ca446a2d361",
+        "org": "LogicGate",
+        "url": "https://techcrunch.com/2021/04/13/logicgate-risk-cloud-data-breach/"
       }
     ],
     "unfetchable": 0
