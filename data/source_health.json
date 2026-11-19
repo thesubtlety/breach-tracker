@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-18T15:42:26+00:00",
+  "run_at": "2026-11-19T15:55:38+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 79,
+      "hhs": 70,
+      "maine_ag": 0,
+      "california_ag": 77,
+      "texas_ag": 100,
+      "washington_ag": 18,
+      "vermont_ag": 112,
+      "oregon_doj": 26,
+      "south_carolina": 16,
+      "hibp": 5,
+      "ransomware_live": 100,
+      "rss": 16,
+      "mastodon": 26
+    },
+    "previous_counts": {
       "sec_edgar": 80,
       "hhs": 75,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 15,
       "mastodon": 24
     },
-    "previous_counts": {
-      "sec_edgar": 80,
-      "hhs": 76,
-      "maine_ag": 0,
-      "california_ag": 74,
-      "texas_ag": 85,
-      "washington_ag": 11,
-      "vermont_ag": 103,
-      "oregon_doj": 26,
-      "south_carolina": 14,
-      "hibp": 6,
-      "ransomware_live": 100,
-      "rss": 16,
-      "mastodon": 23
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,17 +39,23 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.computerworlduk.com/news/security/3481429/hackers-steal-customer-information-from-marstons-brewery/",
-      "http://www.huffingtonpost.com/2012/03/09/british-pregnancy-advisory-service-hack_n_1334570.html",
-      "http://wabe.org/post/nurse-indicted-health-care-fraud-identity-theft;",
-      "https://www.globaltimes.cn/page/202505/1333930.shtml;"
+      "https://www.infosecurity-magazine.com/news/1m-us-dental-patients-impacted-by/;",
+      "http://www.databreaches.net/mt-st-peters-hospital-pharmacist-sued-over-medical-privacy-following-alleged-rape/;",
+      "http://doj.nh.gov/consumer/security-breaches/documents/sourcefire-20121115.pdf",
+      "http://www.ajc.com/news/news/state-regional-govt-politics/it-staffer-fired-in-data-breach-involving-6-millio/npQ9C/;"
     ],
     "dead_rate": 0.2
   },
   "quotes": {
     "checked": 20,
-    "confirmed": 20,
-    "missing": [],
+    "confirmed": 19,
+    "missing": [
+      {
+        "id": "fb1c6b02f3f842ec8760db1c0ba9a1537ab0bfb9",
+        "org": "ShowTix4U",
+        "url": "https://oag.ca.gov/system/files/Sample%20Notice_5.pdf"
+      }
+    ],
     "unfetchable": 0
   }
 }

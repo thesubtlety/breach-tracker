@@ -64,7 +64,7 @@
 },
 "CVE-2008-0015": {
 "added": "2026-02-17",
-"name": " Microsoft Windows Video ActiveX Control Remote Code Execution Vulnerability",
+"name": "Microsoft Windows Video ActiveX Control Remote Code Execution Vulnerability",
 "product": "Windows",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
@@ -1396,7 +1396,7 @@
 },
 "CVE-2015-5477": {
 "added": "2026-10-08",
-"name": " ISC BIND Data Processing Errors Vulnerability",
+"name": "ISC BIND Data Processing Errors Vulnerability",
 "product": "BIND",
 "ransomware": "Unknown",
 "vendor": "ISC"
@@ -2007,7 +2007,7 @@
 },
 "CVE-2017-1000253": {
 "added": "2024-09-09",
-"name": "Linux Kernel PIE Stack Buffer Corruption Vulnerability ",
+"name": "Linux Kernel PIE Stack Buffer Corruption Vulnerability",
 "product": "Kernel",
 "ransomware": "Known",
 "vendor": "Linux"
@@ -2730,7 +2730,7 @@
 },
 "CVE-2018-14933": {
 "added": "2024-12-18",
-"name": "NUUO NVRmini Devices OS Command Injection Vulnerability ",
+"name": "NUUO NVRmini Devices OS Command Injection Vulnerability",
 "product": "NVRmini Devices",
 "ransomware": "Unknown",
 "vendor": "NUUO"
@@ -3626,7 +3626,7 @@
 },
 "CVE-2019-19006": {
 "added": "2026-02-03",
-"name": " Sangoma FreePBX Improper Authentication Vulnerability",
+"name": "Sangoma FreePBX Improper Authentication Vulnerability",
 "product": "FreePBX",
 "ransomware": "Unknown",
 "vendor": "Sangoma"
@@ -5128,14 +5128,14 @@
 },
 "CVE-2021-20123": {
 "added": "2024-09-03",
-"name": "Draytek VigorConnect Path Traversal Vulnerability ",
+"name": "Draytek VigorConnect Path Traversal Vulnerability",
 "product": "VigorConnect",
 "ransomware": "Unknown",
 "vendor": "DrayTek"
 },
 "CVE-2021-20124": {
 "added": "2024-09-03",
-"name": "Draytek VigorConnect Path Traversal Vulnerability ",
+"name": "Draytek VigorConnect Path Traversal Vulnerability",
 "product": "VigorConnect",
 "ransomware": "Unknown",
 "vendor": "DrayTek"
@@ -6262,7 +6262,7 @@
 },
 "CVE-2021-40407": {
 "added": "2024-12-18",
-"name": "Reolink RLC-410W IP Camera OS Command Injection Vulnerability ",
+"name": "Reolink RLC-410W IP Camera OS Command Injection Vulnerability",
 "product": "RLC-410W IP Camera",
 "ransomware": "Unknown",
 "vendor": "Reolink"
@@ -6444,7 +6444,7 @@
 },
 "CVE-2021-44207": {
 "added": "2024-12-23",
-"name": "Acclaim Systems USAHERDS Use of Hard-Coded Credentials Vulnerability ",
+"name": "Acclaim Systems USAHERDS Use of Hard-Coded Credentials Vulnerability",
 "product": "USAHERDS",
 "ransomware": "Unknown",
 "vendor": "Acclaim Systems"
@@ -6465,7 +6465,7 @@
 },
 "CVE-2021-44529": {
 "added": "2024-03-25",
-"name": "Ivanti Endpoint Manager Cloud Service Appliance (EPM CSA) Code Injection Vulnerability ",
+"name": "Ivanti Endpoint Manager Cloud Service Appliance (EPM CSA) Code Injection Vulnerability",
 "product": "Endpoint Manager Cloud Service Appliance (EPM CSA)",
 "ransomware": "Known",
 "vendor": "Ivanti"
@@ -6738,7 +6738,7 @@
 },
 "CVE-2022-22948": {
 "added": "2024-07-17",
-"name": "VMware vCenter Server Incorrect Default File Permissions Vulnerability ",
+"name": "VMware vCenter Server Incorrect Default File Permissions Vulnerability",
 "product": "vCenter Server",
 "ransomware": "Unknown",
 "vendor": "VMware"
@@ -6794,7 +6794,7 @@
 },
 "CVE-2022-23227": {
 "added": "2024-12-18",
-"name": "NUUO NVRmini2 Devices Missing Authentication Vulnerability ",
+"name": "NUUO NVRmini2 Devices Missing Authentication Vulnerability",
 "product": "NVRmini2 Devices",
 "ransomware": "Unknown",
 "vendor": "NUUO"
@@ -7172,7 +7172,7 @@
 },
 "CVE-2022-38028": {
 "added": "2024-04-23",
-"name": "Microsoft Windows Print Spooler Privilege Escalation Vulnerability ",
+"name": "Microsoft Windows Print Spooler Privilege Escalation Vulnerability",
 "product": "Windows",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
@@ -7508,7 +7508,7 @@
 },
 "CVE-2023-21237": {
 "added": "2024-03-05",
-"name": "Android Pixel Information Disclosure Vulnerability ",
+"name": "Android Pixel Information Disclosure Vulnerability",
 "product": "Pixel",
 "ransomware": "Unknown",
 "vendor": "Android"
@@ -7807,7 +7807,7 @@
 "name": "Array Networks AG and vxAG ArrayOS Missing Authentication for Critical Function Vulnerability",
 "product": "AG/vxAG ArrayOS",
 "ransomware": "Known",
-"vendor": "Array Networks "
+"vendor": "Array Networks"
 },
 "CVE-2023-2868": {
 "added": "2023-05-26",
@@ -8613,10 +8613,17 @@
 },
 "CVE-2024-0769": {
 "added": "2025-06-25",
-"name": " D-Link DIR-859 Router Path Traversal Vulnerability",
+"name": "D-Link DIR-859 Router Path Traversal Vulnerability",
 "product": "DIR-859 Router",
 "ransomware": "Unknown",
 "vendor": "D-Link"
+},
+"CVE-2024-10441": {
+"added": "2026-11-18",
+"name": "Synology DiskStation Manager (DSM) Improper Encoding or Escaping of Output Vulnerability",
+"product": "DiskStation Manager (DSM)",
+"ransomware": "Unknown",
+"vendor": "Synology"
 },
 "CVE-2024-1086": {
 "added": "2024-05-30",
@@ -8662,8 +8669,8 @@
 },
 "CVE-2024-12356": {
 "added": "2024-12-19",
-"name": "BeyondTrust Privileged Remote Access (PRA) and Remote Support (RS) Command Injection Vulnerability ",
-"product": "Privileged Remote Access (PRA) and Remote Support (RS) ",
+"name": "BeyondTrust Privileged Remote Access (PRA) and Remote Support (RS) Command Injection Vulnerability",
+"product": "Privileged Remote Access (PRA) and Remote Support (RS)",
 "ransomware": "Unknown",
 "vendor": "BeyondTrust"
 },
@@ -8886,7 +8893,7 @@
 },
 "CVE-2024-26008": {
 "added": null,
-"checked": "2026-10-19",
+"checked": "2026-11-19",
 "name": null,
 "nvd_published": "2025-10-14",
 "product": "fortios",
@@ -8951,7 +8958,7 @@
 },
 "CVE-2024-28995": {
 "added": "2024-07-17",
-"name": "SolarWinds Serv-U Path Traversal Vulnerability ",
+"name": "SolarWinds Serv-U Path Traversal Vulnerability",
 "product": "Serv-U",
 "ransomware": "Unknown",
 "vendor": "SolarWinds"
@@ -9000,7 +9007,7 @@
 },
 "CVE-2024-30051": {
 "added": "2024-05-14",
-"name": " Microsoft DWM Core Library Privilege Escalation Vulnerability",
+"name": "Microsoft DWM Core Library Privilege Escalation Vulnerability",
 "product": "DWM Core Library",
 "ransomware": "Known",
 "vendor": "Microsoft"
@@ -9008,7 +9015,7 @@
 "CVE-2024-30088": {
 "added": "2024-10-15",
 "name": "Microsoft Windows Kernel TOCTOU Race Condition Vulnerability",
-"product": "Windows ",
+"product": "Windows",
 "ransomware": "Known",
 "vendor": "Microsoft"
 },
@@ -9063,7 +9070,7 @@
 },
 "CVE-2024-35250": {
 "added": "2024-12-16",
-"name": "Microsoft Windows Kernel-Mode Driver Untrusted Pointer Dereference Vulnerability ",
+"name": "Microsoft Windows Kernel-Mode Driver Untrusted Pointer Dereference Vulnerability",
 "product": "Windows",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
@@ -9113,7 +9120,7 @@
 "CVE-2024-38080": {
 "added": "2024-07-09",
 "name": "Microsoft Windows Hyper-V Privilege Escalation Vulnerability",
-"product": "Windows ",
+"product": "Windows",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
 },
@@ -9154,7 +9161,7 @@
 },
 "CVE-2024-38189": {
 "added": "2024-08-13",
-"name": "Microsoft Project Remote Code Execution Vulnerability ",
+"name": "Microsoft Project Remote Code Execution Vulnerability",
 "product": "Project",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
@@ -9288,7 +9295,7 @@
 "CVE-2024-43047": {
 "added": "2024-10-08",
 "name": "Qualcomm Multiple Chipsets Use-After-Free Vulnerability",
-"product": "Multiple Chipsets ",
+"product": "Multiple Chipsets",
 "ransomware": "Unknown",
 "vendor": "Qualcomm"
 },
@@ -9456,7 +9463,7 @@
 "CVE-2024-4978": {
 "added": "2024-05-29",
 "name": "Justice AV Solutions (JAVS) Viewer Installer Embedded Malicious Code Vulnerability",
-"product": "Viewer ",
+"product": "Viewer",
 "ransomware": "Unknown",
 "vendor": "Justice AV Solutions"
 },
@@ -9577,21 +9584,21 @@
 "name": "SimpleHelp Missing Authorization Vulnerability",
 "product": "SimpleHelp",
 "ransomware": "Known",
-"vendor": "SimpleHelp "
+"vendor": "SimpleHelp"
 },
 "CVE-2024-57727": {
 "added": "2025-02-13",
 "name": "SimpleHelp Path Traversal Vulnerability",
 "product": "SimpleHelp",
 "ransomware": "Known",
-"vendor": "SimpleHelp "
+"vendor": "SimpleHelp"
 },
 "CVE-2024-57728": {
 "added": "2026-04-24",
 "name": "SimpleHelp Path Traversal Vulnerability",
 "product": "SimpleHelp",
 "ransomware": "Known",
-"vendor": "SimpleHelp "
+"vendor": "SimpleHelp"
 },
 "CVE-2024-57968": {
 "added": "2025-03-10",
@@ -10148,7 +10155,7 @@
 },
 "CVE-2025-25181": {
 "added": "2025-03-10",
-"name": " Advantive VeraCore SQL Injection Vulnerability",
+"name": "Advantive VeraCore SQL Injection Vulnerability",
 "product": "VeraCore",
 "ransomware": "Unknown",
 "vendor": "Advantive"
@@ -10407,7 +10414,7 @@
 },
 "CVE-2025-33053": {
 "added": "2025-06-10",
-"name": " Microsoft Windows External Control of File Name or Path Vulnerability",
+"name": "Microsoft Windows External Control of File Name or Path Vulnerability",
 "product": "Windows",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
@@ -10771,7 +10778,7 @@
 },
 "CVE-2025-54309": {
 "added": "2025-07-22",
-"name": " CrushFTP Unprotected Alternate Channel Vulnerability",
+"name": "CrushFTP Unprotected Alternate Channel Vulnerability",
 "product": "CrushFTP",
 "ransomware": "Unknown",
 "vendor": "CrushFTP"
@@ -10954,7 +10961,7 @@
 "CVE-2025-64328": {
 "added": "2026-02-03",
 "name": "Sangoma FreePBX OS Command Injection Vulnerability",
-"product": "FreePBX ",
+"product": "FreePBX",
 "ransomware": "Unknown",
 "vendor": "Sangoma"
 },
@@ -10998,7 +11005,7 @@
 "name": "Array Networks ArrayOS AG OS Command Injection Vulnerability",
 "product": "ArrayOS AG",
 "ransomware": "Unknown",
-"vendor": "Array Networks "
+"vendor": "Array Networks"
 },
 "CVE-2025-67038": {
 "added": "2026-06-23",
@@ -11024,7 +11031,7 @@
 "CVE-2025-68645": {
 "added": "2026-01-22",
 "name": "Synacor Zimbra Collaboration Suite (ZCS) PHP Remote File Inclusion Vulnerability",
-"product": " Zimbra Collaboration Suite (ZCS)",
+"product": "Zimbra Collaboration Suite (ZCS)",
 "ransomware": "Unknown",
 "vendor": "Synacor"
 },
@@ -11245,6 +11252,20 @@
 "ransomware": "Unknown",
 "vendor": "Arista"
 },
+"CVE-2026-114713": {
+"added": "2026-11-13",
+"name": "UnrealIRCd Improper Neutralization of Delimiters Vulnerability",
+"product": "UnrealIRCd",
+"ransomware": "Unknown",
+"vendor": "UnrealIRCd"
+},
+"CVE-2026-115731": {
+"added": "2026-11-17",
+"name": "Perforce Puppet Enterprise Deserialization of Untrusted Data Vulnerability",
+"product": "Puppet Enterprise",
+"ransomware": "Unknown",
+"vendor": "Perforce"
+},
 "CVE-2026-11645": {
 "added": "2026-06-09",
 "name": "Google Chromium V8 Out-of-Bounds Read and Write Vulnerability",
@@ -11279,6 +11300,13 @@
 "product": "WordPress Core",
 "ransomware": "Unknown",
 "vendor": "WordPress"
+},
+"CVE-2026-123039": {
+"added": "2026-11-13",
+"name": "Check Point Multiple Products Incorrect Permission Assignment for Critical Resource Vulnerability",
+"product": "Multiple Products",
+"ransomware": "Unknown",
+"vendor": "Check Point"
 },
 "CVE-2026-123158": {
 "added": "2026-11-09",
@@ -11346,7 +11374,7 @@
 "CVE-2026-1603": {
 "added": "2026-03-09",
 "name": "Ivanti Endpoint Manager (EPM) Authentication Bypass Vulnerability",
-"product": " Endpoint Manager (EPM)",
+"product": "Endpoint Manager (EPM)",
 "ransomware": "Unknown",
 "vendor": "Ivanti"
 },
@@ -11500,7 +11528,7 @@
 "CVE-2026-20349": {
 "added": "2026-08-11",
 "name": "Cisco Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD) Heap Inspection Vulnerability",
-"product": "Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD) ",
+"product": "Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD)",
 "ransomware": "Unknown",
 "vendor": "Cisco"
 },
@@ -11787,7 +11815,7 @@
 "CVE-2026-35273": {
 "added": "2026-06-12",
 "name": "Oracle PeopleSoft Enterprise PeopleTools Missing Authentication for Critical Function Vulnerability",
-"product": " PeopleSoft Enterprise PeopleTools",
+"product": "PeopleSoft Enterprise PeopleTools",
 "ransomware": "Known",
 "vendor": "Oracle"
 },
@@ -11825,6 +11853,13 @@
 "product": "Marimo",
 "ransomware": "Unknown",
 "vendor": "Marimo"
+},
+"CVE-2026-40217": {
+"added": "2026-11-18",
+"name": "BerriAI LiteLLM Unprotected Alternate Channel Vulnerability",
+"product": "LiteLLM",
+"ransomware": "Unknown",
+"vendor": "BerriAI"
 },
 "CVE-2026-41091": {
 "added": "2026-05-20",
@@ -11957,7 +11992,7 @@
 "name": "SimpleHelp Authentication Bypass Vulnerability",
 "product": "SimpleHelp",
 "ransomware": "Unknown",
-"vendor": "SimpleHelp "
+"vendor": "SimpleHelp"
 },
 "CVE-2026-48710": {
 "added": "2026-09-02",
@@ -11969,7 +12004,7 @@
 "CVE-2026-48907": {
 "added": "2026-06-16",
 "name": "Widget Factory Joomla Content Editor Improper Access Control Vulnerability",
-"product": "Joomla Content Editor ",
+"product": "Joomla Content Editor",
 "ransomware": "Unknown",
 "vendor": "Widget Factory"
 },
@@ -11996,7 +12031,7 @@
 },
 "CVE-2026-50522": {
 "added": "2026-07-22",
-"name": "Microsoft SharePoint Deserialization of Untrusted Data Vulnerability ",
+"name": "Microsoft SharePoint Deserialization of Untrusted Data Vulnerability",
 "product": "SharePoint",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
@@ -12031,7 +12066,7 @@
 },
 "CVE-2026-5430": {
 "added": "2026-09-24",
-"name": "WSO2 Multiple Products Path Traversal Vulnerability ",
+"name": "WSO2 Multiple Products Path Traversal Vulnerability",
 "product": "Multiple Products",
 "ransomware": "Unknown",
 "vendor": "WSO2"
@@ -12059,7 +12094,7 @@
 },
 "CVE-2026-56155": {
 "added": "2026-07-14",
-"name": "Microsoft Active Directory Federation Services Insufficient Granularity of Access Control Vulnerability ",
+"name": "Microsoft Active Directory Federation Services Insufficient Granularity of Access Control Vulnerability",
 "product": "Active Directory Federation Services",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
@@ -12186,7 +12221,7 @@
 "CVE-2026-68820": {
 "added": "2026-08-11",
 "name": "Microsoft Windows Ancillary Function Driver for WinSock Use-After-Free Vulnerability",
-"product": "Windows Ancillary Function Driver for WinSock ",
+"product": "Windows Ancillary Function Driver for WinSock",
 "ransomware": "Unknown",
 "vendor": "Microsoft"
 },
@@ -12199,8 +12234,8 @@
 },
 "CVE-2026-71362": {
 "added": "2026-09-24",
-"name": "Adobe Commerce and Magento Incorrect Authorization Vulnerability ",
-"product": "Commerce and Magento ",
+"name": "Adobe Commerce and Magento Incorrect Authorization Vulnerability",
+"product": "Commerce and Magento",
 "ransomware": "Unknown",
 "vendor": "Adobe"
 },
@@ -12273,6 +12308,15 @@
 "product": "Secure Email Gateway",
 "ransomware": "Unknown",
 "vendor": "Cisco"
+},
+"CVE-2026-76466": {
+"added": null,
+"checked": "2026-11-19",
+"name": null,
+"nvd_published": "2026-10-21",
+"product": null,
+"ransomware": null,
+"vendor": null
 },
 "CVE-2026-76504": {
 "added": "2026-09-30",
@@ -12457,6 +12501,20 @@
 "product": "NetScaler",
 "ransomware": "Unknown",
 "vendor": "Citrix"
+},
+"CVE-2026-90436": {
+"added": "2026-11-18",
+"name": "Apache Axis Unsafe Reflection Vulnerability",
+"product": "Axis",
+"ransomware": "Unknown",
+"vendor": "Apache"
+},
+"CVE-2026-90817": {
+"added": "2026-11-18",
+"name": "Vanderbilt University Research Electronic Data Capture (REDCap) Code Injection Vulnerability",
+"product": "Research Electronic Data Capture (REDCap)",
+"ransomware": "Unknown",
+"vendor": "Vanderbilt University"
 },
 "CVE-2026-9082": {
 "added": "2026-05-22",
