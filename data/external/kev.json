@@ -2266,7 +2266,7 @@
 },
 "CVE-2017-6079": {
 "added": null,
-"checked": "2026-10-20",
+"checked": "2026-11-20",
 "name": null,
 "nvd_published": "2017-05-16",
 "product": "edgemarc firmware",
@@ -3745,7 +3745,7 @@
 },
 "CVE-2019-5782": {
 "added": null,
-"checked": "2026-10-20",
+"checked": "2026-11-20",
 "name": null,
 "nvd_published": "2019-02-19",
 "product": "chrome",
@@ -4636,7 +4636,7 @@
 },
 "CVE-2020-36195": {
 "added": null,
-"checked": "2026-10-20",
+"checked": "2026-11-20",
 "name": null,
 "nvd_published": "2021-04-17",
 "product": "qts",
@@ -7634,7 +7634,7 @@
 },
 "CVE-2023-24059": {
 "added": null,
-"checked": "2026-10-20",
+"checked": "2026-11-20",
 "name": null,
 "nvd_published": "2023-01-22",
 "product": "grand theft auto v",
@@ -7825,7 +7825,7 @@
 },
 "CVE-2023-29059": {
 "added": null,
-"checked": "2026-10-20",
+"checked": "2026-11-20",
 "name": null,
 "nvd_published": "2023-03-30",
 "product": "3cx",
