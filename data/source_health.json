@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-20T15:29:05+00:00",
+  "run_at": "2026-11-21T14:41:32+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 74,
+      "hhs": 69,
+      "maine_ag": 0,
+      "california_ag": 81,
+      "texas_ag": 100,
+      "washington_ag": 17,
+      "vermont_ag": 113,
+      "oregon_doj": 26,
+      "south_carolina": 16,
+      "hibp": 6,
+      "ransomware_live": 100,
+      "rss": 24,
+      "mastodon": 29
+    },
+    "previous_counts": {
       "sec_edgar": 75,
       "hhs": 70,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 17,
       "mastodon": 21
     },
-    "previous_counts": {
-      "sec_edgar": 79,
-      "hhs": 70,
-      "maine_ag": 0,
-      "california_ag": 77,
-      "texas_ag": 100,
-      "washington_ag": 18,
-      "vermont_ag": 112,
-      "oregon_doj": 26,
-      "south_carolina": 16,
-      "hibp": 5,
-      "ransomware_live": 100,
-      "rss": 16,
-      "mastodon": 26
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,14 +39,20 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.al.com/news/index.ssf/2016/06/bentley_fires_high-ranking_fin.html"
+      "https://www.databreaches.net/data-breach-at-annapolis-parking-garages-possible-city/;"
     ],
     "dead_rate": 0.05
   },
   "quotes": {
-    "checked": 14,
-    "confirmed": 14,
-    "missing": [],
-    "unfetchable": 6
+    "checked": 20,
+    "confirmed": 19,
+    "missing": [
+      {
+        "id": "e143c2fa2c279b51a185838c3141ba826fb88b3b",
+        "org": "FlipaClip",
+        "url": "https://haveibeenpwned.com/Breach/FlipaClip"
+      }
+    ],
+    "unfetchable": 0
   }
 }
