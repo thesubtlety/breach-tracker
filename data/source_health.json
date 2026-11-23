@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-22T14:35:26+00:00",
+  "run_at": "2026-11-23T18:06:39+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 62,
+      "hhs": 69,
+      "maine_ag": 0,
+      "california_ag": 75,
+      "texas_ag": 99,
+      "washington_ag": 16,
+      "vermont_ag": 107,
+      "oregon_doj": 25,
+      "south_carolina": 16,
+      "hibp": 7,
+      "ransomware_live": 100,
+      "rss": 18,
+      "mastodon": 21
+    },
+    "previous_counts": {
       "sec_edgar": 62,
       "hhs": 69,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 22,
       "mastodon": 32
     },
-    "previous_counts": {
-      "sec_edgar": 74,
-      "hhs": 69,
-      "maine_ag": 0,
-      "california_ag": 81,
-      "texas_ag": 100,
-      "washington_ag": 17,
-      "vermont_ag": 113,
-      "oregon_doj": 26,
-      "south_carolina": 16,
-      "hibp": 6,
-      "ransomware_live": 100,
-      "rss": 24,
-      "mastodon": 29
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,37 +39,23 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.baynews9.com/content/news/baynews9/news/article.html/content/news/articles/bn9/2014/4/4/polk_school_employee.html",
-      "http://archives.sfexaminer.com/sanfrancisco/sf-general-hospital-patient-information-involved-in-security-breach/Content?oid=2922736",
-      "http://www.chicagotribune.com/business/breaking/chi-assisted-living-data-breach-20140312,0,7486040.story"
+      "http://www.wdbj7.com/blob/view/-/25290570/data/1/-/2ugmwlz/-/Letter-informing-LewisGale-patient-about-data-breach.pdf",
+      "http://www.rawstory.com/rs/2014/01/03/anonymous-hackers-deface-mississippi-based-white-pride-website-with-anti-fascist-message/",
+      "http://www.mcphersonsentinel.com/news/20170817/security-incident-at-salina-family-healthcare-center",
+      "http://www.zaxbys.com/zaxbys_news/newz_releases/newz_item/13-01-11/ZAXBY_S_LOCATIONS_IDENTIFY_DATA_SECURITY_BREACH.aspx,"
     ],
-    "dead_rate": 0.15
+    "dead_rate": 0.2
   },
   "quotes": {
-    "checked": 20,
-    "confirmed": 16,
+    "checked": 19,
+    "confirmed": 18,
     "missing": [
       {
-        "id": "185e05664d634f73f3582210db8c24c727b970c9",
-        "org": "Flora Springs Winery & Vineyards",
-        "url": "https://oag.ca.gov/system/files/Flora%20Springs_eCellars%20Breach%20Notification%20Letter%20FINAL_0.pdf"
-      },
-      {
-        "id": "8ff2228e14ead959e65a9ca293e96cd2c2cb524f",
-        "org": "Lowe's",
-        "url": "https://oag.ca.gov/system/files/Lowes%205-19-14%20Notice%20Letter_1.pdf"
-      },
-      {
-        "id": "f626e3f0622c8c9e93e2eac8dc919fbbd2d89ec0",
-        "org": "University of Southern California",
-        "url": "https://oag.ca.gov/system/files/USC%20NOTICE%20FINAL%2006.28.12_2.pdf"
-      },
-      {
-        "id": "d051233a7f16b6ee50597a08f01d62129b6168f4",
-        "org": "Tim McCoy & Associates",
-        "url": "https://oag.ca.gov/system/files/TMA%20Contact%20Specific%20Sample_0.pdf"
+        "id": "45f8207bf9e73004de29b36b5e7d02c40a795d16",
+        "org": "Dynamic Networks",
+        "url": "https://therecord.media/lockbit-ransomware-group-attacks-ohio-towns-court-police-department-and-more/"
       }
     ],
-    "unfetchable": 0
+    "unfetchable": 1
   }
 }
