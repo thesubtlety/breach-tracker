@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-23T18:06:39+00:00",
+  "run_at": "2026-11-24T17:42:54+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 62,
+      "hhs": 66,
+      "maine_ag": 0,
+      "california_ag": 76,
+      "texas_ag": 100,
+      "washington_ag": 16,
+      "vermont_ag": 105,
+      "oregon_doj": 26,
+      "south_carolina": 17,
+      "hibp": 7,
+      "ransomware_live": 100,
+      "rss": 22,
+      "mastodon": 20
+    },
+    "previous_counts": {
       "sec_edgar": 62,
       "hhs": 69,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 18,
       "mastodon": 21
     },
-    "previous_counts": {
-      "sec_edgar": 62,
-      "hhs": 69,
-      "maine_ag": 0,
-      "california_ag": 77,
-      "texas_ag": 100,
-      "washington_ag": 17,
-      "vermont_ag": 107,
-      "oregon_doj": 26,
-      "south_carolina": 16,
-      "hibp": 6,
-      "ransomware_live": 100,
-      "rss": 22,
-      "mastodon": 32
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,23 +39,17 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://www.wdbj7.com/blob/view/-/25290570/data/1/-/2ugmwlz/-/Letter-informing-LewisGale-patient-about-data-breach.pdf",
-      "http://www.rawstory.com/rs/2014/01/03/anonymous-hackers-deface-mississippi-based-white-pride-website-with-anti-fascist-message/",
-      "http://www.mcphersonsentinel.com/news/20170817/security-incident-at-salina-family-healthcare-center",
-      "http://www.zaxbys.com/zaxbys_news/newz_releases/newz_item/13-01-11/ZAXBY_S_LOCATIONS_IDENTIFY_DATA_SECURITY_BREACH.aspx,"
+      "https://www.hipaajournal.com/lane-county-health-human-services-new-england-dermatology-breach/",
+      "http://kstp.com/news/hcmc-employee-identity-theft-plea-patients-credit-cards/4268671/",
+      "http://www.richmondregister.com/news/local_news/medical-records-found-in-dumpster/article_fc9a1aea-08c4-11e5-9ac2-3719e02bd1fb.html",
+      "http://www.health.wyo.gov/news.aspx?NewsID=677"
     ],
     "dead_rate": 0.2
   },
   "quotes": {
     "checked": 19,
-    "confirmed": 18,
-    "missing": [
-      {
-        "id": "45f8207bf9e73004de29b36b5e7d02c40a795d16",
-        "org": "Dynamic Networks",
-        "url": "https://therecord.media/lockbit-ransomware-group-attacks-ohio-towns-court-police-department-and-more/"
-      }
-    ],
+    "confirmed": 19,
+    "missing": [],
     "unfetchable": 1
   }
 }
