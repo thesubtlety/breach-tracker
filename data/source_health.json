@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-24T17:42:54+00:00",
+  "run_at": "2026-11-25T17:13:56+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 63,
+      "hhs": 60,
+      "maine_ag": 0,
+      "california_ag": 77,
+      "texas_ag": 109,
+      "washington_ag": 16,
+      "vermont_ag": 105,
+      "oregon_doj": 26,
+      "south_carolina": 17,
+      "hibp": 7,
+      "ransomware_live": 100,
+      "rss": 26,
+      "mastodon": 28
+    },
+    "previous_counts": {
       "sec_edgar": 62,
       "hhs": 66,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 22,
       "mastodon": 20
     },
-    "previous_counts": {
-      "sec_edgar": 62,
-      "hhs": 69,
-      "maine_ag": 0,
-      "california_ag": 75,
-      "texas_ag": 99,
-      "washington_ag": 16,
-      "vermont_ag": 107,
-      "oregon_doj": 25,
-      "south_carolina": 16,
-      "hibp": 7,
-      "ransomware_live": 100,
-      "rss": 18,
-      "mastodon": 21
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,17 +39,21 @@
   "links": {
     "checked": 20,
     "dead": [
-      "https://www.hipaajournal.com/lane-county-health-human-services-new-england-dermatology-breach/",
-      "http://kstp.com/news/hcmc-employee-identity-theft-plea-patients-credit-cards/4268671/",
-      "http://www.richmondregister.com/news/local_news/medical-records-found-in-dumpster/article_fc9a1aea-08c4-11e5-9ac2-3719e02bd1fb.html",
-      "http://www.health.wyo.gov/news.aspx?NewsID=677"
+      "https://www.cbc.ca/news/canada/manitoba/doctor-phishing-scam-college-physicians-1.5458458",
+      "http://www.itemlive.com/news/lynn-tax-preparer-sentenced-on-fraud-identity-theft-charges/article_112047ee-06c1-11e3-8e85-0019bb2963f4.html"
     ],
-    "dead_rate": 0.2
+    "dead_rate": 0.1
   },
   "quotes": {
-    "checked": 19,
+    "checked": 20,
     "confirmed": 19,
-    "missing": [],
-    "unfetchable": 1
+    "missing": [
+      {
+        "id": "55a0b45044a06d10a5cf7cb81f926a95d9498821",
+        "org": "Luxottica",
+        "url": "https://haveibeenpwned.com/Breach/Luxottica"
+      }
+    ],
+    "unfetchable": 0
   }
 }
