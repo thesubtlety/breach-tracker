@@ -7683,6 +7683,20 @@
 "ransomware": "Unknown",
 "vendor": "Ruckus Wireless"
 },
+"CVE-2023-25914": {
+"added": "2026-11-25",
+"name": "Danfoss AK-SM 800A Series Path Traversal Vulnerability",
+"product": "AK-SM 800A Series",
+"ransomware": "Unknown",
+"vendor": "Danfoss"
+},
+"CVE-2023-25915": {
+"added": "2026-11-25",
+"name": "Danfoss AK-SM 800A Series Improper Input Validation Vulnerability",
+"product": "AK-SM 800A Series",
+"ransomware": "Unknown",
+"vendor": "Danfoss"
+},
 "CVE-2023-26083": {
 "added": "2023-04-07",
 "name": "Arm Mali GPU Kernel Driver Information Disclosure Vulnerability",
@@ -8622,7 +8636,7 @@
 "added": "2026-11-18",
 "name": "Synology DiskStation Manager (DSM) Improper Encoding or Escaping of Output Vulnerability",
 "product": "DiskStation Manager (DSM)",
-"ransomware": "Unknown",
+"ransomware": "Known",
 "vendor": "Synology"
 },
 "CVE-2024-1086": {
@@ -10531,12 +10545,26 @@
 "ransomware": "Unknown",
 "vendor": "Broadcom"
 },
+"CVE-2025-41450": {
+"added": "2026-11-25",
+"name": "Danfoss AK-SM 800A Series Improper Authentication Vulnerability",
+"product": "AK-SM 800A Series",
+"ransomware": "Unknown",
+"vendor": "Danfoss"
+},
 "CVE-2025-42599": {
 "added": "2025-04-28",
 "name": "Qualitia Active! Mail Stack-Based Buffer Overflow Vulnerability",
 "product": "Active! Mail",
 "ransomware": "Unknown",
 "vendor": "Qualitia"
+},
+"CVE-2025-42884": {
+"added": "2026-11-20",
+"name": "SAP NetWeaver Improper Neutralization of Special Elements in Data Query Logic Vulnerability",
+"product": "NetWeaver",
+"ransomware": "Unknown",
+"vendor": "SAP"
 },
 "CVE-2025-42999": {
 "added": "2025-05-15",
@@ -11147,6 +11175,13 @@
 "ransomware": "Unknown",
 "vendor": "GPUStack"
 },
+"CVE-2026-103406": {
+"added": "2026-11-25",
+"name": "Hewlett Packard Enterprise (HPE) Juniper Session Smart Conductor and Session Smart Router OS Command Injection Vulnerability",
+"product": "Juniper Session Smart Conductor and Session Smart Router",
+"ransomware": "Unknown",
+"vendor": "Hewlett Packard Enterprise (HPE)"
+},
 "CVE-2026-104286": {
 "added": "2026-10-01",
 "name": "Fortinet FortiMail Path Traversal Vulnerability",
@@ -11322,6 +11357,13 @@
 "ransomware": "Unknown",
 "vendor": "IBM"
 },
+"CVE-2026-123890": {
+"added": "2026-11-20",
+"name": "VMWare vCenter Authentication Bypass Using an Alternate Path or Channel Vulnerability",
+"product": "VMware vCenter",
+"ransomware": "Unknown",
+"vendor": "Broadcom"
+},
 "CVE-2026-124194": {
 "added": "2026-11-10",
 "name": "Microsoft Office Outlook Missing User Interaction for Potentially Unsafe Action Vulnerability",
@@ -11350,12 +11392,105 @@
 "ransomware": "Unknown",
 "vendor": "Ivanti"
 },
+"CVE-2026-129448": {
+"added": "2026-11-20",
+"name": "Apache Roller Deserialization of Untrusted Data Vulnerability",
+"product": "Roller",
+"ransomware": "Unknown",
+"vendor": "Apache"
+},
+"CVE-2026-129514": {
+"added": null,
+"checked": "2026-11-27",
+"name": null,
+"nvd_published": "2026-11-24",
+"product": null,
+"ransomware": null,
+"vendor": null
+},
+"CVE-2026-131914": {
+"added": "2026-11-24",
+"name": "Idunno AntiCsrf Deserialization of Untrusted Data Vulnerability",
+"product": "AntiCsrf",
+"ransomware": "Unknown",
+"vendor": "Idunno"
+},
+"CVE-2026-132165": {
+"added": "2026-11-24",
+"name": "Drupal Core Remote Code Execution Vulnerability",
+"product": "Core",
+"ransomware": "Unknown",
+"vendor": "Drupal"
+},
+"CVE-2026-132224": {
+"added": "2026-11-24",
+"name": "Optimizely Web Experimentation External Control of Critical State Data Vulnerability",
+"product": "Web Experimentation",
+"ransomware": "Unknown",
+"vendor": "Optimizely"
+},
+"CVE-2026-133275": {
+"added": "2026-11-25",
+"name": "Mitel MiCollab Unrestricted Upload of File with Dangerous Type Vulnerability",
+"product": "MiCollab",
+"ransomware": "Unknown",
+"vendor": "Mitel"
+},
+"CVE-2026-133303": {
+"added": "2026-11-25",
+"name": "Mitel MiCollab XML Injection Vulnerability",
+"product": "MiCollab",
+"ransomware": "Unknown",
+"vendor": "Mitel"
+},
+"CVE-2026-133311": {
+"added": "2026-11-25",
+"name": "Mitel MiCollab Weak Authentication Vulnerability",
+"product": "MiCollab",
+"ransomware": "Unknown",
+"vendor": "Mitel"
+},
+"CVE-2026-133323": {
+"added": "2026-11-25",
+"name": "Mitel MiCollab OS Command Injection Vulnerability",
+"product": "MiCollab",
+"ransomware": "Unknown",
+"vendor": "Mitel"
+},
+"CVE-2026-133324": {
+"added": "2026-11-25",
+"name": "Mitel MiCollab Not Failing Securely Vulnerability",
+"product": "MiCollab",
+"ransomware": "Unknown",
+"vendor": "Mitel"
+},
+"CVE-2026-133469": {
+"added": "2026-11-25",
+"name": "Vates Xen Orchestra Improper Validation of Specified Type of Input Vulnerability",
+"product": "Xen Orchestra",
+"ransomware": "Unknown",
+"vendor": "Vates"
+},
+"CVE-2026-133968": {
+"added": "2026-11-23",
+"name": "Project MONAI MONAI Label Path Traversal Vulnerability",
+"product": "MONAI Label",
+"ransomware": "Unknown",
+"vendor": "Project MONAI"
+},
 "CVE-2026-1340": {
 "added": "2026-04-08",
 "name": "Ivanti Endpoint Manager Mobile (EPMM) Code Injection Vulnerability",
 "product": "Endpoint Manager Mobile (EPMM)",
 "ransomware": "Unknown",
 "vendor": "Ivanti"
+},
+"CVE-2026-134624": {
+"added": "2026-11-23",
+"name": "N-able MailAssure (SpamExperts) Server-Side Request Forgery (SSRF) Vulnerability",
+"product": "MailAssure",
+"ransomware": "Unknown",
+"vendor": "N-able"
 },
 "CVE-2026-15409": {
 "added": "2026-07-14",
@@ -12310,13 +12445,11 @@
 "vendor": "Cisco"
 },
 "CVE-2026-76466": {
-"added": null,
-"checked": "2026-11-19",
-"name": null,
-"nvd_published": "2026-10-21",
-"product": null,
-"ransomware": null,
-"vendor": null
+"added": "2026-11-20",
+"name": "Cisco Expressway Series Use of Hard-coded Credentials Vulnerability",
+"product": "Expressway Series",
+"ransomware": "Unknown",
+"vendor": "Cisco"
 },
 "CVE-2026-76504": {
 "added": "2026-09-30",

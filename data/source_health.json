@@ -1,7 +1,22 @@
 {
-  "run_at": "2026-11-26T16:55:50+00:00",
+  "run_at": "2026-11-27T16:39:31+00:00",
   "health": {
     "counts": {
+      "sec_edgar": 54,
+      "hhs": 53,
+      "maine_ag": 0,
+      "california_ag": 75,
+      "texas_ag": 109,
+      "washington_ag": 14,
+      "vermont_ag": 99,
+      "oregon_doj": 25,
+      "south_carolina": 15,
+      "hibp": 6,
+      "ransomware_live": 100,
+      "rss": 21,
+      "mastodon": 23
+    },
+    "previous_counts": {
       "sec_edgar": 61,
       "hhs": 59,
       "maine_ag": 0,
@@ -16,21 +31,6 @@
       "rss": 21,
       "mastodon": 26
     },
-    "previous_counts": {
-      "sec_edgar": 63,
-      "hhs": 60,
-      "maine_ag": 0,
-      "california_ag": 77,
-      "texas_ag": 109,
-      "washington_ag": 16,
-      "vermont_ag": 105,
-      "oregon_doj": 26,
-      "south_carolina": 17,
-      "hibp": 7,
-      "ransomware_live": 100,
-      "rss": 26,
-      "mastodon": 28
-    },
     "problems": [
       "maine_ag: zero candidates two runs in a row"
     ],
@@ -39,28 +39,32 @@
   "links": {
     "checked": 20,
     "dead": [
-      "http://doj.nh.gov/consumer/security-breaches/documents/fujifilm-recording-20120917.pdf",
-      "https://www.databreaches.net/reddit-discloses-a-breach/",
-      "https://fox4kc.com/2018/11/21/after-skimmer-found-on-independence-atm-experts-offer-tips-for-keeping-card-info-safe/",
-      "https://www.healthimaging.com/topics/practice-management/radiology-employee-loses-file-data-26-patients"
+      "https://www.bleepingcomputer.com/news/security/computer-hardware-giant-gigabyte-hit-by-ransomexx-ransomware/;",
+      "https://databreaches.net/2026/11/26/australias-flight-centre-data-breach-exposes-customer-records-and-passport-details/",
+      "http://www.wearecentralpa.com/news/patient-info-taken-from-medical-center"
     ],
-    "dead_rate": 0.2
+    "dead_rate": 0.15
   },
   "quotes": {
-    "checked": 20,
-    "confirmed": 18,
+    "checked": 18,
+    "confirmed": 15,
     "missing": [
       {
-        "id": "9489cec28cde08347720d60a99ff2dceb7947abe",
-        "org": "Health Now Networks",
-        "url": "https://haveibeenpwned.com/Breach/HealthNowNetworks"
+        "id": "8ff2228e14ead959e65a9ca293e96cd2c2cb524f",
+        "org": "Lowe's",
+        "url": "https://oag.ca.gov/system/files/Lowes%205-19-14%20Notice%20Letter_1.pdf"
       },
       {
-        "id": "a31eefd7348bf2d0744b63d4b1f5dff4cc552375",
-        "org": "Troy Hunt",
-        "url": "https://haveibeenpwned.com/Breach/TroyHuntMailchimpList"
+        "id": "c9e9ec0d6d815c154b63adfdbe7f659f2ace59be",
+        "org": "Alliance Health Networks, LLC",
+        "url": "https://oag.ca.gov/system/files/B7126_MINOR_PRF_0.PDF"
+      },
+      {
+        "id": "f2f0fc749b71d5387d339114d51afba63f86ac8b",
+        "org": "Solera Holdings, Inc.",
+        "url": "https://agportal-s3bucket.s3.amazonaws.com/databreach/BreachM9698.pdf"
       }
     ],
-    "unfetchable": 0
+    "unfetchable": 2
   }
 }
